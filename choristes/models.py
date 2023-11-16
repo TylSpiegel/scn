@@ -198,10 +198,3 @@ class ChoristesPage(Page):
         FieldPanel('body'),
     ]
 
-
-class ChoristesIndexPage(Page):
-    intro = RichTextField(blank=True)
-
-    content_panels = Page.content_panels + [
-        FieldPanel('intro')
-    ]
