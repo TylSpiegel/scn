@@ -1,0 +1,22 @@
+{% load wagtailimages_tags wagtailcore_tags %}
+<div class="custom-block">
+    <h2>{{ self.titre }}</h2>
+    <h3>Composé par : <strong>{{self.compositeur}}</strong></h3>
+    <div class="text">{{ self.descr }}</div>
+
+    {% if self.document_pdf %}
+        <a href="{{ self.document_pdf.url }}" target="_blank">Télécharger le PDF</a>
+    {% endif %}
+
+    <div class="audio-documents">
+        {% for audio in self.documents_audio %}
+            {% include_block audio %}
+        {% endfor %}
+    </div>
+
+    <div class="additional-text-fields">
+        {% for text_block in self.champs_texte_supplementaires %}
+            <div class="additional-text">{{ text_block }}</div>
+        {% endfor %}
+    </div>
+</div>
