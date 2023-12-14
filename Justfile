@@ -6,7 +6,7 @@ refresh:
     just runserver
 
 venv:
-    source venv/bin/activate
+    source ./venv/bin/activate
 
 migrate: venv
     python manage.py migrate

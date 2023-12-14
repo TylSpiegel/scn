@@ -5,24 +5,29 @@
 
 	<a href="..">Revenir à la page des morceaux</a>
 	<div class="section"></div>
+	<div class="flex flex-wrap">
+    <div class="w-1/5">
+		<div id="toc" class="toc bg-white shadow-lg rounded-lg p-4 m-2 max-w-[200px] sticky top-10">
+			<ul class="list-none space-y-2">
+				<li><a href="#title" class="toc-link text-2xl hover:text-gray-800 transition duration-300">{{page.title}}</a></li>
+				<li><a href="#files" class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Fichiers</a></li>
+				<li><a href="#traduction" class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Texte et traduction</a></li>
+				<li><a href="#interpretation" class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Interprétation</a></li>
+			</ul>
+		</div>
+    </div>
 
-	<div class="flex">
-		<div class="tab">Base</div>
-		<div class="tab">Texte</div>
-		<div class="tab">Interprétation</div>
-	</div>
-
-
-	<div class="container">
-		<section class="section">
-			<h1>{{ page.title }}</h1>
+	<div class="container w-4/5">
+		<section id="title" class="section">
+			<div class="box p-4 bg-amber-700 text-white text-5xl">
+			<h1 class="mt-2">{{ page.title }}</h1>
 			<h3>Composé par : <strong>{{ self.compositeur }}</strong></h3>
+				</div>
 		</section>
-
 
 		<!-- ################        PDF           ################        -->
 
-		<div class="content">
+		<section id="files" class="content bg-amber-200 p-4 rounded">
 
 			{% if page.pdf %}
 				<section class="section">
@@ -41,23 +46,23 @@
 				{% endfor %}
 			</ul>
 
-		</div>
-
+		</section>
 
 		{% if page.traduction %}
-			<hr>
-			<section class="section">
+			<section id="traduction" class="content section bg-amber-200 p-4 rounded">
 				<h3>Commentaires sur la chanson</h3>
 				<div class="text">{{ page.descr|richtext }}</div>
 				<iframe srcdoc="{{ page.desr|richtext }}"></iframe>
 			</section>
 			<hr>
-			<section>
+			<section id="interpretation" class="content section bg-amber-200 p-4 rounded">
 				<h2>Traduction</h2>
 				{{ page.traduction|richtext }}
 			</section>
 		{% endif %}
 	</div>
+	</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -114,25 +119,29 @@
 	</script>
 
 	<script>
-        document.querySelectorAll('.tab').forEach((tab, index) => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.content').forEach((content, i) => {
-                    content.style.display = i === index ? 'block' : 'none';
-                });
-            });
-        });
+		const classes = {
+			active : 'tab inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg dark:text-blue-500 dark:border-blue-500',
+			inactive : 'tab inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
+		}
+
+		window.addEventListener('scroll', () => {
+		  document.querySelectorAll('.content').forEach((section) => {
+			const top = window.scrollY;
+			const offset = section.offsetTop;
+			const height = section.offsetHeight;
+			const id = section.getAttribute('id');
+
+			if (top >= offset && top < offset + height) {
+			  document.querySelector('.toc a[href*=' + id + ']').classList.add('active');
+			} else {
+			  document.querySelector('.toc a[href*=' + id + ']').classList.remove('active');
+			}
+		  });
+		});
+
 	</script>
+
+	<style>
+
+	</style>
 {% endblock %}
-
-
-<style>
-
-    .tab {
-        @apply cursor-pointer p-4;
-    }
-
-    .content {
-        @apply p-4 border;
-    }
-
-</style>

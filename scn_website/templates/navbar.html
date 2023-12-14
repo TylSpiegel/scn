@@ -1,31 +1,23 @@
 {% load static wagtailcore_tags wagtailuserbar %}
 
-<nav class="navigation">
-	<section class="container">
-		<a class="navigation-title" href="/">
-			<img src="{% static 'medias/logo-scn.jpg' %}" alt="Logo" style="height: 40px;">
-		</a>
-		<ul class="navigation-list float-right">
-			<li class="navigation-item"><a href="#">Accueil</a></li>
-			<li class="navigation-item"><a href="#">À propos</a></li>
-			<li class="navigation-item"><a href="#">Services</a></li>
-			<li class="navigation-item"><a href="/choristes">Choristes</a></li>
-		</ul>
-	</section>
-</nav>
+<nav class="bg-pink-400 overflow-hidden">
+	<div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+		<div class="relative flex h-24 items-center justify-center">
 
-<!--
-    <div class="navbar">
-      <div class="nav-left">
-        <div class="nav-item">Calendrier</div>
-        <div class="nav-item">About</div>
-      </div>
-      <div class="logo">
-          <a href="/"><img src="{% static 'medias/logo-scn.jpg' %}" alt="Logo"></a>
-      </div>
-      <div class="nav-right">
-        <div class="nav-item">Le chef</div>
-        <div class="nav-item"><a href="/choristes" style="color:inherit">Choristes</a></div>
-      </div>
-    </div>
--->
+            <div class="hidden sm:ml-6 sm:block">
+          <div class="flex space-x-4">
+            <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+            <a href="/" class="bg-gray-700 text-white hover:text-black hover:bg-yellow-400 rounded-md px-3 py-2 my-4 text-2xl font-medium h-12" aria-current="page">Accueil</a>
+            <a href="/chants" class="bg-gray-700 text-white hover:bg-sky-400 hover:text-black rounded-md px-3 py-2 my-4 text-2xl font-medium  h-12">Chants</a>
+
+              <div class="">
+              <a href="/"> <img src="{% static 'medias/logo-scn.jpg' %}" alt="Logo" class="h-24" /></a>
+              </div>
+
+            <a href="/calendrier" class="bg-gray-700 text-white hover:bg-cyan-300 hover:text-black rounded-md px-3 py-2 my-4 text-2xl font-medium  h-12">Calendrier</a>
+            <a href="/actus" class="bg-gray-700 text-white hover:bg-emerald-400 hover:text-white rounded-md px-3 py-2 text-2xl my-4 font-medium  h-12">Actus</a>
+          </div>
+        </div>
+		</div>
+	</div>
+</nav>
