@@ -1,0 +1,10 @@
+{% load wagtailimages_tags %}
+
+<div class="image-block">
+    {% if self.image %}
+        {% image self.image width-640 %}
+    {% endif %}
+    {% if self.caption %}
+        <p class="caption">{{ self.caption }}</p>
+    {% endif %}
+</div>
