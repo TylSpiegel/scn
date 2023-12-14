@@ -1,14 +1,53 @@
 from wagtail import blocks
 from wagtail.documents.blocks import DocumentChooserBlock
-
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 
 class AudioDocumentBlock(blocks.StructBlock):
     # Vous pouvez ajouter des attributs supplémentaires si nécessaire
+    CHOICES = (
+        ('tutti', 'Tutti'),
+        ('soprano', 'Soprano'),
+        ('alto', 'Alto'),
+        ('tenor', 'Ténor'),
+        ('bass', 'Basse'),
+    )
+    pupitre = blocks.ChoiceBlock(
+        choices=CHOICES,
+        default='tutti',
+        required=False
+    )
+    custom_pupitre = blocks.CharBlock(
+        required=False,
+        help_text="Entrer une valeur ici annule le champ ci-dessus.",
+    )
     audio = DocumentChooserBlock(required=False, help_text="Sélectionnez un fichier audio")
+    comment = blocks.CharBlock(required=False, max_length=255, help_text="Un petit mot ?")
+
+    def clean(self, value):
+        cleaned_data = super().clean(value)
+        pupitre = cleaned_data.get('pupitre')
+        custom = cleaned_data.get('custom_pupitre')
+
+        if custom:
+            cleaned_data['pupitre'] = custom
+        elif not pupitre:
+            raise ValidationError('Vous devez sélectionner une option ou fournir une valeur personnalisée.')
+
+        return cleaned_data
 
     class Meta:
         icon = "media"
         template = "blocks/audio_file.html"
+        form_classname = "struct-block"
+
+        edit_handler = MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('pupitre'),
+                FieldPanel('custom_pupitre'),
+            ]),
+            FieldPanel('audio'),
+            FieldPanel('comment'),
+        ], heading="Détails de l'Audio Document")
 
 
 class MorceauBlock(blocks.StructBlock):

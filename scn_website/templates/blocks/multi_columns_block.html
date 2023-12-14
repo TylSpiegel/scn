@@ -1,0 +1,12 @@
+{% load wagtailcore_tags %}
+{% load static %}
+
+<div class="box">
+    <div class="container">
+        <div class="columns">
+        {% for column in self %}
+                {% include_block column %}
+        {% endfor %}
+        </div>
+    </div>
+</div>

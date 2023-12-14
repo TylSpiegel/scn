@@ -1,0 +1,31 @@
+{% load static wagtailcore_tags wagtailuserbar %}
+
+<nav class="navigation">
+	<section class="container">
+		<a class="navigation-title" href="/">
+			<img src="{% static 'medias/logo-scn.jpg' %}" alt="Logo" style="height: 40px;">
+		</a>
+		<ul class="navigation-list float-right">
+			<li class="navigation-item"><a href="#">Accueil</a></li>
+			<li class="navigation-item"><a href="#">À propos</a></li>
+			<li class="navigation-item"><a href="#">Services</a></li>
+			<li class="navigation-item"><a href="/choristes">Choristes</a></li>
+		</ul>
+	</section>
+</nav>
+
+<!--
+    <div class="navbar">
+      <div class="nav-left">
+        <div class="nav-item">Calendrier</div>
+        <div class="nav-item">About</div>
+      </div>
+      <div class="logo">
+          <a href="/"><img src="{% static 'medias/logo-scn.jpg' %}" alt="Logo"></a>
+      </div>
+      <div class="nav-right">
+        <div class="nav-item">Le chef</div>
+        <div class="nav-item"><a href="/choristes" style="color:inherit">Choristes</a></div>
+      </div>
+    </div>
+-->

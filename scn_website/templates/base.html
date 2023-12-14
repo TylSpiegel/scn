@@ -2,61 +2,56 @@
 
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="utf-8" />
-        <title>
-            {% block title %}
-            {% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %}
-            {% endblock %}
-            {% block title_suffix %}
-            {% wagtail_site as current_site %}
-            {% if current_site and current_site.site_name %}- {{ current_site.site_name }}{% endif %}
-            {% endblock %}
-        </title>
-        {% if page.search_description %}
-        <meta name="description" content="{{ page.search_description }}" />
-        {% endif %}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+	<meta charset="utf-8"/>
+	<title>
+		{% block title %}
+			{% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %}
+		{% endblock %}
+		{% block title_suffix %}
+			{% wagtail_site as current_site %}
+			{% if current_site and current_site.site_name %}- {{ current_site.site_name }}{% endif %}
+		{% endblock %}
+	</title>
+	{% if page.search_description %}
+		<meta name="description" content="{{ page.search_description }}"/>
+	{% endif %}
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-        {# Force all links in the live preview panel to be opened in a new tab #}
-        {% if request.in_preview_panel %}
-        <base target="_blank">
-        {% endif %}
+	{# Force all links in the live preview panel to be opened in a new tab #}
+	{% if request.in_preview_panel %}
+		<base target="_blank">
+	{% endif %}
 
-        {# Global stylesheets #}
-        <link rel="stylesheet" href="{% static 'css/scn_website.css' %}" type="text/css">
-        {% block extra_css %}
-        {# Override this in templates to add extra stylesheets #}
-        {% endblock %}
-    </head>
+	{# Global stylesheets #}
+	<script src=" https://cdn.jsdelivr.net/npm/picnic@7.1.0/Gruntfile.min.js "></script>
+	<link href=" https://cdn.jsdelivr.net/npm/picnic@7.1.0/picnic.min.css " rel="stylesheet">
 
-    <body class="{% block body_class %}{% endblock %}">
+	<link rel="stylesheet" href="{% static 'css/scn_website.css' %}" type="text/css">
+	{% block extra_css %}
+		<!--
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+		-->
+	{% endblock %}
+</head>
 
-  <!-- Navigation Bar -->
-    <div class="navbar">
-      <div class="nav-left">
-        <div class="nav-item">Calendrier</div>
-        <div class="nav-item">About</div>
-      </div>
-      <div class="logo">
-          <a href="/"><img src="{% static 'medias/logo-scn.jpg' %}" alt="Logo"></a>
-      </div>
-      <div class="nav-right">
-        <div class="nav-item">Le chef</div>
-        <div class="nav-item"><a href="/choristes" style="color:inherit">Choristes</a></div>
-      </div>
-    </div>
+<body class="{% block body_class %}{% endblock %}">
 
+<!-- Navigation Bar -->
 
-        {% wagtailuserbar %}
+{% include "navbar.html" %}
 
-        {% block content %}{% endblock %}
+{% wagtailuserbar %}
 
-        {# Global javascript #}
-        <script type="text/javascript" src="{% static 'js/scn_website.js' %}"></script>
+{% block content %}{% endblock %}
 
-        {% block extra_js %}
-        {% endblock %}
-    </body>
+{# Global javascript #}
+<script type="text/javascript" src="{% static 'js/scn_website.js' %}"></script>
+
+{% block extra_js %}
+{% endblock %}
+</body>
 
 </html>

@@ -2,97 +2,137 @@
 {% load wagtailimages_tags wagtailcore_tags static %}
 
 {% block content %}
-<a href="..">Revenir à la page des morceaux</a>
-<div class="container">
-    <section class="section">
-        <h1>{{ page.title }}</h1>
-            <h3>Composé par : <strong>{{self.compositeur}}</strong></h3>
-    </section>
+
+	<a href="..">Revenir à la page des morceaux</a>
+	<div class="section"></div>
+
+	<div class="flex">
+		<div class="tab">Base</div>
+		<div class="tab">Texte</div>
+		<div class="tab">Interprétation</div>
+	</div>
 
 
+	<div class="container">
+		<section class="section">
+			<h1>{{ page.title }}</h1>
+			<h3>Composé par : <strong>{{ self.compositeur }}</strong></h3>
+		</section>
 
-    {% if page.pdf %}
-    <section class="section">
-        <div id="pdf-viewer"></div>
-        <div id="pdf-controls">
-            <button id="prev-page">Page précédente</button>
-            <span id="page-num"></span>
-            <button id="next-page">Page suivante</button>
-        </div>
-    </section>
-    {% endif %}
 
-    <ul>
-    {% for audio in page.audios %}
-            {% include_block audio %}
-    {% endfor %}
-    </ul>
-    {% if page.traduction %}
-    <hr>
-    <section class="section">
-        <h3>Commentaires sur la chanson</h3>
-        <div class="text">{{ self.descr|richtext }}</div>
-    </section>
-    <hr>
-    <section>
-        <h2>Traduction</h2>
-        {{ page.traduction|richtext }}
-    </section>
-    {% endif %}
-</div>
+		<!-- ################        PDF           ################        -->
+
+		<div class="content">
+
+			{% if page.pdf %}
+				<section class="section">
+					<div id="pdf-viewer"></div>
+					<div id="pdf-controls">
+						<button id="prev-page">Page précédente</button>
+						<span id="page-num"></span>
+						<button id="next-page">Page suivante</button>
+					</div>
+				</section>
+			{% endif %}
+
+			<ul>
+				{% for audio in page.audios %}
+					{% include_block audio %}
+				{% endfor %}
+			</ul>
+
+		</div>
+
+
+		{% if page.traduction %}
+			<hr>
+			<section class="section">
+				<h3>Commentaires sur la chanson</h3>
+				<div class="text">{{ page.descr|richtext }}</div>
+				<iframe srcdoc="{{ page.desr|richtext }}"></iframe>
+			</section>
+			<hr>
+			<section>
+				<h2>Traduction</h2>
+				{{ page.traduction|richtext }}
+			</section>
+		{% endif %}
+	</div>
 {% endblock %}
 
 {% block extra_js %}
-<script type="module" src="{% static 'pdfjs/build/pdf.mjs' %}"></script>
-<script type="module">
-pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'pdfjs/build/pdf.worker.mjs' %}";
+	<script type="module" src="{% static 'pdfjs/build/pdf.mjs' %}"></script>
+	<script type="module">
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'pdfjs/build/pdf.worker.mjs' %}";
 
-async function loadPdf() {
-    var url = "{{ page.pdf.url |safe }}";
-    var loadingTask = pdfjsLib.getDocument(url);
-    loadingTask.promise.then(function (pdf) {
-        pdf.getPage(1).then(function (page) {
-            // Obtenez la zone d'affichage de la page avec un scale de 1
-            var viewport = page.getViewport({scale: 1});
+        async function loadPdf() {
+            var url = "{{ page.pdf.url |safe }}";
+            var loadingTask = pdfjsLib.getDocument(url);
+            loadingTask.promise.then(function (pdf) {
+                pdf.getPage(1).then(function (page) {
+                    // Obtenez la zone d'affichage de la page avec un scale de 1
+                    var viewport = page.getViewport({scale: 1});
 
-            // Dimensions désirées du canvas
-            var desiredWidth = 500;
-            var desiredHeight = 800;
+                    // Dimensions désirées du canvas
+                    var desiredWidth = 500;
+                    var desiredHeight = 800;
 
-            // Calculez le scale nécessaire pour que la largeur de la page PDF corresponde à la largeur du canvas
-            var scale = desiredWidth / viewport.width;
+                    // Calculez le scale nécessaire pour que la largeur de la page PDF corresponde à la largeur du canvas
+                    var scale = desiredWidth / viewport.width;
 
-            // Utilisez le même scale pour la hauteur si nécessaire, ou faites un calcul séparé si l'échelle doit être différente
-            // var scaleHeight = desiredHeight / viewport.height;
-            // var scale = Math.min(scaleWidth, scaleHeight);
+                    // Utilisez le même scale pour la hauteur si nécessaire, ou faites un calcul séparé si l'échelle doit être différente
+                    // var scaleHeight = desiredHeight / viewport.height;
+                    // var scale = Math.min(scaleWidth, scaleHeight);
 
-            // Mise à jour du viewport avec le nouveau scale
-            viewport = page.getViewport({scale: scale});
+                    // Mise à jour du viewport avec le nouveau scale
+                    viewport = page.getViewport({scale: scale});
 
-            // Préparez le canvas avec les dimensions souhaitées
-            var canvas = document.createElement('canvas');
-            var context = canvas.getContext('2d');
-            canvas.height = desiredHeight; // Définit la hauteur du canvas
-            canvas.width = desiredWidth;  // Définit la largeur du canvas
+                    // Préparez le canvas avec les dimensions souhaitées
+                    var canvas = document.createElement('canvas');
+                    var context = canvas.getContext('2d');
+                    canvas.height = desiredHeight; // Définit la hauteur du canvas
+                    canvas.width = desiredWidth;  // Définit la largeur du canvas
 
-            // Ajoutez le canvas à l'élément HTML pour le PDF
-            var pdfViewer = document.getElementById('pdf-viewer');
-            pdfViewer.innerHTML = '';  // Effacez tout contenu précédent
-            pdfViewer.appendChild(canvas);
+                    // Ajoutez le canvas à l'élément HTML pour le PDF
+                    var pdfViewer = document.getElementById('pdf-viewer');
+                    pdfViewer.innerHTML = '';  // Effacez tout contenu précédent
+                    pdfViewer.appendChild(canvas);
 
-            // Rendez la page dans le contexte du canvas
-            var renderContext = {
-                canvasContext: context,
-                viewport: viewport
-            };
-            page.render(renderContext);
+                    // Rendez la page dans le contexte du canvas
+                    var renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                });
+            });
+        }
+
+        loadPdf();
+
+
+	</script>
+
+	<script>
+        document.querySelectorAll('.tab').forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.content').forEach((content, i) => {
+                    content.style.display = i === index ? 'block' : 'none';
+                });
+            });
         });
-    });
-}
-    loadPdf();
-
-
-
-</script>
+	</script>
 {% endblock %}
 
+
+<style>
+
+    .tab {
+        @apply cursor-pointer p-4;
+    }
+
+    .content {
+        @apply p-4 border;
+    }
+
+</style>

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% load static %}
+
+{% load static wagtailcore_tags%}
 
 {% block body_class %}template-homepage{% endblock %}
 
@@ -10,14 +11,14 @@
 
     <!-- Main Content -->
   <header class="text-center bg-green-200 py-20">
-    <h1 class="text-4xl text-gray-800 font-bold mb-2">Sacré Choeur de Namur</h1>
-    <p class="text-md text-gray-600 font-light"><span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem esse</span>!</p>
+    <h1 class="text-4xl text-gray-800 font-bold mb-2">{{ page.name }}</h1>
+    <p class="text-md text-gray-600 font-light">{{ page.header }}</p>
   </header>
 
   <section id="about" class="py-20 bg-white">
     <div class="container mx-auto px-6">
       <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">À propos de nous</h2>
-      <p class="text-gray-700 text-lg text-center">Le Sacré Choeur de Namur est une chorale de gens sympas.</p>
+      <p class="text-gray-700 text-lg text-center rich-text">{{page.body | richtext}}</p>
     </div>
   </section>
 

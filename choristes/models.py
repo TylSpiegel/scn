@@ -1,5 +1,9 @@
 from django.db import models
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.utils.decorators import method_decorator
 
+from wagtail.admin.panels import TabbedInterface, ObjectList
 from wagtail.admin.panels import (
     FieldPanel,
     HelpPanel,
@@ -42,12 +46,18 @@ class NewsPage(Page):
     subpage_types = []
 
 
+
+####                #####
+#       MORCEAU         #
+####                #####
+
 class MorceauPage(Page):
 
     titre = models.CharField(max_length=250, null=True)
     compositeur = models.CharField(max_length=250, null=True,)
     descr = RichTextField(blank=True)
     traduction = RichTextField(blank=True)
+    interpretation = RichTextField(blank=True)
 
     pdf = models.ForeignKey(
         Document,
@@ -61,14 +71,29 @@ class MorceauPage(Page):
         ('audios', AudioDocumentBlock()),
     ], null=True, blank=True, use_json_field=True)
 
-    content_panels = Page.content_panels + [
+    base_panels = Page.content_panels + [
         FieldPanel('titre'),
         FieldPanel('compositeur'),
         FieldPanel('descr'),
         FieldPanel('pdf'),
         FieldPanel('audios'),
+    ]
+
+    advanced_panels = [
         FieldPanel('traduction'),
     ]
+
+    interpretation_panels = [
+        FieldPanel('interpretation'),
+    ]
+
+    edit_handler = TabbedInterface([
+        ObjectList(base_panels, heading='Infos de base'),
+        ObjectList(advanced_panels, heading='Infos avancées'),
+        ObjectList(interpretation_panels, heading='Interprétation'),
+        ObjectList(Page.promote_panels, heading = 'Routing'),
+    ])
+
     def documents(self):
         """
         Returns the RecipePage's related people. Again note that we are using
@@ -90,13 +115,12 @@ class MorceauPage(Page):
 
 class MorceauIndexPage(Page):
 
-
     introduction = models.TextField(help_text="Text to describe the page", blank=True)
     content_panels = Page.content_panels + [
         FieldPanel("introduction"),
     ]
     subpage_types = ["MorceauPage", "NewsPage"]
-
+    max_count = 1
     def children(self):
         return self.get_children().specific().live()
 
@@ -107,9 +131,9 @@ class MorceauIndexPage(Page):
         )
         return context
 
-    @classmethod
-    def can_create_at(cls, parent):
-        return 1
+####                #####
+#     CALENDRIER        #
+####                #####
 
 class CalendrierPage(Page):
 
@@ -127,6 +151,7 @@ class CalendrierPage(Page):
     ]
     subpage_types = ["CalendrierEventPage", "CalendrierPublicEventPage"]
     parent_page_types = ["ChoristesIndexPage"]
+    max_count = 1
     def children(self):
         return self.get_children().specific().live()
 
@@ -182,6 +207,12 @@ class CalendrierPublicEventPage(Page):
     parent_page_types = ["CalendrierPage"]
     subpage_types = []
 
+
+
+####                            #####
+#       CHORISTES SECTIONS          #
+####                            #####
+
 class ChoristesPage(Page):
     date = models.DateField("Post date")
     intro = models.CharField(max_length=250)
@@ -198,3 +229,9 @@ class ChoristesPage(Page):
         FieldPanel('body'),
     ]
 
+class ChoristesIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro')
+    ]
