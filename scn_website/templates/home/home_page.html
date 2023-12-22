@@ -1,50 +1,33 @@
 {% extends "base.html" %}
 
-{% load static wagtailcore_tags%}
+{% load static wagtailcore_tags %}
 
 {% block body_class %}template-homepage{% endblock %}
 
 {% block extra_css %}
 {% endblock extra_css %}
 
+{% block navbar %}
+{% endblock navbar %}
+
 {% block content %}
+	<div class="container items-center w-1/2 mx-auto">
+		<div class="grid grid-cols-2 gap-4 place-content-stretch h-48 ...">
+			<button class="w-64 h-64 bg-red-500 text-white font-bold rounded-tl-lg hover:bg-red-700">Haut Gauche
+			</button>
 
-    <!-- Main Content -->
-  <header class="text-center bg-green-200 py-20">
-    <h1 class="text-4xl text-gray-800 font-bold mb-2">{{ page.name }}</h1>
-    <p class="text-md text-gray-600 font-light">{{ page.header }}</p>
-  </header>
+			<!-- Bouton Haut Droit -->
+			<button class="w-64 h-64 bg-green-500 text-white font-bold rounded-tr-lg hover:bg-green-700">Haut Droit
+			</button>
 
-  <section id="about" class="py-20 bg-white">
-    <div class="container mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">À propos de nous</h2>
-      <p class="text-gray-700 text-lg text-center rich-text">{{page.body | richtext}}</p>
-    </div>
-  </section>
+			<!-- Bouton Bas Gauche -->
+			<button class="w-64 h-64 bg-blue-500 text-white font-bold rounded-bl-lg hover:bg-blue-700">Bas Gauche
+			</button>
 
-  <section id="events" class="py-20 bg-blue-100">
-    <div class="container mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Événements à venir</h2>
-      {% for event in page.get_public_events %}
-          <a href="{{ event.url }}">
-              <li>
-                  <p>{{ event.title }} - {{event.date |date:"d/m/Y" }}</p>
-              </li>
-          </a>
-      {% endfor %}
+			<!-- Bouton Bas Droit -->
+			<button class="w-64 h-64 bg-yellow-500 text-white font-bold rounded-br-lg hover:bg-yellow-700">Bas Droit
+			</button>
 
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <p>Contactez-nous à:</p>
-    <p>Email: contact@choraleharmonie.com</p>
-    <p>Téléphone: 01 23 45 67 89</p>
-    <p>Adresse: 123 Avenue de la Musique, 75000 Paris, France</p>
-    <div class="social-media">
-      <!-- Insert social media links here -->
-    </div>
-  </footer>
-
+		</div>
+	</div>
 {% endblock %}

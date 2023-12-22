@@ -4,144 +4,124 @@
 {% block content %}
 
 	<a href="..">Revenir à la page des morceaux</a>
-	<div class="section"></div>
-	<div class="flex flex-wrap">
-    <div class="w-1/5">
-		<div id="toc" class="toc bg-white shadow-lg rounded-lg p-4 m-2 max-w-[200px] sticky top-10">
-			<ul class="list-none space-y-2">
-				<li><a href="#title" class="toc-link text-2xl hover:text-gray-800 transition duration-300">{{page.title}}</a></li>
-				<li><a href="#files" class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Fichiers</a></li>
-				<li><a href="#traduction" class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Texte et traduction</a></li>
-				<li><a href="#interpretation" class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Interprétation</a></li>
-			</ul>
-		</div>
-    </div>
 
-	<div class="container w-4/5">
-		<section id="title" class="section">
-			<div class="box p-4 bg-amber-700 text-white text-5xl">
-			<h1 class="mt-2">{{ page.title }}</h1>
-			<h3>Composé par : <strong>{{ self.compositeur }}</strong></h3>
+	<div class="flex flex-wrap items-center">
+
+		<!--      SIDEBAR   -->
+		<!--
+		<div class="hidden md:block md:col-span-1 md:row-start-1">
+			<div class="absolute">
+				<div id="toc"
+				     class="toc bg-white shadow-lg rounded-lg p-4 m-2
+		      sticky top-10 ">
+					<ul class="list-none space-y-2">
+						<li><a href="#title"
+						       class="toc-link text-2xl hover:text-gray-800 transition duration-300">{{ page.title }}</a>
+						</li>
+						<li><a href="#files"
+						       class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Fichiers</a>
+						</li>
+						{% if page.interpretation %}
+							<li><a href="#interpretation"
+							       class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Texte
+								et traduction</a></li>
+						{% endif %}
+						{% if page.traduction %}
+							<li><a href="#traduction"
+							       class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Interprétation</a>
+							</li>
+						{% endif %}
+					</ul>
 				</div>
-		</section>
+			</div>
+		</div>
 
-		<!-- ################        PDF           ################        -->
+		-->
 
-		<section id="files" class="content bg-amber-200 p-4 rounded">
 
-			{% if page.pdf %}
-				<section class="section">
-					<div id="pdf-viewer"></div>
-					<div id="pdf-controls">
-						<button id="prev-page">Page précédente</button>
-						<span id="page-num"></span>
-						<button id="next-page">Page suivante</button>
+		<div class="container w-4/6 items-center">
+
+			<section id="title" class="mt-0 rounded-xl">
+				<div class="p-4 bg-sky-700 text-white text-3xl rounded-xl">
+					<h1 class="mt-2">{{ page.title }}</h1>
+					<h3 class="text-2xl"><em>- {{ self.compositeur }}</em></h3>
+				</div>
+			</section>
+
+			<!-- ################        FICHIERS           ################        -->
+
+			<section id="files" class="content-box">
+				<div class="content-box-title">
+					<h3 class="text-white shadow-lg">Fichiers à télécharger</h3>
+				</div>
+				<div class="content-content">
+					<div class="grid md:grid-cols-5 gap-6">
+						{% if page.pdf %}
+							<div class="flex flex-col items-center p-4">
+								<a href="{{ page.pdf.url }}" target="_blank">
+									<img src="{% static 'medias/music-sheet.png' %}" alt="music sheet icon"
+									     class="w-16 h-auto">
+								</a>
+								<p>Partition</p>
+							</div>
+						{% endif %}
+
+						{% for audio in page.audios %}
+							<div class="flex flex-col items-center p-4">
+								<a href="{{ audio.value.audio.url }}" target="_blank">
+									<img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
+								</a>
+								<p>{{ audio.value.pupitre }}</p>
+							</div>
+						{% endfor %}
 					</div>
+				</div>
+			</section>
+
+			<!----- DEBUT PRESENTATION   -------->
+			{% if page.descr %}
+				<section id="descr" class="content-box">
+					<div class="content-box-title">
+						<h3 class="text-white shadow-lg">Présentation de l'oeuvre</h3>
+					</div>
+					<div class="content-content">{{ page.descr|richtext }}</div>
 				</section>
 			{% endif %}
 
-			<ul>
-				{% for audio in page.audios %}
-					{% include_block audio %}
-				{% endfor %}
-			</ul>
+			<!----- FIN PRESENTATION   -------->
 
-		</section>
+			<!----- DEBUT INTERPRETATION   -------->
 
-		{% if page.traduction %}
-			<section id="traduction" class="content section bg-amber-200 p-4 rounded">
-				<h3>Commentaires sur la chanson</h3>
-				<div class="text">{{ page.descr|richtext }}</div>
-				<iframe srcdoc="{{ page.desr|richtext }}"></iframe>
-			</section>
-			<hr>
-			<section id="interpretation" class="content section bg-amber-200 p-4 rounded">
-				<h2>Traduction</h2>
-				{{ page.traduction|richtext }}
-			</section>
-		{% endif %}
-	</div>
+			{% if page.interpretation %}
+				<section id="commentaire" class="content-box">
+					<div class="content-box-title">
+						<h3 class="text-white shadow-lg">Commentaires sur la chanson</h3>
+					</div>
+					<div class="content-content">{{ page.interpretation|richtext }}</div>
+				</section>
+
+			{% endif %}
+
+			<!----- FIN INTERPRETATION   -------->
+
+
+			<!----- DEBUT TRADUCTION   -------->
+			{% if page.traduction %}
+				<section id="interpretation" class="content-box">
+					<div class="content-box-title">
+						<h3 class="text-white shadow-lg">Texte et traduction</h3>
+					</div>
+					<div class="content-content">
+						{{ page.traduction|richtext }}
+					</div>
+				</section>
+			{% endif %}
+			<!----- FIN TRADUCTION   -------->
+		</div>
 	</div>
 
 {% endblock %}
 
 {% block extra_js %}
-	<script type="module" src="{% static 'pdfjs/build/pdf.mjs' %}"></script>
-	<script type="module">
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'pdfjs/build/pdf.worker.mjs' %}";
 
-        async function loadPdf() {
-            var url = "{{ page.pdf.url |safe }}";
-            var loadingTask = pdfjsLib.getDocument(url);
-            loadingTask.promise.then(function (pdf) {
-                pdf.getPage(1).then(function (page) {
-                    // Obtenez la zone d'affichage de la page avec un scale de 1
-                    var viewport = page.getViewport({scale: 1});
-
-                    // Dimensions désirées du canvas
-                    var desiredWidth = 500;
-                    var desiredHeight = 800;
-
-                    // Calculez le scale nécessaire pour que la largeur de la page PDF corresponde à la largeur du canvas
-                    var scale = desiredWidth / viewport.width;
-
-                    // Utilisez le même scale pour la hauteur si nécessaire, ou faites un calcul séparé si l'échelle doit être différente
-                    // var scaleHeight = desiredHeight / viewport.height;
-                    // var scale = Math.min(scaleWidth, scaleHeight);
-
-                    // Mise à jour du viewport avec le nouveau scale
-                    viewport = page.getViewport({scale: scale});
-
-                    // Préparez le canvas avec les dimensions souhaitées
-                    var canvas = document.createElement('canvas');
-                    var context = canvas.getContext('2d');
-                    canvas.height = desiredHeight; // Définit la hauteur du canvas
-                    canvas.width = desiredWidth;  // Définit la largeur du canvas
-
-                    // Ajoutez le canvas à l'élément HTML pour le PDF
-                    var pdfViewer = document.getElementById('pdf-viewer');
-                    pdfViewer.innerHTML = '';  // Effacez tout contenu précédent
-                    pdfViewer.appendChild(canvas);
-
-                    // Rendez la page dans le contexte du canvas
-                    var renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-                    page.render(renderContext);
-                });
-            });
-        }
-
-        loadPdf();
-
-
-	</script>
-
-	<script>
-		const classes = {
-			active : 'tab inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg dark:text-blue-500 dark:border-blue-500',
-			inactive : 'tab inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
-		}
-
-		window.addEventListener('scroll', () => {
-		  document.querySelectorAll('.content').forEach((section) => {
-			const top = window.scrollY;
-			const offset = section.offsetTop;
-			const height = section.offsetHeight;
-			const id = section.getAttribute('id');
-
-			if (top >= offset && top < offset + height) {
-			  document.querySelector('.toc a[href*=' + id + ']').classList.add('active');
-			} else {
-			  document.querySelector('.toc a[href*=' + id + ']').classList.remove('active');
-			}
-		  });
-		});
-
-	</script>
-
-	<style>
-
-	</style>
 {% endblock %}

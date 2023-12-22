@@ -16,3 +16,6 @@ makemigrations: venv
 
 runserver: venv
     python manage.py runserver
+
+buildcss:
+	npx tailwindcss build scn_website/static/css/scn_website.css -o scn_website/static/css/tailwind.css

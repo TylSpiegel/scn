@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+<body>
+
+<!--- AFFICHAGE PDF
+
+		<section id="files" class="content bg-sky-200 p-4 rounded">
+			<section class="section hidden md:block flex justify-center items-center">
+				{% if page.pdf %}
+				<div id="pdf-viewer" class="flex justify-center items-center"></div>
+				<div id="pdf-controls">
+					<button id="prev-page">Page précédente</button>
+					<span id="page-num"></span>
+					<button id="next-page">Page suivante</button>
+				</div>
+				{% endif %}
+			</section>
+			<ul>
+				{% for audio in page.audios %}
+				{% include_block audio %}
+				{% endfor %}
+			</ul>
+		</section>
+
+</body>
+
+<script type="module" src="{% static 'pdfjs/build/pdf.mjs' %}"></script>
+<script type="module">
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'pdfjs/build/pdf.worker.mjs' %}";
+
+    async function loadPdf() {
+        var url = "{{ page.pdf.url |safe }}";
+        var loadingTask = pdfjsLib.getDocument(url);
+        loadingTask.promise.then(function (pdf) {
+            pdf.getPage(1).then(function (page) {
+                // Obtenez la zone d'affichage de la page avec un scale de 1
+                var viewport = page.getViewport({scale: 1});
+
+                // Dimensions désirées du canvas
+                var desiredWidth = 500;
+                var desiredHeight = 800;
+
+                // Calculez le scale nécessaire pour que la largeur de la page PDF corresponde à la largeur du canvas
+                var scale = desiredWidth / viewport.width;
+
+                // Utilisez le même scale pour la hauteur si nécessaire, ou faites un calcul séparé si l'échelle doit être différente
+                // var scaleHeight = desiredHeight / viewport.height;
+                // var scale = Math.min(scaleWidth, scaleHeight);
+
+                // Mise à jour du viewport avec le nouveau scale
+                viewport = page.getViewport({scale: scale});
+
+                // Préparez le canvas avec les dimensions souhaitées
+                var canvas = document.createElement('canvas');
+                var context = canvas.getContext('2d');
+                canvas.height = desiredHeight; // Définit la hauteur du canvas
+                canvas.width = desiredWidth;  // Définit la largeur du canvas
+
+                // Ajoutez le canvas à l'élément HTML pour le PDF
+                var pdfViewer = document.getElementById('pdf-viewer');
+                pdfViewer.innerHTML = '';  // Effacez tout contenu précédent
+                pdfViewer.appendChild(canvas);
+
+                // Rendez la page dans le contexte du canvas
+                var renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                page.render(renderContext);
+            });
+        });
+    }
+
+    loadPdf();
+
+
+</script>
+
+</html>
