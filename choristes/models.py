@@ -125,6 +125,30 @@ class MorceauIndexPage(Page):
 ####                #####
 
 class CalendrierPage(Page):
+	# OPTIONS
+	max_count = 1
+
+	# FIELDS
+	calendrier_image = models.ForeignKey(
+		'wagtailimages.Image',
+		null=True,
+		blank=False,
+		on_delete=models.SET_NULL,
+		related_name='+',
+		help_text="Le calendrier en format image"
+	)
+	comment = RichTextField(
+		blank=True,
+		help_text="Un espace pour ajouter des commentaires : les changements récents, les prochaines dates..."
+	)
+	content_panels = Page.content_panels + [
+		FieldPanel("calendrier_image"),
+		FieldPanel('comment'),
+	]
+
+
+"""
+class CalendrierPage(Page):
 	introduction = models.TextField(help_text="Text to describe the page", blank=True)
 	image = models.ForeignKey(
 		'wagtailimages.Image',
@@ -197,32 +221,8 @@ class CalendrierPublicEventPage(Page):
 	]
 	parent_page_types = ["CalendrierPage"]
 	subpage_types = []
-
+"""
 
 ####                            #####
 #       CHORISTES SECTIONS          #
 ####                            #####
-
-class ChoristesPage(Page):
-	date = models.DateField("Post date")
-	intro = models.CharField(max_length=250)
-	body = RichTextField(blank=True)
-
-	search_fields = Page.search_fields + [
-		index.SearchField('intro'),
-		index.SearchField('body'),
-	]
-
-	content_panels = Page.content_panels + [
-		FieldPanel('date'),
-		FieldPanel('intro'),
-		FieldPanel('body'),
-	]
-
-
-class ChoristesIndexPage(Page):
-	intro = RichTextField(blank=True)
-
-	content_panels = Page.content_panels + [
-		FieldPanel('intro')
-	]
