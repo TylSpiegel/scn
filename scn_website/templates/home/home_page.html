@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static wagtailcore_tags %}
+{% load static wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-homepage{% endblock %}
 
@@ -11,23 +11,38 @@
 {% endblock navbar %}
 
 {% block content %}
-	<div class="container items-center w-1/2 mx-auto">
-		<div class="grid grid-cols-2 gap-4 place-content-stretch h-48 ...">
-			<button class="w-64 h-64 bg-red-500 text-white font-bold rounded-tl-lg hover:bg-red-700">Haut Gauche
-			</button>
 
-			<!-- Bouton Haut Droit -->
-			<button class="w-64 h-64 bg-green-500 text-white font-bold rounded-tr-lg hover:bg-green-700">Haut Droit
-			</button>
 
-			<!-- Bouton Bas Gauche -->
-			<button class="w-64 h-64 bg-blue-500 text-white font-bold rounded-bl-lg hover:bg-blue-700">Bas Gauche
-			</button>
-
-			<!-- Bouton Bas Droit -->
-			<button class="w-64 h-64 bg-yellow-500 text-white font-bold rounded-br-lg hover:bg-yellow-700">Bas Droit
-			</button>
+	<div class="container md:flex md:flex-row">
+		<div class="basis-1/2">
+			<div class="inline-block align-middle align-text-middle">
+				<img
+						src="{% static 'medias/logo-scn.jpg' %}"
+						alt="Logo SCN"
+						class="max-h-screen"
+				>
+			</div>
 
 		</div>
+
+		<div class="basis-1/2">
+			<div class="mt-4">
+				<a href="/chants">
+					<button class=" md:w-72 md:h-72 rounded-full bg-pink-400 text-white text-2xl p-8 hover:bg-pink-600">
+						Chants
+					</button>
+				</a>
+			</div>
+			<div class="mt-4">
+				<button class=" md:w-72 md:h-72  rounded-full bg-amber-300 text-white text-2xl p-8 hover:bg-amber-500">
+					<a href="/calendrier">
+
+						Calendrier
+					</a>
+				</button>
+
+			</div>
+		</div>
+	</div>
 	</div>
 {% endblock %}
