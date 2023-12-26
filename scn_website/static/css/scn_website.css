@@ -19,20 +19,34 @@ body {
 @layer base {
 
     body {
-        @apply bg-sky-400;
+        @apply bg-cyan-400;
     }
 
+    .container {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        align-content: center;
+        @apply p-4;
+
+}
+
     h1 {
-        @apply text-3xl pb-4;
+        @apply text-4xl py-4;
     }
 
     h2 {
-        @apply text-2xl pb-4;
+        @apply text-3xl py-4;
     }
 
     h3 {
-        @apply text-xl pb-4;
+        @apply text-2xl py-4;
     }
+
+    h4 {
+        @apply text-xl py-4;
+    }
+
 
     ul {
         @apply list-disc;
@@ -43,15 +57,16 @@ body {
     }
 
     section.content-box {
-        @apply bg-sky-300 rounded-2xl border-2 border-sky-700;
+        @apply bg-sky-300 rounded-2xl border-2 border-cyan-700;
 
         div.content-box-title {
-            @apply bg-sky-700 rounded-t-xl;
+            @apply bg-sky-700 rounded-t-xl text-white;
         }
 
         div.content-content {
         @apply p-6 bg-sky-100 text-left rounded-b-xl;
         }
+
         ul {
             @apply list-disc;
         }
@@ -64,13 +79,22 @@ body {
     }
 }
 
-.container {
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    align-content: center;
-    padding: 20px;
+.responsive-object {
+    position: relative;
 }
+
+.responsive-object iframe,
+.responsive-object object,
+.responsive-object embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+
 
 section {
     margin-top: 1em;

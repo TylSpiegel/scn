@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load wagtailimages_tags wagtailcore_tags static %}
+{% load wagtailembeds_tags %}
 
 {% block content %}
 
@@ -39,7 +40,7 @@
 		-->
 
 
-		<div class="container w-4/6 items-center">
+		<div class="container md:w-4/6 items-center">
 
 			<section id="title" class="mt-0 rounded-xl">
 				<div class="p-4 bg-sky-700 text-white text-3xl rounded-xl">
@@ -55,26 +56,74 @@
 					<h3 class="text-white shadow-lg">Fichiers à télécharger</h3>
 				</div>
 				<div class="content-content">
-					<div class="grid md:grid-cols-5 gap-6">
+					<div class="grid grid-cols-3 md:grid-cols-6 md:gap-4">
 						{% if page.pdf %}
 							<div class="flex flex-col items-center p-4">
 								<a href="{{ page.pdf.url }}" target="_blank">
 									<img src="{% static 'medias/music-sheet.png' %}" alt="music sheet icon"
-									     class="w-16 h-auto">
+									     class="h-16 w-auto">
 								</a>
-								<p>Partition</p>
+								<div class="align-bottom">
+									<p class="text-xl">Partition</p>
+								</div>
+
 							</div>
 						{% endif %}
 
 						{% for audio in page.audios %}
-							<div class="flex flex-col items-center p-4">
+							<div class="flex flex-col items-center">
 								<a href="{{ audio.value.audio.url }}" target="_blank">
 									<img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
 								</a>
-								<p>{{ audio.value.pupitre }}</p>
+								<div class="flex flex-col items-center">
+									<p class="text-xl">{{ audio.value.pupitre }}</p>
+									<div class="bg-sky-700">
+										<p class="text-white text-sm text-center">{{ audio.value.comment }}</p>
+									</div>
+								</div>
 							</div>
 						{% endfor %}
+
 					</div>
+
+
+					{% for section in page.additional_files %}
+						<hr class="h-px mt-8 border-solid border-pink-400 bg-sky-800">
+
+						<div class="">
+							<p class="bg-pink-400 text-white inline-block px-6">
+								{{ section.value.title }}
+							</p>
+						</div>
+						<div class="grid grid-cols-3 md:grid-cols-6 md:gap-4">
+							{% for file in section.value.audios %}
+
+								<div class="flex flex-col items-center">
+									<a href="{{ file.audio.url }}" target="_blank">
+										<img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
+									</a>
+									<div class="flex flex-col items-center">
+										<p class="text-xl">{{ file.pupitre }}</p>
+										<div class="bg-sky-700">
+											<p class="text-white text-sm text-center">{{ file.comment }}</p>
+										</div>
+									</div>
+								</div>
+
+							{% endfor %}
+							{% for file in section.value.files %}
+								<div class="flex flex-col items-center">
+									<a href="{{ file.audio.url }}" target="_blank">
+										<img src="{% static 'medias/music-sheet.png' %}" alt="logo pdf"
+										     class="w-16 h-auto">
+									</a>
+									<div class="flex flex-col items-center">
+										<p class="text-xl">{{ file.title }}</p>
+									</div>
+								</div>
+								</div>
+							{% endfor %}
+					{% endfor %}
 				</div>
 			</section>
 

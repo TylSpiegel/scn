@@ -4,7 +4,6 @@ from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 
 
 class AudioDocumentBlock(blocks.StructBlock):
-	# Vous pouvez ajouter des attributs supplémentaires si nécessaire
 	CHOICES = (
 		('Tutti', 'Tutti'),
 		('Soprano', 'Soprano'),
@@ -18,6 +17,7 @@ class AudioDocumentBlock(blocks.StructBlock):
 		required=False
 	)
 	custom_pupitre = blocks.CharBlock(
+		max_length=30,
 		required=False,
 		help_text="Entrer une valeur ici annule le champ ci-dessus.",
 	)
@@ -43,12 +43,22 @@ class AudioDocumentBlock(blocks.StructBlock):
 
 		edit_handler = MultiFieldPanel([
 			FieldRowPanel([
-				FieldPanel('pupitre'),
-				FieldPanel('custom_pupitre'),
+				FieldPanel('pupitre', classname="col4"),
+				FieldPanel('custom_pupitre', classname="col8"),
 			]),
 			FieldPanel('audio'),
 			FieldPanel('comment'),
 		], heading="Détails de l'Audio Document")
+
+
+class AdditionalFilesBlock(blocks.StructBlock):
+	title = blocks.CharBlock(required=True)
+	audios = blocks.ListBlock(
+		AudioDocumentBlock(required=False)
+	)
+	files = blocks.ListBlock(
+		DocumentChooserBlock(required=False)
+	)
 
 
 class MorceauBlock(blocks.StructBlock):

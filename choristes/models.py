@@ -22,7 +22,7 @@ from wagtail.search import index
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.images.models import Image
 
-from .blocks import MorceauBlock, AudioDocumentBlock
+from .blocks import MorceauBlock, AudioDocumentBlock, AdditionalFilesBlock
 
 from django.core.serializers import serialize
 import json
@@ -69,12 +69,17 @@ class MorceauPage(Page):
 		('audios', AudioDocumentBlock()),
 	], null=True, blank=True, use_json_field=True)
 
+	additional_files = StreamField([
+		('section', AdditionalFilesBlock()),
+	], null=True, blank=True, use_json_field=True)
+
 	base_panels = Page.content_panels + [
 		FieldPanel('titre'),
 		FieldPanel('compositeur'),
 		FieldPanel('descr'),
 		FieldPanel('pdf'),
 		FieldPanel('audios'),
+		FieldPanel('additional_files')
 	]
 
 	advanced_panels = [
@@ -87,8 +92,8 @@ class MorceauPage(Page):
 
 	edit_handler = TabbedInterface([
 		ObjectList(base_panels, heading='Infos de base'),
-		ObjectList(advanced_panels, heading='Infos avancées'),
-		ObjectList(interpretation_panels, heading='Interprétation'),
+		ObjectList(advanced_panels, heading='Texte, traduction et interprétation'),
+		ObjectList(interpretation_panels, heading='Indications musicales'),
 		ObjectList(Page.promote_panels, heading='Routing'),
 	])
 
