@@ -28,7 +28,6 @@ from django.core.serializers import serialize
 import json
 from datetime import date, datetime
 
-
 class NewsPage(Page):
 	titre = models.CharField(max_length=250, null=True)
 	auteur = models.CharField(max_length=250, null=True)
