@@ -13,36 +13,44 @@
 {% block content %}
 
 
-	<div class="container md:flex md:flex-row">
-		<div class="basis-1/2">
-			<div class="inline-block align-middle align-text-middle">
-				<img
-						src="{% static 'medias/logo-scn.jpg' %}"
-						alt="Logo SCN"
-						class="max-h-screen"
-				>
-			</div>
+    <div class="container md:flex md:flex-row">
+        <div class="basis-1/2">
+            <div class="inline-block align-middle align-text-middle">
+                <img
+                        src="{% static 'medias/logo-scn.jpg' %}"
+                        alt="Logo SCN"
+                        class="max-h-screen"
+                >
+            </div>
 
-		</div>
+        </div>
 
-		<div class="basis-1/2">
-			<div class="mt-4">
-				<a href="/chants">
-					<button class=" md:w-72 md:h-72 rounded-full bg-pink-400 text-white text-2xl p-8 hover:bg-pink-600">
-						Chants
-					</button>
-				</a>
-			</div>
-			<div class="mt-4">
-				<button class=" md:w-72 md:h-72  rounded-full bg-amber-300 text-white text-2xl p-8 hover:bg-amber-500">
-					<a href="/calendrier">
+        <div class="basis-1/2">
+            <div class="mt-4">
+                <a href="/chants">
+                    <button class=" md:w-72 md:h-72 rounded-full bg-pink-400 text-white text-2xl p-8 hover:bg-pink-600">
+                        Chants
+                    </button>
+                </a>
+            </div>
+            <div class="mt-4">
+                <button class=" md:w-72 md:h-72  rounded-full bg-amber-300 text-white text-2xl p-8 hover:bg-amber-500">
+                    <a href="/calendrier">
 
-						Calendrier
-					</a>
-				</button>
+                        Calendrier
+                    </a>
+                </button>
 
-			</div>
-		</div>
-	</div>
-	</div>
+            </div>
+            <div class="mt-4">
+                <button class="md:w-72 md:h-72  rounded-full bg-lime-500 text-white text-2xl p-8 hover:bg-lime-700">
+                    <a href="/choristes">
+                        Choristes
+                    </a>
+                </button>
+
+            </div>
+        </div>
+    </div>
+    </div>
 {% endblock %}

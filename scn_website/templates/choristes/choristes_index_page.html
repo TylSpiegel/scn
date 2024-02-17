@@ -2,17 +2,44 @@
 
 {% load wagtailcore_tags %}
 
-{% block body_class %}template-blogindexpage{% endblock %}
+
+
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <div class="flex flex-wrap items-center">
 
-    <div class="intro">{{ page.intro|richtext }}</div>
+        <div class="container md:w-4/6 items-center">
 
-    {% for post in page.get_children %}
-        <h2><a href="{% pageurl post %}">{{ post.title }}</a></h2>
-        {{ post.specific.intro }}
-        {{ post.specific.body|richtext }}
-    {% endfor %}
+            <h1>Répertoire des membres</h1>
+            <table class="min-w-full table-auto border-collapse border border-slate-200">
+                <thead class="bg-slate-700 text-white">
+                <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                    Nom
+                </th>
+                <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                    Pupitre
+                </th>
+                <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                    Mail
+                </th>
+                <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                    Téléphone
+                </th>
+                </thead>
+                <tbody>
 
+                {% for choriste in page.get_children %}
+                    <tr class="bg-white border-b">
+                        <th>{{ choriste.name }}</th>
+                        <td>{{ choriste.pupitre }}</td>
+                        <td>{{ choriste.mail }}</td>
+                        <td>{{ choriste.phone }}</td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
 {% endblock %}
