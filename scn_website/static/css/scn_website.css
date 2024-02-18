@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: 'Geist Mono';
-    src: url('/static/medias/Geist.Mono/GeistMono-Black.woff2') format('woff2'),
-    url('/static/medias/Geist.Mono/GeistMono-Black.otf') format('otf');
+
     font-weight: 400;
     font-style: normal;
 }
@@ -29,7 +27,7 @@ body {
         align-content: center;
         @apply p-4;
 
-}
+    }
 
     h1 {
         @apply text-4xl py-4;
@@ -64,15 +62,17 @@ body {
         }
 
         div.content-content {
-        @apply p-6 bg-sky-100 text-left rounded-b-xl;
+            @apply p-6 bg-sky-100 text-left rounded-b-xl;
         }
 
         ul {
             @apply list-disc;
         }
+
         ol {
             @apply list-decimal;
         }
+
         li {
             @apply list-inside;
         }
@@ -92,8 +92,6 @@ body {
     width: 100%;
     height: 100%;
 }
-
-
 
 
 section {

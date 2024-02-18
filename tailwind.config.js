@@ -5,9 +5,7 @@ module.exports = {
     ],
     theme: {
         extend: {
-            fontFamily: {
-                'GeistMono': ['Geist Mono', 'sans-serif'],
-            },
+            fontFamily: {},
         },
     },
     plugins: [],
