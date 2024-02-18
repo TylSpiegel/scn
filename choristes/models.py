@@ -130,7 +130,7 @@ class CalendrierPage(Page):
     calendrier_image = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
-        blank=False,
+        blank=True,
         on_delete=models.SET_NULL,
         related_name='+',
         help_text="Le calendrier en format image"
@@ -143,6 +143,9 @@ class CalendrierPage(Page):
         FieldPanel("calendrier_image"),
         FieldPanel('comment'),
     ]
+
+    def get_children(self):
+        return Evenement.objects.order_by('start_date').all()
 
 
 ####                            #####
@@ -176,7 +179,7 @@ class Choriste(models.Model):
 
 @register_snippet
 class Evenement(models.Model):
-    name = models.CharField(max_length=255, null=False, blank=False)
+    name = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     repetition = models.BooleanField(default=True)
     pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25)

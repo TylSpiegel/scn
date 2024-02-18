@@ -79,6 +79,30 @@ body {
     }
 }
 
+table .thead {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+}
+
+.pupitre-Tutti {
+    @apply bg-fuchsia-200
+}
+
+.pupitre-Soprano {
+    @apply bg-emerald-200
+}
+
+.pupitre-Alto {
+    @apply bg-lime-200
+}
+
+.pupitre-Tenor {
+    @apply bg-cyan-100
+}
+
+.pupitre-Basse {
+    @apply bg-amber-100
+}
+
 .responsive-object {
     position: relative;
 }
