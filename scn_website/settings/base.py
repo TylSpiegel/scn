@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -89,8 +92,12 @@ WSGI_APPLICATION = "scn_website.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, os.getenv("DATABASE_NAME", "db.sqlite3")),
-    }
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    },
+    "prd": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, os.getenv("PRD_DATABASE_NAME")),
+    },
 }
 
 # Password validation
@@ -116,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "fr-be"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Brussels"
 
 USE_I18N = True
 

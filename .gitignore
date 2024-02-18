@@ -39,3 +39,6 @@ wheels/
 *.egg
 .idea/
 code_removed/
+
+# Hosting
+*.log
