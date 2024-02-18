@@ -4,12 +4,12 @@
 
 {% block content %}
 
-	<a href="..">Revenir à la page des morceaux</a>
+    <a href="..">Revenir à la page des morceaux</a>
 
-	<div class="flex flex-wrap items-center">
+    <div class="flex flex-wrap items-center">
 
-		<!--      SIDEBAR   -->
-		<!--
+        <!--      SIDEBAR   -->
+        <!--
 		<div class="hidden md:block md:col-span-1 md:row-start-1">
 			<div class="absolute">
 				<div id="toc"
@@ -40,135 +40,143 @@
 		-->
 
 
-		<div class="container md:w-4/6 items-center">
+        <div class="container md:w-4/6 items-center">
 
-			<section id="title" class="mt-0 rounded-xl">
-				<div class="p-4 bg-sky-700 text-white text-3xl rounded-xl">
-					<h1 class="mt-2">{{ page.title }}</h1>
-					<h3 class="text-2xl"><em>- {{ self.compositeur }}</em></h3>
-				</div>
-			</section>
+            <section id="title" class="mt-0 rounded-xl">
+                <div class="p-4 bg-sky-700 text-white text-3xl rounded-xl">
+                    <h1 class="mt-2">{{ page.title }}</h1>
+                    <h3 class="text-2xl"><em>- {{ self.compositeur }}</em></h3>
+                </div>
+            </section>
 
-			<!-- ################        FICHIERS           ################        -->
+            <!-- ################        FICHIERS           ################        -->
 
-			<section id="files" class="content-box">
-				<div class="content-box-title">
-					<h3 class="text-white shadow-lg">Fichiers à télécharger</h3>
-				</div>
-				<div class="content-content">
-					<div class="grid grid-cols-3 md:grid-cols-6 md:gap-4">
-						{% if page.pdf %}
-							<div class="flex flex-col items-center p-4">
-								<a href="{{ page.pdf.url }}" target="_blank">
-									<img src="{% static 'medias/music-sheet.png' %}" alt="music sheet icon"
-									     class="h-16 w-auto">
-								</a>
-								<div class="align-bottom">
-									<p class="text-xl">Partition</p>
-								</div>
+            <section id="files" class="content-box">
+                <div class="content-box-title">
+                    <h3 class="text-white shadow-lg">Fichiers à télécharger</h3>
+                </div>
+                <div class="content-content">
+                    <div class="grid grid-cols-1 md:grid-cols-3 md:gap-4">
+                        {% if page.pdf %}
+                            <div class="flex flex-col items-center p-4">
+                                <a href="{{ page.pdf.url }}" target="_blank">
+                                    <img src="{% static 'medias/music-sheet.png' %}" alt="music sheet icon"
+                                         class="h-16 w-auto">
+                                </a>
+                                <div class="align-bottom">
+                                    <p class="text-xl">Partition</p>
+                                </div>
+                            </div>
+                        {% endif %}
 
-							</div>
-						{% endif %}
+                        {% for audio in page.audios %}
+                            <div class="flex flex-col items-center">
+                                <a href="{{ audio.value.audio.url }}" target="_blank">
+                                    <img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
+                                </a>
+                                <div class="flex flex-col items-center">
+                                    <p class="text-xl">{{ audio.value.pupitre }}</p>
+                                    <div class="bg-sky-700">
+                                        <p class="text-white text-sm text-center">{{ audio.value.comment }}</p>
+                                    </div>
+                                </div>
 
-						{% for audio in page.audios %}
-							<div class="flex flex-col items-center">
-								<a href="{{ audio.value.audio.url }}" target="_blank">
-									<img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
-								</a>
-								<div class="flex flex-col items-center">
-									<p class="text-xl">{{ audio.value.pupitre }}</p>
-									<div class="bg-sky-700">
-										<p class="text-white text-sm text-center">{{ audio.value.comment }}</p>
-									</div>
-								</div>
-							</div>
-						{% endfor %}
+                                <div class="flex flex-col items-center w-6 bg-sky-900">
+                                    <audio controls>
+                                        <source src="{{ audio.value.audio.url }}" type="audio/mp3">
+                                        Votre navigateur ne supporte pas l'élément audio.
+                                    </audio>
+                                </div>
+                            </div>
+                        {% endfor %}
 
-					</div>
-
-
-					{% for section in page.additional_files %}
-						<hr class="h-px mt-8 border-solid border-pink-400 bg-sky-800">
-
-						<div class="">
-							<p class="bg-pink-400 text-white inline-block px-6">
-								{{ section.value.title }}
-							</p>
-						</div>
-						<div class="grid grid-cols-3 md:grid-cols-6 md:gap-4">
-							{% for file in section.value.audios %}
-
-								<div class="flex flex-col items-center">
-									<a href="{{ file.audio.url }}" target="_blank">
-										<img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
-									</a>
-									<div class="flex flex-col items-center">
-										<p class="text-xl">{{ file.pupitre }}</p>
-										<div class="bg-sky-700">
-											<p class="text-white text-sm text-center">{{ file.comment }}</p>
-										</div>
-									</div>
-								</div>
-
-							{% endfor %}
-							{% for file in section.value.files %}
-								<div class="flex flex-col items-center">
-									<a href="{{ file.audio.url }}" target="_blank">
-										<img src="{% static 'medias/music-sheet.png' %}" alt="logo pdf"
-										     class="w-16 h-auto">
-									</a>
-									<div class="flex flex-col items-center">
-										<p class="text-xl">{{ file.title }}</p>
-									</div>
-								</div>
-								</div>
-							{% endfor %}
-					{% endfor %}
-				</div>
-			</section>
-
-			<!----- DEBUT PRESENTATION   -------->
-			{% if page.descr %}
-				<section id="descr" class="content-box">
-					<div class="content-box-title">
-						<h3 class="text-white shadow-lg">Présentation de l'oeuvre</h3>
-					</div>
-					<div class="content-content">{{ page.descr|richtext }}</div>
-				</section>
-			{% endif %}
-
-			<!----- FIN PRESENTATION   -------->
+                    </div>
 
 
-			<!----- DEBUT TRADUCTION   -------->
-			{% if page.traduction %}
-				<section id="interpretation" class="content-box">
-					<div class="content-box-title">
-						<h3 class="text-white shadow-lg">Texte et traduction</h3>
-					</div>
-					<div class="content-content">
-						{{ page.traduction|richtext }}
-					</div>
-				</section>
-			{% endif %}
-			<!----- FIN TRADUCTION   -------->
+                    {% for section in page.additional_files %}
+                        <hr class="h-px mt-8 border-solid border-pink-400 bg-sky-800">
 
-			<!----- DEBUT INTERPRETATION   -------->
+                        <div class="">
+                            <p class="bg-pink-400 text-white inline-block px-6">
+                                {{ section.value.title }}
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-3 md:grid-cols-6 md:gap-4">
+                            {% for file in section.value.audios %}
 
-			{% if page.interpretation %}
-				<section id="commentaire" class="content-box">
-					<div class="content-box-title">
-						<h3 class="text-white shadow-lg">Commentaires sur la chanson</h3>
-					</div>
-					<div class="content-content">{{ page.interpretation|richtext }}</div>
-				</section>
+                                <div class="flex flex-col items-center">
+                                    <a href="{{ file.audio.url }}" target="_blank">
+                                        <img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
+                                    </a>
+                                    <div class="flex flex-col items-center">
+                                        <p class="text-xl">{{ file.pupitre }}</p>
+                                        <div class="bg-sky-700">
+                                            <p class="text-white text-sm text-center">{{ file.comment }}</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-			{% endif %}
+                            {% endfor %}
+                            {% for file in section.value.files %}
+                                <div class="flex flex-col items-center">
+                                    <a href="{{ file.audio.url }}" target="_blank">
+                                        <img src="{% static 'medias/music-sheet.png' %}" alt="logo pdf"
+                                             class="w-16 h-auto">
+                                    </a>
+                                    <div class="flex flex-col items-center">
+                                        <p class="text-xl">{{ file.title }}</p>
+                                    </div>
+                                </div>
+                                </div>
+                            {% endfor %}
+                    {% endfor %}
+                </div>
+            </section>
 
-			<!----- FIN INTERPRETATION   -------->
+            <!----- DEBUT PRESENTATION   -------->
+            {% if page.descr %}
+                <section id="descr" class="content-box">
+                    <div class="content-box-title">
+                        <h3 class="text-white shadow-lg">Présentation de l'oeuvre</h3>
+                    </div>
+                    <div class="content-content">{{ page.descr|richtext }}</div>
+                </section>
+            {% endif %}
 
-		</div>
-	</div>
+            <!----- FIN PRESENTATION   -------->
+
+
+            <!----- DEBUT TRADUCTION   -------->
+            {% if page.traduction %}
+                <section id="interpretation" class="content-box">
+                    <div class="content-box-title">
+                        <h3 class="text-white shadow-lg">Texte et traduction</h3>
+                    </div>
+                    <div class="content-content">
+                        {{ page.traduction|richtext }}
+                    </div>
+                </section>
+            {% endif %}
+            <!----- FIN TRADUCTION   -------->
+
+            <!----- DEBUT INTERPRETATION   -------->
+
+            {% if page.interpretation %}
+                <section id="commentaire" class="content-box">
+                    <div class="content-box-title">
+                        <h3 class="text-white shadow-lg">Commentaires sur la chanson</h3>
+                    </div>
+                    <div class="content-content">{{ page.interpretation|richtext }}</div>
+                </section>
+
+            {% endif %}
+
+            <!----- FIN INTERPRETATION   -------->
+
+        </div>
+    </div>
+
+
 
 {% endblock %}
 

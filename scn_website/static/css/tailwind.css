@@ -864,6 +864,10 @@ section.content-box {
   list-style-type: none;
 }
 
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
 .grid-cols-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -1003,6 +1007,11 @@ section.content-box {
 .bg-sky-800 {
   --tw-bg-opacity: 1;
   background-color: rgb(7 89 133 / var(--tw-bg-opacity));
+}
+
+.bg-sky-900 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(12 74 110 / var(--tw-bg-opacity));
 }
 
 .bg-slate-700 {
