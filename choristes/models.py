@@ -158,10 +158,10 @@ class ChoristesIndexPage(Page):
 
 @register_snippet
 class Choriste(models.Model):
-    name = models.CharField(max_length=255)
-    pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25)
-    mail = models.EmailField()
-    phone = models.CharField(max_length=12)
+    name = models.CharField(max_length=255, null=False, blank=False)
+    pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25, null=True, blank=True)
+    mail = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
 
     panels = [
         FieldPanel('name'),
@@ -176,20 +176,20 @@ class Choriste(models.Model):
 
 @register_snippet
 class Evenement(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField()
+    name = models.CharField(max_length=255, null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
     repetition = models.BooleanField(default=True)
     pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25)
-    start_date = models.DateField()
+    start_date = models.DateField(null=False)
     end_date = models.DateField(null=True)
     start_hour = models.TimeField(null=True)
     end_hour = models.TimeField(null=True)
 
     panels = [
         FieldPanel('name'),
+        FieldPanel('repetition'),
         FieldPanel('description'),
         FieldPanel('pupitre'),
-        FieldPanel('repetition'),
         FieldPanel('start_date')
     ]
 

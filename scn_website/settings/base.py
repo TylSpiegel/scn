@@ -92,11 +92,7 @@ WSGI_APPLICATION = "scn_website.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    },
-    "prd": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, os.getenv("PRD_DATABASE_NAME")),
+        "NAME": os.path.join(BASE_DIR, os.getenv("DATABASE_NAME")),
     },
 }
 
