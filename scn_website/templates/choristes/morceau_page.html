@@ -77,7 +77,7 @@
                                 <div class="flex flex-col items-center">
                                     <p class="text-xl">{{ audio.value.pupitre }}</p>
                                     <div class="bg-sky-700">
-                                        <p class="text-sm text-center">{{ audio.value.comment }}</p>
+                                        <p class="text-white text-sm text-center">{{ audio.value.comment }}</p>
                                     </div>
                                 </div>
 
@@ -87,31 +87,6 @@
                                         Votre navigateur ne supporte pas l'élément audio.
                                     </audio>
                                 </div>
-
-                                <div class="flex items-center space-x-2 bg-gray-200 p-4 rounded-lg">
-                                    <button id="playButton"
-                                            class="bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">
-                                        Play
-                                    </button>
-                                    <button id="pauseButton"
-                                            class="bg-red-500 hover:bg-red-700 font-bold py-2 px-4 rounded">
-                                        Pause
-                                    </button>
-                                    <audio id="audioPlayer" class="hidden">
-                                        <source src="{{ audio.value.audio.url }}" type="audio/mp3">
-                                        Your browser does not support the audio tag.
-                                    </audio>
-                                </div>
-
-                                <script>
-                                    document.getElementById('playButton').addEventListener('click', function () {
-                                        document.getElementById('audioPlayer').play();
-                                    });
-
-                                    document.getElementById('pauseButton').addEventListener('click', function () {
-                                        document.getElementById('audioPlayer').pause();
-                                    });
-                                </script>
                             </div>
                         {% endfor %}
 
