@@ -1,4 +1,9 @@
+import json
+
 from django.db import models
+from django.utils import timezone
+from django.db.models.functions import ExtractMonth, ExtractYear
+from datetime import timedelta
 from wagtail.snippets.models import register_snippet
 
 from wagtail.admin.panels import TabbedInterface, ObjectList
@@ -19,6 +24,15 @@ PUPITRES_CHOICES = (
     ('Basse', 'Basse'),
     ('Autre', 'Autre'),
 )
+
+PUPITRES_COLORS = {
+    'Tutti': '#007BFF',
+    'Soprano': '#DC3545',
+    'Alto': '#FFC107',
+    'Ténor': '#28A745',
+    'Basse': '#17A2B8',
+    'Autre': '#6C757D',
+}
 
 
 ## CURRENTLY NOT USED
@@ -144,8 +158,24 @@ class CalendrierPage(Page):
         FieldPanel('comment'),
     ]
 
-    def get_children(self):
-        return Evenement.objects.order_by('start_date').all()
+    def get_all_events(self):
+        events = Evenement.objects.order_by('start_date').all()
+        events_list = [
+            {
+                'title': event.name,
+                'start': event.start_date.strftime("%Y-%m-%dT%H:%M:%S"),
+                'end': event.end_date.strftime("%Y-%m-%dT%H:%M:%S") if event.end_date else None,
+                'color': self.get_event_color(event.pupitre),
+            }
+            for event in events
+        ]
+        return json.dumps(events_list)
+
+    def get_event_color(self, pupitre):
+        return PUPITRES_COLORS.get(pupitre, '#D3D3D3')
+
+    def get_next_events(self):
+        return Evenement.objects.filter(start_date__gt=timezone.now()).order_by('start_date').all()[:5]
 
 
 ####                            #####

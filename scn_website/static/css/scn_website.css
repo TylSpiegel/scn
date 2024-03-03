@@ -80,27 +80,28 @@ body {
 }
 
 table .thead {
-    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-sky-700 text-white
 }
 
+
 .pupitre-Tutti {
-    @apply bg-fuchsia-200
+    @apply text-fuchsia-600
 }
 
 .pupitre-Soprano {
-    @apply bg-emerald-200
+    @apply text-emerald-600
 }
 
 .pupitre-Alto {
-    @apply bg-lime-200
+    @apply text-lime-600
 }
 
 .pupitre-Tenor {
-    @apply bg-cyan-100
+    @apply text-cyan-600
 }
 
 .pupitre-Basse {
-    @apply bg-amber-100
+    @apply text-amber-600
 }
 
 .responsive-object {
