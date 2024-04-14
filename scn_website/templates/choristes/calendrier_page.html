@@ -51,18 +51,18 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 pupitre-{{ event.pupitre }}">
                                 {{ event.pupitre }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:block">{{ event.description }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
             </table>
-        </div>
 
 
-        <hr class="m-6">
+            <hr class="m-6">
 
-        <div class="container mx-auto px-4">
-            <div id="calendar" class="w-full sm:max-w-lg mx-auto"></div>
+            <div class="container mx-auto px-4">
+                <div id="calendar" class="w-full sm:max-w-lg mx-auto"></div>
+            </div>
+
         </div>
 
         <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css" rel="stylesheet">
@@ -91,10 +91,23 @@
     <style>
         .fc-view-container {
             background-color: white;
+            height: auto;
         }
 
         .fc-time {
             display: none;
+        }
+
+        .fc-title {
+            white-space: pre-line;
+        }
+
+        .fc-day-grid-event {
+            height: fit-content;
+        }
+
+        .fc-event-container {
+            height: max-content;
         }
 
         .fc-view-container .fc-head {
