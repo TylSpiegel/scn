@@ -162,7 +162,7 @@ class CalendrierPage(Page):
         events = Evenement.objects.order_by('start_date').all()
         events_list = [
             {
-                'title': event.name,
+                'title': f'{event.name} {event.pupitre}',
                 'start': event.start_date.strftime("%Y-%m-%dT%H:%M:%S"),
                 'end': event.end_date.strftime("%Y-%m-%dT%H:%M:%S") if event.end_date else None,
                 'color': self.get_event_color(event.pupitre),
