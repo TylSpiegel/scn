@@ -13,11 +13,11 @@
 {% block content %}
 
 
-    <div class="container md:flex md:flex-row">
+    <div class="container md:flex md:flex-row primary-color">
         <div class="basis-1/2">
             <div class="inline-block align-middle align-text-middle">
                 <img
-                        src="{% static 'medias/logo-scn.png' %}"
+                        src="{{ settings.home.StyleSettings.logo.file.url }}"
                         alt="Logo SCN"
                         class="max-h-screen"
                 >
