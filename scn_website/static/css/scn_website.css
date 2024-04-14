@@ -26,11 +26,15 @@ body {
         text-align: center;
         align-content: center;
         @apply p-4;
-
     }
 
     h1 {
         @apply text-4xl py-4;
+        color: var(--primary-color);
+    }
+
+    .bg-primary {
+        background-color: var(--primary-color);
     }
 
     h2 {
@@ -55,7 +59,7 @@ body {
     }
 
     section.content-box {
-        @apply bg-sky-300 rounded-2xl border-2 border-cyan-700;
+        @apply rounded-2xl border-2 border-cyan-700;
 
         div.content-box-title {
             @apply bg-sky-700 rounded-t-xl text-white;

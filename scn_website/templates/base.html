@@ -1,4 +1,6 @@
 {% load static wagtailcore_tags wagtailuserbar %}
+{% load wagtailsettings_tags %}
+{% get_settings %}
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -22,12 +24,20 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'medias/favicon.ico' %}">
 
 
+
     {# Force all links in the live preview panel to be opened in a new tab #}
     {% if request.in_preview_panel %}
         <base target="_blank">
     {% endif %}
 
     {# Global stylesheets #}
+    <style>
+
+        :root {
+            --primary-color: {{ settings.home.StyleSettings.primary_color | default:"blue" }};
+            --secondary-color: {{ settings.home.StyleSettings.secondary_color | default:"yellow" }};
+        }
+    </style>
 
     <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" type="text/css">
     <script src="//unpkg.com/alpinejs" defer></script>
@@ -55,4 +65,10 @@
 {% endblock %}
 </body>
 
+
+
 </html>
+
+
+
+
