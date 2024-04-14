@@ -160,7 +160,7 @@ class CalendrierPage(Page):
         events = Evenement.objects.order_by('start_date').all()
         events_list = [
             {
-                'title': f'{event.name} {event.pupitre}',
+                'title': f'{event.name} {event.pupitre}' if event.is_repetition else f'{event.name}',
                 'start': event.start_date.strftime("%Y-%m-%dT%H:%M:%S"),
                 'end': event.end_date.strftime("%Y-%m-%dT%H:%M:%S") if event.end_date else None,
                 'color': self.get_event_color(event.pupitre),
@@ -209,7 +209,7 @@ class Choriste(models.Model):
 class Evenement(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    repetition = models.BooleanField(default=True)
+    is_repetition = models.BooleanField(default=True)
     pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25)
     start_date = models.DateField(null=False)
     end_date = models.DateField(null=True)
@@ -218,7 +218,7 @@ class Evenement(models.Model):
 
     panels = [
         FieldPanel('name'),
-        FieldPanel('repetition'),
+        FieldPanel('is_repetition'),
         FieldPanel('description'),
         FieldPanel('pupitre'),
         FieldPanel('start_date')
