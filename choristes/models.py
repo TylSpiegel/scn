@@ -10,7 +10,8 @@ from wagtail.admin.panels import TabbedInterface, ObjectList
 from wagtail.admin.panels import (
     FieldPanel,
 )
-
+from wagtail.images.blocks import ImageChooserBlock
+from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.documents.models import Document
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
@@ -178,8 +179,31 @@ class CalendrierPage(Page):
         return Evenement.objects.filter(start_date__gt=timezone.now()).order_by('start_date').all()[:5]
 
 
+@register_snippet
+class Evenement(models.Model):
+    name = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    repetition = models.BooleanField(default=True)
+    pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25)
+    start_date = models.DateField(null=False)
+    end_date = models.DateField(null=True)
+    start_hour = models.TimeField(null=True)
+    end_hour = models.TimeField(null=True)
+
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('repetition'),
+        FieldPanel('description'),
+        FieldPanel('pupitre'),
+        FieldPanel('start_date')
+    ]
+
+    def __str__(self):
+        return f"{self.name} - {self.pupitre} - {self.start_date.strftime('%d-%m')}"
+
+
 ####                            #####
-#       CHORISTES SECTIONS          #
+#       CHORISTES SECTION          #
 ####                            #####
 
 class ChoristesIndexPage(Page):
@@ -207,24 +231,56 @@ class Choriste(models.Model):
         return self.name
 
 
+####                            #####
+#       SOUVENIR SECTION          #
+####                            #####
+
+
+class SouvenirsPage(Page):
+    # OPTIONS
+    max_count = 1
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context['souvenirs'] = Souvenir.objects.all()
+        return context
+
+
 @register_snippet
-class Evenement(models.Model):
-    name = models.CharField(max_length=255, null=True, blank=True)
+class Souvenir(models.Model):
+    name = models.CharField(max_length=255, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
-    repetition = models.BooleanField(default=True)
-    pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25)
-    start_date = models.DateField(null=False)
-    end_date = models.DateField(null=True)
-    start_hour = models.TimeField(null=True)
-    end_hour = models.TimeField(null=True)
+    date = models.DateField(null=False, blank=False)
+    place = models.CharField(blank=True, max_length=100, null=True)
+
+    narration = RichTextField(null=True, blank=True)
+
+    image_gallery = StreamField([
+        ('image', ImageChooserBlock()),
+    ],
+        block_counts={
+            'image': {'max_num': 10},
+        },
+        null=True, blank=True,
+        use_json_field=True
+    )
+
+    document_gallery = StreamField([
+        ('document', DocumentChooserBlock()),
+    ],
+        null=True, blank=True,
+        use_json_field=True
+    )
 
     panels = [
         FieldPanel('name'),
-        FieldPanel('repetition'),
         FieldPanel('description'),
-        FieldPanel('pupitre'),
-        FieldPanel('start_date')
+        FieldPanel('date'),
+        FieldPanel('place'),
+        FieldPanel('narration'),
+        FieldPanel('image_gallery'),
+        FieldPanel('document_gallery')
     ]
 
     def __str__(self):
-        return f"{self.name} - {self.pupitre} - {self.start_date.strftime('%d-%m')}"
+        return f"{self.name} - {self.date.strftime('%d-%m')}"
