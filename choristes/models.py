@@ -119,7 +119,6 @@ class MorceauIndexPage(Page):
         FieldPanel("introduction"),
     ]
     subpage_types = ["MorceauPage", "NewsPage"]
-    max_count = 1
 
     def children(self):
         return self.get_children().specific().live()
@@ -138,7 +137,6 @@ class MorceauIndexPage(Page):
 
 class CalendrierPage(Page):
     # OPTIONS
-    max_count = 1
 
     # FIELDS
     calendrier_image = models.ForeignKey(
