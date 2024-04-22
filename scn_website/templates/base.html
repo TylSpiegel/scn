@@ -50,9 +50,12 @@
 
 <!-- Navigation Bar -->
 {% block navbar %}
-    {% include "navbar.html" %}
+    {% if settings.home.StyleSettings.generic_theme %}
+        {% include "generic_navbar.html" %}
+    {% else %}
+        {% include "scn_navbar.html" %}
+    {% endif %}
 {% endblock navbar %}
-
 
 {% wagtailuserbar %}
 

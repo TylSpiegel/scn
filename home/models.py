@@ -51,11 +51,13 @@ class StyleSettings(BaseGenericSetting):
         related_name='+',
         help_text="Logo de votre site"
     )
+    generic_theme = models.BooleanField(default=False)
 
     panels = [
         NativeColorPanel('primary_color'),
         NativeColorPanel('secondary_color'),
         FieldPanel('logo'),
+        FieldPanel('generic_theme', help_text='Thème générique:')
     ]
 
     class Meta:

@@ -10,14 +10,13 @@
 
 body {
     font-family: "Avenir Next";
-
 }
 
 
 @layer base {
 
     body {
-        @apply bg-cyan-400;
+        background-color: var(--primary-color);
     }
 
     .container {
@@ -35,6 +34,10 @@ body {
 
     .bg-primary {
         background-color: var(--primary-color);
+    }
+
+    .bg-secondary {
+        background-color: var(--secondary-color);
     }
 
     h2 {

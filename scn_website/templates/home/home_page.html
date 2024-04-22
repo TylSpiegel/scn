@@ -12,44 +12,69 @@
 
 {% block content %}
 
-
-    <div class="container md:flex md:flex-row primary-color">
-        <div class="basis-1/2">
-            <div class="inline-block align-middle align-text-middle">
-                <img
-                        src="{{ settings.home.StyleSettings.logo.file.url }}"
-                        alt="Logo SCN"
-                        class="max-h-screen"
-                >
-            </div>
-
-        </div>
-
-        <div class="basis-1/2">
-            <div class="mt-4">
-                <a href="/chants">
-                    <button class=" md:w-72 md:h-72 rounded-full bg-pink-400 text-white text-2xl p-8 hover:bg-pink-600">
-                        Chants
-                    </button>
+    {% if settings.home.StyleSettings.generic_theme %}
+        <div class="flex justify-center items-center min-h-screen bg-primary rounded-lg shadow-lg">
+            <div class="p-4">
+                <a href="/">
+                    <img src="{{ settings.home.StyleSettings.logo.file.url }}" alt="Logo" class="h-48 mx-auto">
                 </a>
             </div>
-
-            <div class="mt-4">
-                <button class=" md:w-72 md:h-72  rounded-full bg-amber-300 text-white text-2xl p-8 hover:bg-amber-500">
-                    <a href="/calendrier">
-                        Calendrier
-                    </a>
-                </button>
-            </div>
-
-            <div class="mt-4">
-                <button class="md:w-72 md:h-72  rounded-full bg-lime-500 text-white text-2xl p-8 hover:bg-lime-700">
-                    <a href="/choristes">
-                        Choristes
-                    </a>
-                </button>
+            <div class="p-5 rounded-lg">
+                <ul class="list-none space-y-2">
+                    {% for page in menu_pages %}
+                        <li>
+                            <a href="{{ page.url }}"
+                               class=" block p-3 bg-secondary-600 hover:bg-gray-600 hover:shadow-2xl rounded-md text-white text-center">
+                                <span class="text-3xl drop-shadow-md">
+                                    {{ page.title }}
+                                </span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-    </div>
-    </div>
+
+    {% else %}
+        <div class="container md:flex md:flex-row primary-color">
+            <div class="basis-1/2">
+                <div class="inline-block align-middle align-text-middle">
+                    <img
+                            src="{{ settings.home.StyleSettings.logo.file.url }}"
+                            alt="Logo SCN"
+                            class="max-h-screen"
+                    >
+                </div>
+            </div>
+
+            <div class="basis-1/2">
+                <div class="mt-4">
+                    <a href="/chants">
+                        <button class=" md:w-72 md:h-72 rounded-full bg-pink-400 text-white text-2xl p-8 hover:bg-pink-600">
+                            Chants
+                        </button>
+                    </a>
+                </div>
+
+                <div class="mt-4">
+                    <button class=" md:w-72 md:h-72  rounded-full bg-amber-300 text-white text-2xl p-8 hover:bg-amber-500">
+                        <a href="/calendrier">
+                            Calendrier
+                        </a>
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <button class="md:w-72 md:h-72  rounded-full bg-lime-500 text-white text-2xl p-8 hover:bg-lime-700">
+                        <a href="/choristes">
+                            Choristes
+                        </a>
+                    </button>
+                </div>
+            </div>
+        </div>
+        </div>
+
+    {% endif %}
+
 {% endblock %}
