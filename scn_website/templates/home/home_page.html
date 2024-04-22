@@ -13,7 +13,7 @@
 {% block content %}
 
     {% if settings.home.StyleSettings.generic_theme %}
-        <div class="flex justify-center items-center min-h-screen bg-primary rounded-lg shadow-lg">
+        <div class="flex justify-center items-center min-h-screen bg-secondary rounded-lg shadow-lg">
             <div class="p-4">
                 <a href="/">
                     <img src="{{ settings.home.StyleSettings.logo.file.url }}" alt="Logo" class="h-48 mx-auto">
@@ -24,7 +24,7 @@
                     {% for page in menu_pages %}
                         <li>
                             <a href="{{ page.url }}"
-                               class=" block p-3 bg-secondary-600 hover:bg-gray-600 hover:shadow-2xl rounded-md text-white text-center">
+                               class="link block p-3 hover:shadow-2xl rounded-md text-white text-center">
                                 <span class="text-3xl drop-shadow-md">
                                     {{ page.title }}
                                 </span>

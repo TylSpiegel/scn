@@ -1,7 +1,7 @@
 {% load static wagtailcore_tags wagtailuserbar wagtailimages_tags %}
 
 <nav class="bg-secondary overflow-hidden">
-    <div class="flex justify-between items-center mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 h-24 py-4">
+    <div class="rounded-b-lg flex justify-between items-center mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 h-24 py-4">
         <div class="flex items-center space-x-4">
             <a href="/">
                 <img src="{{ settings.home.StyleSettings.logo.file.url }}" alt="Logo"
@@ -10,10 +10,14 @@
             </a>
             {% for p in menu_pages %}
                 <a href="{{ p.url }}"
-                   class="bg-gray-700 text-white hover:bg-cyan-400 hover:text-black rounded-md px-3 py-2 my-4 text-2xl font-medium h-12">
+                   class="link text-white rounded-md px-3 py-2 my-4 text-2xl font-medium h-12">
                     {{ p.title }}
                 </a>
             {% endfor %}
         </div>
+
     </div>
+    <div class="bg-white h-0.5 drop-shadow-md">
+    </div>
+
 </nav>

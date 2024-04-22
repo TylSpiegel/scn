@@ -215,13 +215,17 @@ class Evenement(models.Model):
     end_date = models.DateField(null=True)
     start_hour = models.TimeField(null=True)
     end_hour = models.TimeField(null=True)
+    lieu = models.CharField(null=True, blank=True, max_length=250)
 
     panels = [
         FieldPanel('name'),
         FieldPanel('is_repetition'),
         FieldPanel('description'),
         FieldPanel('pupitre'),
-        FieldPanel('start_date')
+        FieldPanel('start_date'),
+        FieldPanel('start_hour'),
+        FieldPanel('end_hour'),
+        FieldPanel('lieu'),
     ]
 
     def __str__(self):

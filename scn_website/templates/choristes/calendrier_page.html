@@ -10,7 +10,7 @@
             <h1>{{ page.title }}</h1>
 
             <div class="content-box-title">
-                <h3 class="text-sky-800">Actus & notes</h3>
+                <h3 class="">Actus & notes</h3>
             </div>
             <div class="content-content">
                 {{ page.comment|richtext }}
@@ -19,39 +19,12 @@
             <hr class="m-6">
 
             <div class="content-box-title">
-                <h3 class="text-sky-800">Prochains événements</h3>
+                <h3 class="">Prochains événements</h3>
             </div>
 
-            <table class="md:min-w-[90%] divide-y divide-gray-200 shadow overflow-hidden border-b border-gray-200 sm:rounded-lg m-6 mx-auto">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th scope="col" class="thead">
-                        Date
-                    </th>
-                    <th scope="col" class="thead">
-                        Activité
-                    </th>
-                    <th scope="col"
-                        class="thead">
-                        Pupitre
-                    </th>
-
-                </tr>
-                </thead>
-                <div class="overflow-auto -webkit-overflow-scrolling-touch mb-5">
-                    <tbody class="bg-white divide-y divide-gray-200">
-                    {% for event in page.get_next_events %}
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ event.start_date }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 pupitre-{{ event.pupitre }}">{{ event.name }}</td>
-                            <!-- La classe pour pupitre est ajoutée dynamiquement en fonction de la valeur de event.pupitre -->
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 pupitre-{{ event.pupitre }}">
-                                {{ event.pupitre }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-            </table>
+        {% for event in page.get_next_events %}
+        {% include "blocks/event_block.html" with event=event %}
+    {% endfor %}
 
 
             <hr class="m-6">
@@ -101,14 +74,16 @@
 
         .fc-day-grid-event {
             height: fit-content;
+            background-color: var(--third-color);
         }
 
         .fc-event-container {
             height: max-content;
+            background-color: var(--third-color);
         }
 
         .fc-view-container .fc-head {
-            background-color: #0284C7;
+            background-color: var(--secondary-color);
             color: white;
         }
     </style>

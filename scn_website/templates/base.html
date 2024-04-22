@@ -36,7 +36,9 @@
         :root {
             --primary-color: {{ settings.home.StyleSettings.primary_color | default:"blue" }};
             --secondary-color: {{ settings.home.StyleSettings.secondary_color | default:"yellow" }};
+            --third-color: {{ settings.home.StyleSettings.third_color | default:"red" }};
         }
+
     </style>
 
     <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" type="text/css">

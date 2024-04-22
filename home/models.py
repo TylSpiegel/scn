@@ -43,6 +43,7 @@ class ContentPage(Page):
 class StyleSettings(BaseGenericSetting):
     primary_color = ColorField(default='#FF0000')
     secondary_color = ColorField(default='#FF0000')
+    third_color = ColorField(default='#FF0000')
     logo = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
@@ -56,6 +57,7 @@ class StyleSettings(BaseGenericSetting):
     panels = [
         NativeColorPanel('primary_color'),
         NativeColorPanel('secondary_color'),
+        NativeColorPanel('third_color'),
         FieldPanel('logo'),
         FieldPanel('generic_theme', help_text='Thème générique:')
     ]

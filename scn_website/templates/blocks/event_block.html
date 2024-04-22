@@ -1,0 +1,21 @@
+<!-- templates/event_component.html -->
+<div class="bg-third-color shadow-lg rounded-lg p-5 mb-4">
+    <div class="mb-4">
+        <h2 class="text-xl font-bold text-gray-800">{{ event.name }}</h2>
+        <p class="text-gray-500 text-sm">{{ event.start_date | date:"F d, Y" }}</p>
+    </div>
+    <div class="mb-4">
+        <p class="text-gray-600">
+            <span class="font-semibold">Heure de début :</span> {{ event.start_hour | date:"H:i" }}
+        </p>
+        <p class="text-gray-600">
+            <span class="font-semibold">Heure de fin :</span> {{ event.end_hour | date:"H:i" }}
+        </p>
+        <p class="text-gray-600">
+            <span class="font-semibold">Lieu :</span> {{ event.lieu }}
+        </p>
+    </div>
+    <div class="text-gray-700">
+        <p class="whitespace-pre-line">{{ event.description }}</p>
+    </div>
+</div>
