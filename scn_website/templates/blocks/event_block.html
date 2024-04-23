@@ -1,21 +1,27 @@
 <!-- templates/event_component.html -->
-<div class="bg-third-color shadow-lg rounded-lg p-5 mb-4">
-    <div class="mb-4">
-        <h2 class="text-xl font-bold text-gray-800">{{ event.name }}</h2>
-        <p class="text-gray-500 text-sm">{{ event.start_date | date:"F d, Y" }}</p>
-    </div>
-    <div class="mb-4">
-        <p class="text-gray-600">
-            <span class="font-semibold">Heure de début :</span> {{ event.start_hour | date:"H:i" }}
-        </p>
-        <p class="text-gray-600">
-            <span class="font-semibold">Heure de fin :</span> {{ event.end_hour | date:"H:i" }}
-        </p>
-        <p class="text-gray-600">
-            <span class="font-semibold">Lieu :</span> {{ event.lieu }}
-        </p>
-    </div>
-    <div class="text-gray-700">
-        <p class="whitespace-pre-line">{{ event.description }}</p>
+
+<div class="mx-auto w-4/5 shadow-md  overflow-hidden my-4">
+    <div class="flex flex-wrap md:flex-no-wrap">
+        <!-- Colonne de gauche -->
+        <div class="w-full md:w-1/3 bg-primary p-4 flex flex-col justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-700">{{ event.start_date | date:"d F" }}</h2>
+            </div>
+            <div>
+                <p class="text-gray-600 text-lg">{{ event.start_hour | date:"H:i" }} → {{ event.end_hour | date:"H:i" }}</p>
+                <p class="text-gray-500 text-lg mt-2">{{ event.lieu }}</p>
+                <div class="italic">
+                <p class="text-sm mt-4 w-full">{{ event.adresse }}</p>
+            </div>
+            </div>
+        </div>
+
+        <!-- Colonne de droite -->
+        <div class="w-full md:w-2/3 p-4">
+            <h3 class="text-xl font-bold text-gray-800">{{ event.name }}</h3>
+            <p class="text-gray-600 mt-4">{{ event.description }}</p>
+
+
+        </div>
     </div>
 </div>

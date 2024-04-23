@@ -216,6 +216,7 @@ class Evenement(models.Model):
     start_hour = models.TimeField(null=True)
     end_hour = models.TimeField(null=True)
     lieu = models.CharField(null=True, blank=True, max_length=250)
+    adresse = models.CharField(null=True, blank=True, max_length=250)
 
     panels = [
         FieldPanel('name'),
@@ -226,6 +227,7 @@ class Evenement(models.Model):
         FieldPanel('start_hour'),
         FieldPanel('end_hour'),
         FieldPanel('lieu'),
+        FieldPanel('adresse'),
     ]
 
     def __str__(self):
