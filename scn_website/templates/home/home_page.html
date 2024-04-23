@@ -15,9 +15,10 @@
         <div class="flex flex-col lg:flex-row justify-center items-center min-h-screen bg-secondary rounded-lg shadow-lg">
 
             {% if settings.home.StyleSettings.logo %}
+                {% image settings.home.StyleSettings.logo fill-512x512 as img %}
                 <div class="p-4">
                     <a href="/">
-                        <img src="{{ settings.home.StyleSettings.logo.file.url }}" alt="Logo" class="h-48 mx-auto">
+                        <img src="{{ img.file.url }}" alt="Logo" class="h-48 mx-auto">
                     </a>
                 </div>
             {% endif %}

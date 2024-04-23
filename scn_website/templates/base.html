@@ -1,4 +1,4 @@
-{% load static wagtailcore_tags wagtailuserbar %}
+{% load static wagtailcore_tags wagtailuserbar wagtailimages_tags %}
 {% load wagtailsettings_tags %}
 {% get_settings %}
 
@@ -21,8 +21,11 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'medias/favicon.ico' %}">
 
+     {% if settings.home.StyleSettings.logo %}
+        {% image settings.home.StyleSettings.logo fill-32x32 as favicon_img %}
+        <link rel="shortcut icon" href="{{ favicon_img.url }}" type="image/x-icon">
+     {% endif %}
 
 
     {# Force all links in the live preview panel to be opened in a new tab #}
