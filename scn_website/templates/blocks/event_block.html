@@ -9,10 +9,15 @@
             </div>
             <div>
                 <p class="text-gray-600 text-lg">{{ event.start_hour | date:"H:i" }} → {{ event.end_hour | date:"H:i" }}</p>
-                <p class="text-gray-500 text-lg mt-2">{{ event.lieu }}</p>
-                <div class="italic">
-                <p class="text-sm mt-4 w-full">{{ event.adresse }}</p>
-            </div>
+                {% if event.lieu %}
+                <p class="text-gray-500 text-lg mt-2">{{ event.lieu  }}</p>
+                {% endif %}
+
+                {% if event.adresse %}
+                    <div class="italic">
+                        <p class="text-sm mt-4 w-full">{{ event.adresse }}</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
@@ -20,8 +25,6 @@
         <div class="w-full md:w-2/3 p-4">
             <h3 class="text-xl font-bold text-gray-800">{{ event.name }}</h3>
             <p class="text-gray-600 mt-4">{{ event.description }}</p>
-
-
         </div>
     </div>
 </div>

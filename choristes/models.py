@@ -1,16 +1,18 @@
 import json
+import sys
+
+from datetime import timedelta
 
 from django.db import models
 from django.utils import timezone
 from django.db.models.functions import ExtractMonth, ExtractYear
-from datetime import timedelta
-from wagtail.snippets.models import register_snippet
+from django.core.validators import MaxValueValidator, MinValueValidator
 
+from wagtail.snippets.models import register_snippet
 from wagtail.admin.panels import TabbedInterface, ObjectList
 from wagtail.admin.panels import (
     FieldPanel,
 )
-
 from wagtail.documents.models import Document
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
@@ -139,21 +141,27 @@ class CalendrierPage(Page):
     # OPTIONS
 
     # FIELDS
-    calendrier_image = models.ForeignKey(
-        'wagtailimages.Image',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='+',
-        help_text="Le calendrier en format image"
-    )
+    how_many_events = models.IntegerField(blank=True, null=True, default=5, help_text="""
+    Définir combien d'événements afficher dans la liste des prochains événements.""")
+
+    show_calendar = models.BooleanField(default=True,
+                                        help_text="""
+    Est-ce que vous voulez que le widget calendrier s'affiche ? (max. 100)
+    """,
+                                        validators=[
+                                            MinValueValidator(0),
+                                            MaxValueValidator(100)
+                                        ]
+                                        )
+
     comment = RichTextField(
         blank=True,
         help_text="Un espace pour ajouter des commentaires : les changements récents, les prochaines dates..."
     )
     content_panels = Page.content_panels + [
-        FieldPanel("calendrier_image"),
         FieldPanel('comment'),
+        FieldPanel('show_calendar'),
+        FieldPanel('how_many_events'),
     ]
 
     def get_all_events(self):
@@ -173,7 +181,16 @@ class CalendrierPage(Page):
         return PUPITRES_COLORS.get(pupitre, '#D3D3D3')
 
     def get_next_events(self):
-        return Evenement.objects.filter(start_date__gt=timezone.now()).order_by('start_date').all()[:5]
+        return Evenement.objects.filter(start_date__gt=timezone.now()).order_by('start_date').all()[
+               0:self.how_many_events]
+
+    def clean(self):
+        if self.how_many_events < 1:
+            self.how_many_events = 0
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
 
 ####                            #####
