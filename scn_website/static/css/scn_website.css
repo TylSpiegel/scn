@@ -52,18 +52,6 @@ body {
         background-color: var(--third-color);
     }
 
-    .text-primary {
-        color: var(--primary-color);
-    }
-
-    .text-secondary {
-        color: var(--secondary-color);
-    }
-
-    .text-tertiary {
-        color: var(--third-color);
-    }
-
     h2 {
         @apply text-3xl py-4;
         color: var(--third-color);
