@@ -1,4 +1,10 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+default_settings_module = 'scn_website.settings.production'
+os.environ['DJANGO_SETTINGS_MODULE'] = os.getenv('DJANGO_SETTINGS_MODULE', default_settings_module)
 
 loglevel = 'info'
 logfile = 'logs/gunicorn_logfile.log'
