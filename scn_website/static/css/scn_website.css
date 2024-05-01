@@ -183,3 +183,9 @@ section {
     color: #1f2937;
 }
 
+#id_password {
+    padding: 8px;
+    border-radius: 4px;
+    background-color: var(--primary-color);
+    color: var(--third-color);
+}
