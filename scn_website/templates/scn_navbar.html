@@ -12,25 +12,6 @@
             <a href="/calendrier"
                class="bg-gray-700 text-white hover:bg-cyan-300 hover:text-black rounded-md px-3 py-2 my-4 text-2xl font-medium h-12">Calendrier</a>
         </div>
-        <!--
-                <div x-data="{ open: false }" class="md:hidden justify-center mx-auto">
-                    <button @click="open = !open" class="text-xl p-4">
-                        <svg width="300" height="100" xmlns="http://www.w3.org/2000/svg">
-                             Cercle pour "Chants" (rose)
-        <circle cx="50" cy="50" r="30" fill="#67e8f9"/>
-        <!-- Cercle pour "Calendrier" (ambre)
-        <circle cx="130" cy="50" r="30" fill="#FCD34D"/>
-        <!-- Cercle pour "Choristes" (vert lime)
-        <circle cx="200" cy="50" r="30" fill="#84CC16"/>
-        </svg>
-
-        <svg x-show="open" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-        </button>
-
-        -->
 
         <div x-data="{ open: false }" class="md:hidden bg-primary justify-center mx-auto relative">
             <button @click="open = !open" class="text-xl p-4">
@@ -44,7 +25,7 @@
                 </svg>
             </button>
 
-            <div x-show="open" @click.outside="open = false"
+            <div x-cloak x-show="open" @click.outside="open = false"
                  class="fixed inset-0 top-0 mt-12 py-2 w-screen bg-white shadow-xl z-50" style="z-index: 100;">
                 <div class=" flex items-center justify-between px-4 py-2">
                     <span></span> <!-- Espace pour aligner avec les autres éléments si nécessaire -->
