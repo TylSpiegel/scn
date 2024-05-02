@@ -1,10 +1,27 @@
 {% load wagtailimages_tags %}
 
-<div class="image-block">
-    {% if self.image %}
-        {% image self.image width-640 %}
-    {% endif %}
+<div class="image-block mx-auto p-4 rounded-lg flex flex-col justify-center items-center">
+    <div>
+        {% if self.image %}
+            {% if self.width == '160' %}
+                {% image self.image max-160x160 as img %}
+                <img src="{{ img.url }}" alt="{{ self.caption }}" class="max-w-xs">
+            {% elif self.width == '320' %}
+                {% image self.image max-320x320 as img %}
+                <img src="{{ img.url }}" alt="{{ img.alt }}" class="max-w-sm">
+            {% elif self.width == '640' %}
+                {% image self.image max-640x640 as img %}
+                <img src="{{ img.url }}" alt="{{ img.alt }}" class="max-w-md">
+            {% elif self.width == 'full' %}
+                {% image self.image original as img %}
+                <img src="{{ img.url }}" alt="{{ img.alt }}" class="max-w-full">
+            {% endif %}
+        {% endif %}
+    </div>
+
     {% if self.caption %}
-        <p class="caption">{{ self.caption }}</p>
+        <div class="caption mt-2 text-center">
+            <p>{{ self.caption }}</p>
+        </div>
     {% endif %}
 </div>
