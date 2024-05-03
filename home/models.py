@@ -12,7 +12,7 @@ from wagtail.admin.panels import FieldPanel, TabbedInterface, ObjectList
 from wagtail_color_panel.fields import ColorField
 from wagtail_color_panel.edit_handlers import NativeColorPanel
 
-from .blocks import ButtonBlock, ImageBlock, MultiColumnBlock
+from .blocks import LinkBlock, ImageBlock, MultiColumnBlock
 
 
 class HomePage(Page):

@@ -1,7 +1,8 @@
-from wagtail.blocks import CharBlock, TextBlock, StructBlock, ChoiceBlock, RichTextBlock, StreamBlock
+from wagtail.blocks import CharBlock, TextBlock, StructBlock, ChoiceBlock, RichTextBlock, StreamBlock, URLBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail import blocks
 
 COLOR_CHOICES = [
     ('blue', 'Blue'),
@@ -9,21 +10,17 @@ COLOR_CHOICES = [
 ]
 
 
-class ButtonBlock(StructBlock):
-    button_text = CharBlock(
-        required=False,
-        help_text="Entrer une valeur ici annule le champ ci-dessus.",
-    )
-
-    """color = ChoiceBlock(
-        default="blue",
-        choices=COLOR_CHOICES,
-        required=False
-    )
-    """
-    color = 'blue'
+class LinkBlock(blocks.StructBlock):
+    link_type = blocks.ChoiceBlock(choices=[
+        ('internal', 'Page interne'),
+        ('external', 'URL externe'),
+    ], icon='link', default='internal')
+    internal_page = blocks.PageChooserBlock(required=False)
+    external_url = blocks.URLBlock(required=False)
+    link_text = blocks.CharBlock(required=True)
 
     class Meta:
+        icon = 'link'
         template = "blocks/button_block.html"
 
 
@@ -49,6 +46,7 @@ class ImageBlock(StructBlock):
 
 class ColumnBlock(StreamBlock):
     content = RichTextBlock(required=False)
+    button = LinkBlock(required=False)
 
     class Meta:
         icon = 'placeholder'

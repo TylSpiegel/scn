@@ -1,8 +1,14 @@
 {% load static %}
-<div class="button-wrapper">
-
-    <button class="{{self.color}}">
-        {{self.button_text}}
+<div class="my-8 flex justify-center">
+    <button class="bg-secondary text-white text-xl p-4 rounded">
+        {% if field.link_type == 'internal' %}
+            <a href="{{ self.internal_page.url }}">
+                {{ field.link_text }}
+            </a>
+        {% else %}
+            <a href="{{ self.external_link }}">
+                {{ self.link_text }}
+            </a>
+        {% endif %}
     </button>
-
 </div>
