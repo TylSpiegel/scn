@@ -1,9 +1,10 @@
 {% load wagtailcore_tags %}
 
-<div class="column bg-white shadow-md rounded-lg p-4">
+<div class="bg-gray-100 shadow-md rounded-lg p-4 h-full ">
     {% for field in self %}
         <div class="my-2">
             {% include_block field %}
         </div>
     {% endfor %}
+
 </div>
