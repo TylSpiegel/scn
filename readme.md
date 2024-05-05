@@ -16,7 +16,8 @@ of responses. The idea is to gather these organizational details in one easy-to-
 ### Encouragement and Facilitation of Musical Work
 
 During rehearsals, there is often a more experienced person who leads the direction. However, at home, everyone is left
-to their own devices. The goal is to find ways to make this preparation less daunting. For this, there is the provision
+with his/her own musical abilities.
+The goal is to find ways to make this preparation less daunting. For this, there is the provision
 of content (scores, audios, lyrics, translations); but also the development (ongoing) of a player that helps in
 rehearsing certain segments, listening selectively to parallel voices...
 
