@@ -54,7 +54,7 @@ Summer 2024:
 
 There is a demo site used to showcase ongoing developments and obtain feedback from users.
 
-**Link:** https://sacrechoeurnamur-test.online
+**Link:** scn.webtopia.online
 
 **Password:** test
 
