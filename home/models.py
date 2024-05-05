@@ -49,9 +49,9 @@ class StyleSettings(BaseGenericSetting):
     generic_theme = models.BooleanField(default=False)
 
     theme_panel = [
-        FieldPanel('primary_color'),
-        FieldPanel('secondary_color'),
-        FieldPanel('third_color'),
+        NativeColorPanel('primary_color'),
+        NativeColorPanel('secondary_color'),
+        NativeColorPanel('third_color'),
     ]
     # BRANDING
     logo = models.ForeignKey(
