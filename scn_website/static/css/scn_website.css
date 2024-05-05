@@ -10,14 +10,13 @@
 
 body {
     font-family: "Avenir Next";
-
 }
 
 
 @layer base {
 
     body {
-        @apply bg-cyan-400;
+        background-color: var(--primary-color);
     }
 
     .container {
@@ -26,25 +25,59 @@ body {
         text-align: center;
         align-content: center;
         @apply p-4;
-
     }
 
     h1 {
         @apply text-4xl py-4;
+        color: var(--third-color);
+    }
+
+    .link {
+        background-color: var(--secondary-color);
+    }
+
+    .link:hover {
+        background-color: var(--third-color);
+    }
+
+    .bg-primary {
+        background-color: var(--primary-color);
+    }
+
+    .bg-secondary {
+        background-color: var(--secondary-color);
+    }
+
+    .bg-third-color {
+        background-color: var(--third-color);
+    }
+
+    .text-primary {
+        color: var(--primary-color);
+    }
+
+    .text-secondary {
+        color: var(--secondary-color);
+    }
+
+    .text-tertiary {
+        color: var(--third-color);
     }
 
     h2 {
         @apply text-3xl py-4;
+        color: var(--third-color);
     }
 
     h3 {
         @apply text-2xl py-4;
+        color: var(--third-color);
     }
 
     h4 {
         @apply text-xl py-4;
+        color: var(--third-color);
     }
-
 
     ul {
         @apply list-disc;
@@ -55,14 +88,20 @@ body {
     }
 
     section.content-box {
-        @apply bg-sky-300 rounded-2xl border-2 border-cyan-700;
+        @apply rounded-2xl border-2;
+        border-color: var(--secondary-color);
 
         div.content-box-title {
-            @apply bg-sky-700 rounded-t-xl text-white;
+            @apply rounded-t-xl;
+            background-color: var(--secondary-color);
+
+            h1 {
+                color: white;
+            }
         }
 
         div.content-content {
-            @apply p-6 bg-sky-100 text-left rounded-b-xl;
+            @apply p-6 bg-white text-left rounded-b-xl;
         }
 
         ul {
@@ -80,7 +119,11 @@ body {
 }
 
 table .thead {
-    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-sky-700 text-white
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-white
+}
+
+table .thead {
+    background-color: var(--secondary-color)
 }
 
 
@@ -140,3 +183,9 @@ section {
     color: #1f2937;
 }
 
+#id_password {
+    padding: 8px;
+    border-radius: 4px;
+    background-color: var(--primary-color);
+    color: var(--third-color);
+}

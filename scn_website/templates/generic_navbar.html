@@ -1,0 +1,72 @@
+{% load static wagtailcore_tags wagtailuserbar wagtailimages_tags %}
+
+<nav class="bg-secondary overflow-hidden">
+    <!-- Conteneur principal pour Alpine.js -->
+    <div x-data="{ open: false }"
+         class="rounded-b-lg flex justify-between items-center mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 h-24 py-4">
+
+        <!-- Menu Desktop -->
+        <div class="hidden md:flex items-center space-x-4">
+            {% if settings.home.StyleSettings.logo %}
+                {% image settings.home.StyleSettings.logo fill-128x128 as img %}
+                <a href="/">
+                    <img src="{{ img.file.url }}" alt="Logo"
+                         class="object-cover relative rounded-xl mx-auto h-20 w-20 m-1"/>
+                </a>
+            {% endif %}
+            {% for p in menu_pages %}
+                <a href="{{ p.url }}" class="link text-white rounded-md px-3 py-2 my-4 text-2xl font-medium h-12">
+                    {{ p.title }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- Bouton Mobile -->
+        <button @click="open = !open" class="md:hidden text-xl p-4">
+            <svg width="300" height="100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="50" r="15" fill="var(--primary-color)"/>
+                <circle cx="100" cy="50" r="15" fill="var(--third-color)"/>
+                <circle cx="140" cy="50" r="15" fill="var(--primary-color)"/>
+            </svg>
+        </button>
+
+        <!-- Menu Navigation Mobile -->
+        <div x-cloak x-show="open" @click.outside="open = false"
+             class="fixed inset-0 top-0 mt-12 py-2 w-screen bg-white shadow-xl z-50">
+            {% if settings.home.StyleSettings.logo %}
+                <div class="flex items-center justify-between px-4 py-2">
+
+                <button>
+                {% image settings.home.StyleSettings.logo fill-128x128 as img %}
+                <a href="/">
+                    <img src="{{ img.file.url }}" alt="Logo"
+                         class="object-cover relative rounded-xl mx-auto h-20 w-20 m-1"/>
+                </a>
+            {% endif %}
+            </button>
+
+            <button @click="open = false" class="text-xl">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            </div>
+            {% for p in menu_pages %}
+                <a href="{{ p.url }}"
+                   class="block px-4 py-2 text-gray-800 hover:bg-gray-200 flex items-center text-2xl">
+                    <span class="h-4 w-4 rounded-full bg-secondary inline-block mr-2"></span> {{ p.title }}
+                </a>
+            {% endfor %}
+            <hr>
+            <a href="/" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 flex items-center text-2xl">
+                <span class="h-4 w-4 rounded-full bg-third-color inline-block mr-2"></span> Page d'accueil
+            </a>
+            <a href="#" @click="open = false"
+               class="block px-4 py-2 text-gray-800 hover:bg-gray-200 flex items-center text-2xl">
+                <span class="h-4 w-4 inline-block mr-2">&#10005;</span> Fermer
+            </a>
+        </div>
+    </div>
+</nav>
+

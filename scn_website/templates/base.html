@@ -1,4 +1,6 @@
-{% load static wagtailcore_tags wagtailuserbar %}
+{% load static wagtailcore_tags wagtailuserbar wagtailimages_tags %}
+{% load wagtailsettings_tags %}
+{% get_settings %}
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -19,7 +21,11 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'medias/favicon.ico' %}">
+
+     {% if settings.home.StyleSettings.logo %}
+        {% image settings.home.StyleSettings.logo fill-32x32 as favicon_img %}
+        <link rel="shortcut icon" href="{{ favicon_img.url }}" type="image/x-icon">
+     {% endif %}
 
 
     {# Force all links in the live preview panel to be opened in a new tab #}
@@ -28,9 +34,18 @@
     {% endif %}
 
     {# Global stylesheets #}
+    <style>
+
+        :root {
+            --primary-color: {{ settings.home.StyleSettings.primary_color | default:"blue" }};
+            --secondary-color: {{ settings.home.StyleSettings.secondary_color | default:"yellow" }};
+            --third-color: {{ settings.home.StyleSettings.third_color | default:"red" }};
+        }
+    </style>
 
     <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" type="text/css">
-    <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js"></script>
+
     {% block extra_css %}
 
     {% endblock %}
@@ -40,9 +55,12 @@
 
 <!-- Navigation Bar -->
 {% block navbar %}
-    {% include "navbar.html" %}
+    {% if settings.home.StyleSettings.generic_theme %}
+        {% include "generic_navbar.html" %}
+    {% else %}
+        {% include "scn_navbar.html" %}
+    {% endif %}
 {% endblock navbar %}
-
 
 {% wagtailuserbar %}
 
@@ -55,4 +73,10 @@
 {% endblock %}
 </body>
 
+
+
 </html>
+
+
+
+

@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "search",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
+    'wagtail.contrib.settings',
     "wagtail.embeds",
     "wagtail.sites",
     "wagtail.users",
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
+    'wagtail_color_panel',
 ]
 
 MIDDLEWARE = [
@@ -74,10 +75,13 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "wagtail.contrib.settings.context_processors.settings",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "home.context_processors.first_level_page",
+            
             ],
         },
     },

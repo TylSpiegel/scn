@@ -11,45 +11,74 @@
 {% endblock navbar %}
 
 {% block content %}
+    {% if settings.home.StyleSettings.generic_theme %}
+        <div class="flex flex-col lg:flex-row justify-center items-center min-h-screen bg-secondary rounded-lg shadow-lg">
 
+            {% if settings.home.StyleSettings.logo %}
+                {% image settings.home.StyleSettings.logo fill-512x512 as img %}
+                <div class="p-4">
+                    <a href="/">
+                        <img src="{{ img.file.url }}" alt="Logo" class="h-48 mx-auto">
+                    </a>
+                </div>
+            {% endif %}
 
-    <div class="container md:flex md:flex-row">
-        <div class="basis-1/2">
-            <div class="inline-block align-middle align-text-middle">
-                <img
-                        src="{% static 'medias/logo-scn.png' %}"
-                        alt="Logo SCN"
-                        class="max-h-screen"
-                >
+            <div class="p-5 rounded-lg">
+                <ul class="list-none space-y-2 lg:space-y-0 lg:flex lg:flex-col">
+                    {% for page in menu_pages %}
+                        <li class="sm:mb-2">
+                            <a href="{{ page.url }}"
+                               class="link block p-3 hover:shadow-2xl rounded-md text-white text-center">
+                        <span class="text-3xl drop-shadow-md">
+                            {{ page.title }}
+                        </span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
-
         </div>
 
-        <div class="basis-1/2">
-            <div class="mt-4">
-                <a href="/chants">
-                    <button class=" md:w-72 md:h-72 rounded-full bg-pink-400 text-white text-2xl p-8 hover:bg-pink-600">
-                        Chants
+    {% else %}
+        <div class="container md:flex md:flex-row primary-color">
+            <div class="basis-1/2">
+                <div class="inline-block align-middle align-text-middle">
+                    <img
+                            src="{{ settings.home.StyleSettings.logo.file.url }}"
+                            alt="Logo SCN"
+                            class="max-h-screen"
+                    >
+                </div>
+            </div>
+
+            <div class="basis-1/2">
+                <div class="mt-4">
+                    <a href="/chants">
+                        <button class=" md:w-72 md:h-72 rounded-full bg-pink-400 text-white text-2xl p-8 hover:bg-pink-600">
+                            Chants
+                        </button>
+                    </a>
+                </div>
+
+                <div class="mt-4">
+                    <button class=" md:w-72 md:h-72  rounded-full bg-amber-300 text-white text-2xl p-8 hover:bg-amber-500">
+                        <a href="/calendrier">
+                            Calendrier
+                        </a>
                     </button>
-                </a>
-            </div>
+                </div>
 
-            <div class="mt-4">
-                <button class=" md:w-72 md:h-72  rounded-full bg-amber-300 text-white text-2xl p-8 hover:bg-amber-500">
-                    <a href="/calendrier">
-                        Calendrier
-                    </a>
-                </button>
-            </div>
-
-            <div class="mt-4">
-                <button class="md:w-72 md:h-72  rounded-full bg-lime-500 text-white text-2xl p-8 hover:bg-lime-700">
-                    <a href="/choristes">
-                        Choristes
-                    </a>
-                </button>
+                <div class="mt-4">
+                    <button class="md:w-72 md:h-72  rounded-full bg-lime-500 text-white text-2xl p-8 hover:bg-lime-700">
+                        <a href="/choristes">
+                            Choristes
+                        </a>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-    </div>
+        </div>
+
+    {% endif %}
+
 {% endblock %}
