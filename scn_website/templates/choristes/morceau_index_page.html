@@ -13,11 +13,10 @@
                     {{ page.introduction }}
                 </p>
             </div>
-
-
-            <ul class="list-none m-6 p-0 flex flex-col items-center justify-center space-y-2">
+        
+            <div class="m-6 p-0 flex flex-col items-center justify-center space-y-2">
                 {% for post in page.children %}
-                    <li class="flex items-center justify-center">
+                    <div class="flex items-center justify-center">
                         <a href="{{ post.url }}" class="flex items-center">
                             <div class="hover:text-blue-800">
                                 <span class="text-xl">{{ post.specific.titre }}</span> -
@@ -28,9 +27,9 @@
                                      class="w-6 h-auto">
                             </a>
                         </a>
-                    </li>
+                    </div>
                 {% endfor %}
-            </ul>
+            </div>
 
     </section>
 {% endblock %}
