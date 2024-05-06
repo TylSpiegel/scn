@@ -80,13 +80,13 @@ body {
     }
 
     ul {
-        @apply list-disc;
+        @apply list-disc mx-auto max-w-md text-left;
     }
 
-    li {
-
+    ol {
+        @apply list-decimal mx-auto max-w-md text-left;
     }
-
+    
     section.content-box {
         @apply rounded-2xl border-2;
         border-color: var(--secondary-color);
