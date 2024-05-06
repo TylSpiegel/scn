@@ -1,9 +1,10 @@
 {% load static %}
 <div class="my-8 flex justify-center">
     <button class="bg-secondary text-white text-xl p-4 rounded">
-        {% if field.link_type == 'internal' %}
-            <a href="{{ self.internal_page.url }}">
-                {{ field.link_text }}
+
+        {% if self.link_type == 'internal' %}
+            <a href="{{ self.internal_page.specific.url }}">
+                {{ self.link_text }}
             </a>
         {% else %}
             <a href="{{ self.external_link }}">
