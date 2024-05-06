@@ -4,7 +4,6 @@ import logging
 
 load_dotenv()
 
-
 def on_starting(server):
     logger = logging.getLogger('gunicorn.info')
     # Log pour voir la structure complète de server.address
@@ -15,7 +14,6 @@ def on_starting(server):
     except IndexError as e:
         # Log de l'erreur si l'indice est hors limites
         logger.error(f"Erreur d'IndexError: {e}. Structure de server.address non conforme aux attentes.")
-
 
 default_settings_module = 'scn_website.settings.production'
 os.environ['DJANGO_SETTINGS_MODULE'] = os.getenv('DJANGO_SETTINGS_MODULE', default_settings_module)
