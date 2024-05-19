@@ -45,4 +45,5 @@ wheels/
 code_removed/
 
 # Hosting
+*.log*/tailwind.css
 *.log
