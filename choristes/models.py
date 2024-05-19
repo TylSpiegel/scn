@@ -248,4 +248,4 @@ class Evenement(models.Model):
     ]
 
     def __str__(self):
-        return f"{self.name} - {self.pupitre} - {self.start_date.strftime('%d-%m')}"
+        return f"{self.start_date.strftime('%d-%m')} // {self.name} - {self.pupitre} "

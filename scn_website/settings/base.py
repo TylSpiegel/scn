@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     'wagtail.contrib.settings',
+    'wagtail.contrib.modeladmin',
     "wagtail.embeds",
     "wagtail.sites",
     "wagtail.users",
@@ -81,7 +82,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "home.context_processors.first_level_page",
-            
+
             ],
         },
     },
