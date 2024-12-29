@@ -44,7 +44,7 @@ April 2024 (ongoing): genericization of the site, possible customization by the 
 * Responsiveness improvement
 * ...
 
-Summer 2024:
+Coming next:
 
 * Addition of interaction features (polls, comments, wiki)
 * Addition of advanced features for the audio player
