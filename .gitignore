@@ -1,7 +1,7 @@
 # Django project
 /media/
 /static/
-/scn_website/static/
+/apps/core/static/
 *.sqlite3
 */migrations/*
 /scn_website/css/tailwind.css
