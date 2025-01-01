@@ -1,0 +1,63 @@
+{% load wagtailcore_tags %}
+
+<div class="audio-block bg-white rounded-lg shadow-md p-4 my-4 hover:shadow-xl transition-all duration-300">
+    {% if self.audio_file %}
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between space-y-4 md:space-y-0">
+            {# Section information #}
+            <div class="flex items-center space-x-3">
+                <div class="bg-secondary text-white px-3 py-1 rounded-full text-sm font-medium">
+                    {% if self.custom_section %}
+                        {{ self.custom_section }}
+                    {% else %}
+                        {{ self.section }}
+                    {% endif %}
+                </div>
+                
+                {% if self.notes %}
+                    <span class="text-gray-600 text-sm italic">
+                        {{ self.notes }}
+                    </span>
+                {% endif %}
+            </div>
+
+            {# Audio player and controls #}
+            <div class="w-full md:w-auto">
+                <div class="flex items-center space-x-4">
+                    {# Custom audio player #}
+                    <div class="flex-grow">
+                        <audio
+                            class="w-full"
+                            controls
+                            preload="metadata"
+                        >
+                            <source src="{{ self.audio_file.url }}" type="audio/mpeg">
+                            Votre navigateur ne supporte pas la lecture audio.
+                        </audio>
+                    </div>
+
+                    {# Download button #}
+                    <a 
+                        href="{{ self.audio_file.url }}" 
+                        download
+                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-secondary transition-colors duration-200"
+                        title="Télécharger l'audio"
+                    >
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                    </a>
+                </div>
+
+                {# File information #}
+                <div class="mt-2 text-xs text-gray-500">
+                    {{ self.audio_file.filename }} 
+                    ({{ self.audio_file.file.size|filesizeformat }})
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-gray-500 italic text-center py-4">
+            Aucun fichier audio n'a été sélectionné
+        </div>
+    {% endif %}
+</div>

@@ -1,0 +1,144 @@
+
+
+<!--
+{% extends "base.html" %}
+{% load wagtailcore_tags static %}
+
+{% block body_class %}template-blogindexpage{% endblock %}
+
+{% block content %}
+
+    <section>
+        <div class="container mx-auto p-4 bg-gray-100 rounded-lg shadow">
+            <h1>{{ page.title }}</h1>
+            <div class="lg:w-1/2 mx-auto p-4 rounded-md justify-center">
+                <p class="text-tertiary italic text-lg">
+                    {{ page.introduction }}
+                </p>
+            </div>
+        
+            <div class="m-6 p-0 flex flex-col items-center justify-center space-y-2">
+                {% for post in page.children %}
+                    <div class="flex items-center justify-center">
+                        <a href="{{ post.url }}" class="flex items-center">
+                            <div class="hover:text-blue-800">
+                                <span class="text-xl">{{ post.specific.titre }}</span> -
+                                <span class="text-xl italic">{{ post.specific.compositeur }}</span>
+                            </div>
+                            <a href="{{ post.specific.pdf.url }}" target="_blank" class="ml-6">
+                                <img src="{% static 'medias/music-sheet.png' %}" alt="music sheet icon"
+                                     class="w-6 h-auto">
+                            </a>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+    </section>
+{% endblock %}
+
+-->
+
+{% extends "base.html" %}
+{% load wagtailcore_tags static %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    {# Hero Section #}
+    <section class="bg-secondary text-white py-8 md:py-12 px-4">
+        <div class="container mx-auto max-w-5xl">
+            <h1 class="text-2xl md:text-4xl font-bold mb-4">{{ page.title }}</h1>
+            {% if page.introduction %}
+                <p class="text-lg md:text-xl opacity-90">{{ page.introduction }}</p>
+            {% endif %}
+        </div>
+    </section>
+
+    {# Main Content #}
+    <div class="container mx-auto max-w-5xl px-4 py-8">
+        {# Description Section #}
+        {% if page.description %}
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <div class="prose max-w-none">
+                    {{ page.description|richtext }}
+                </div>
+            </div>
+        {% endif %}
+
+        {# Stats Bar #}
+        <div class="flex flex-wrap gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow-sm p-4 flex-grow">
+                <span class="text-gray-600 text-sm">Nombre de morceaux</span>
+                <p class="text-2xl font-bold">{{ piece_count }}</p>
+            </div>
+            {% if page.last_updated %}
+                <div class="bg-white rounded-lg shadow-sm p-4 flex-grow">
+                    <span class="text-gray-600 text-sm">Dernière mise à jour</span>
+                    <p class="text-2xl font-bold">{{ page.last_updated|date:"d/m/Y" }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Pieces List #}
+        <div class="grid gap-4 md:gap-6">
+            {% for piece in pieces %}
+                <article class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <a href="{{ piece.url }}" class="block p-4 md:p-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900">{{ piece.title }}</h2>
+                                {% if piece.composer %}
+                                    <p class="text-gray-600">{{ piece.composer }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                {# Show section badge if exists #}
+                                {% if piece.section %}
+                                    <span class="px-3 py-1 rounded-full text-sm bg-primary text-white">
+                                        {{ piece.section }}
+                                    </span>
+                                {% endif %}
+                                
+                                {# Download button if PDF exists #}
+                                {% if piece.score_pdf %}
+                                    <a href="{{ piece.score_pdf.url }}" 
+                                       class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-secondary text-white hover:bg-primary transition-colors duration-200"
+                                       download
+                                       title="Télécharger la partition">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                        </svg>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {# Preview text if exists #}
+                        {% if piece.preview_text %}
+                            <p class="mt-2 text-gray-600 line-clamp-2">{{ piece.preview_text }}</p>
+                        {% endif %}
+                    </a>
+                </article>
+            {% empty %}
+                <div class="text-center py-12 text-gray-500">
+                    <p>Aucun morceau n'a encore été ajouté au répertoire.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{# Mobile Action Button #}
+{% if request.user.is_staff %}
+    <div class="md:hidden fixed bottom-4 right-4">
+        <a href="{% url 'wagtailadmin_pages:add_subpage' page.id %}" 
+           class="flex items-center justify-center w-14 h-14 rounded-full bg-secondary text-white shadow-lg hover:bg-primary transition-colors duration-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

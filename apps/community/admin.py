@@ -1,5 +1,5 @@
 from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
-from ..music.models.repertoire import Choriste, Evenement
+from ..music.models.pages.repertoire import Choriste, Evenement
 from django.contrib import admin
 
 
