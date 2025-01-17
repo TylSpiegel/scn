@@ -1,0 +1,177 @@
+{% comment %}blocks/poll_block.html{% endcomment %}
+<div class="poll-container bg-white rounded-lg shadow-lg p-6 my-4" 
+     x-data="{ 
+        showResults: {{ value.poll.show_results|yesno:'true,false' }},
+        hasVoted: false,
+        responses: {},
+        errorMessages: {},
+        respondentName: '',
+        validateForm() {
+            let isValid = true;
+            this.errorMessages = {};
+            
+            if (!this.respondentName) {
+                this.errorMessages.name = 'Veuillez entrer votre nom';
+                isValid = false;
+            }
+
+            {% for question in value.poll.questions.all %}
+                if ({{ question.is_required|yesno:'true,false' }} && !this.responses['q{{ question.id }}']) {
+                    this.errorMessages['q{{ question.id }}'] = 'Cette réponse est obligatoire';
+                    isValid = false;
+                }
+            {% endfor %}
+
+            return isValid;
+        }
+     }">
+    <h3 class="text-2xl font-bold mb-4">{{ value.poll.title }}</h3>
+    {% if value.poll.description %}
+        <p class="text-gray-600 mb-6">{{ value.poll.description }}</p>
+    {% endif %}
+
+    {% if not value.poll.is_closed %}
+        {% include "blocks/poll_form.html" %}
+    {% else %}
+        <p class="text-gray-600 italic mb-4">Ce sondage est fermé.</p>
+    {% endif %}
+
+    {% if value.poll.show_results or value.poll.results_visibility == 'immediate' %}
+        {% include "blocks/poll_results.html" %}
+    {% endif %}
+</div>
+
+{% comment %}blocks/poll_form.html{% endcomment %}
+<form x-show="!hasVoted" 
+      @submit.prevent="if(validateForm()) submitVote()" 
+      class="space-y-6">
+    <div class="mb-4">
+        <label for="respondentName" class="block text-sm font-medium text-gray-700">Votre nom</label>
+        <input type="text" 
+               id="respondentName" 
+               x-model="respondentName"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+        <p x-show="errorMessages.name" 
+           x-text="errorMessages.name" 
+           class="text-red-500 text-sm mt-1">
+        </p>
+    </div>
+
+    {% for question in value.poll.questions.all %}
+    <div class="question-container mb-6 p-4 bg-gray-50 rounded-lg">
+        <h4 class="text-lg font-medium mb-3">
+            {{ question.text }}
+            {% if question.is_required %}
+                <span class="text-red-500">*</span>
+            {% endif %}
+        </h4>
+
+        <div class="space-y-2">
+            {% for option in value.poll.options.all %}
+            <label class="flex items-center space-x-3 p-2 rounded hover:bg-white cursor-pointer">
+                <input type="radio" 
+                       name="question_{{ question.id }}" 
+                       value="{{ option.id }}"
+                       x-model="responses['q{{ question.id }}']"
+                       {% if question.is_required %}required{% endif %}
+                       class="focus:ring-primary h-4 w-4 text-primary border-gray-300">
+                <span class="text-gray-900">{{ option.text }}</span>
+            </label>
+            {% endfor %}
+        </div>
+
+        <p x-show="errorMessages['q{{ question.id }}']" 
+           x-text="errorMessages['q{{ question.id }}']" 
+           class="text-red-500 text-sm mt-2"></p>
+    </div>
+    {% endfor %}
+
+    <button type="submit" 
+            class="w-full mt-6 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+        Voter
+    </button>
+</form>
+
+{% comment %}blocks/poll_results.html{% endcomment %}
+<div x-show="showResults || hasVoted" class="mt-8">
+    <h4 class="text-xl font-semibold mb-6">Résultats</h4>
+    
+    {% for question in value.poll.questions.all %}
+        <div class="mb-8">
+            <h5 class="text-lg font-medium mb-4">{{ question.text }}</h5>
+            
+            {% with total_responses=question.responses.count %}
+                {% for option in value.poll.options.all %}
+                    {% with option_count=option.responses.filter(question=question).count %}
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span>{{ option.text }}</span>
+                                <span>{{ option_count }} vote{{ option_count|pluralize }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                <div class="h-4 rounded-full transition-all duration-500" 
+                                     style="width: {% if total_responses %}{{ option_count|div:total_responses|mul:100 }}{% else %}0{% endif %}%; background-color: {{ option.color }}">
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endfor %}
+                <p class="text-gray-600 mt-2">Total des votes pour cette question : {{ total_responses }}</p>
+            {% endwith %}
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+function submitVote() {
+    const formData = {
+        poll_id: {{ value.poll.id }},
+        respondent_name: this.respondentName,
+        responses: Object.entries(this.responses).map(([questionKey, optionId]) => ({
+            question_id: parseInt(questionKey.substring(1)),
+            option_id: optionId
+        }))
+    };
+
+    fetch('/api/poll-vote/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            this.hasVoted = true;
+            if ('{{ value.poll.results_visibility }}' === 'immediate') {
+                this.showResults = true;
+            }
+        } else {
+            this.errorMessages = {
+                ...this.errorMessages,
+                submit: data.error || 'Une erreur est survenue'
+            };
+        }
+    })
+    .catch(error => {
+        this.errorMessages.submit = 'Une erreur est survenue lors de l\'envoi de votre vote';
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>

@@ -1,0 +1,25 @@
+{% comment %} templates/blocks/events_list.html {% endcomment %}
+
+<div class="events-list-block">
+    {% if self.name %}
+        <h2 class="text-2xl font-bold mb-4">{{ self.name }}</h2>
+    {% endif %}
+    
+    {% if self.description %}
+        <div class="mb-6">{{ self.description|richtext }}</div>
+    {% endif %}
+
+    <div class="events-grid grid gap-4">
+        {% for event in events %}
+            {% if self.display_style == 'mini' %}
+                {% include "components/event_mini.html" %}
+            {% elif self.display_style == 'normal' %}
+                {% include "components/event_normal.html" %}
+            {% else %}
+                {% include "components/event_full.html" %}
+            {% endif %}
+        {% empty %}
+            <p class="text-gray-500 italic">Aucun événement à afficher</p>
+        {% endfor %}
+    </div>
+</div>

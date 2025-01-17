@@ -1,0 +1,103 @@
+{% load static %}
+
+<div class="calendar-wrapper">
+   {% if self.title %}
+       <h2 class="text-2xl font-bold mb-4">{{ self.title }}</h2>
+   {% endif %}
+   
+   {% if self.description %}
+       <div class="mb-6">{{ self.description|richtext }}</div>
+   {% endif %}
+
+   <div id="calendar-{{ id }}" 
+        class="bg-white rounded-lg shadow p-4"
+        style="height: {{ self.height }}px">
+   </div>
+
+   {% comment %} FullCalendar Dependencies {% endcomment %}
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.css" rel="stylesheet">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/locales/fr.min.js"></script>
+
+   <script>
+   document.addEventListener('DOMContentLoaded', function() {
+       var calendarEl = document.getElementById('calendar-{{ id }}');
+       var calendar = new FullCalendar.Calendar(calendarEl, {
+           initialView: 'dayGridMonth',
+           locale: 'fr',
+           height: {{ self.height }},
+           
+           headerToolbar: {
+               left: '{% if self.allow_view_change %}prev,next today{% else %}prev,next{% endif %}',
+               center: 'title',
+               right: '{% if self.allow_view_change %}dayGridMonth,timeGridWeek,timeGridDay{% endif %}'
+           },
+
+           views: {
+               dayGridMonth: {
+                   titleFormat: { year: 'numeric', month: 'long' }
+               },
+               timeGridWeek: {
+                   titleFormat: { year: 'numeric', month: 'long', day: '2-digit' }
+               },
+               timeGridDay: {
+                   titleFormat: { year: 'numeric', month: 'long', day: '2-digit' }
+               }
+           },
+
+           displayEventTime: {{ self.show_event_time|yesno:"true,false" }},
+           events: {{ events|safe }},
+           
+           eventClick: function(info) {
+               // Open modal
+               Alpine.store('modal').open('event-' + info.event.id);
+           },
+           
+           eventDidMount: function(info) {
+               // Add tooltip
+               new Tippy(info.el, {
+                   content: info.event.title,
+                   placement: 'top'
+               });
+           },
+           
+           // Mobile responsive settings
+           windowResize: function(view) {
+               if(window.innerWidth < 768) {
+                   calendar.setOption('headerToolbar', {
+                       left: 'prev,next',
+                       center: 'title',
+                       right: ''
+                   });
+               }
+           }
+       });
+
+       calendar.render();
+   });
+   </script>
+</div>
+
+<style>
+.fc-event {
+   cursor: pointer;
+}
+
+.fc-toolbar-title {
+   font-size: 1.2em !important;
+}
+
+@media (max-width: 768px) {
+   .fc-toolbar {
+       flex-direction: column;
+   }
+   
+   .fc-toolbar-title {
+       margin: 0.5em 0;
+   }
+   
+   .fc-button-group {
+       margin: 0.5em 0;
+   }
+}
+</style>
