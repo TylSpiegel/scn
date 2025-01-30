@@ -1,7 +1,7 @@
 import json
 import sys
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.db import models
 from django.utils import timezone
@@ -181,7 +181,8 @@ class CalendrierPage(Page):
         return PUPITRES_COLORS.get(pupitre, '#D3D3D3')
 
     def get_next_events(self):
-        return Evenement.objects.filter(start_date__gte=timezone.now()).order_by('start_date').all()[
+        today = datetime.today()
+        return Evenement.objects.filter(start_date__gte=today).order_by('start_date').all()[
                0:self.how_many_events]
 
     def clean(self):
