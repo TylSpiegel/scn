@@ -47,3 +47,5 @@ code_removed/
 # Hosting
 *.log*/tailwind.css
 *.log
+reload_website.sh
+start.sh
