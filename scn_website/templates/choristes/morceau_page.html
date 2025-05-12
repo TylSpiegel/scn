@@ -8,37 +8,6 @@
 
     <div class="flex flex-wrap items-center">
 
-        <!--      SIDEBAR   -->
-        <!--
-		<div class="hidden md:block md:col-span-1 md:row-start-1">
-			<div class="absolute">
-				<div id="toc"
-				     class="toc bg-white shadow-lg rounded-lg p-4 m-2
-		      sticky top-10 ">
-					<ul class="list-none space-y-2">
-						<li><a href="#title"
-						       class="toc-link text-2xl hover:text-gray-800 transition duration-300">{{ page.title }}</a>
-						</li>
-						<li><a href="#files"
-						       class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Fichiers</a>
-						</li>
-						{% if page.interpretation %}
-							<li><a href="#interpretation"
-							       class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Texte
-								et traduction</a></li>
-						{% endif %}
-						{% if page.traduction %}
-							<li><a href="#traduction"
-							       class="toc-link text-blue-600 hover:text-blue-800 transition duration-300">Interprétation</a>
-							</li>
-						{% endif %}
-					</ul>
-				</div>
-			</div>
-		</div>
-
-		-->
-
         <div class="container md:w-4/6 items-center">
 
             <section id="title" class="mt-0 rounded-xl">
@@ -167,10 +136,13 @@
                     </div>
                     <div class="content-content">{{ page.interpretation|richtext }}</div>
                 </section>
-
             {% endif %}
 
             <!----- FIN INTERPRETATION   -------->
+
+            {% if page.activer_timecodes %}
+              {% include "blocks/_audio_mixer.html" %}
+            {% endif %}
 
         </div>
     </div>
