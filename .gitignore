@@ -49,3 +49,6 @@ code_removed/
 *.log
 reload_website.sh
 start.sh
+
+# Other
+meta/*

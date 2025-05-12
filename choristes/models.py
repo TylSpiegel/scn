@@ -6,7 +6,8 @@ from datetime import timedelta, datetime
 from django.db import models
 from django.utils import timezone
 from django.db.models.functions import ExtractMonth, ExtractYear
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from wagtail import blocks
 
 from wagtail.snippets.models import register_snippet
 from wagtail.admin.panels import TabbedInterface, ObjectList
@@ -58,13 +59,42 @@ class NewsPage(Page):
 ####                #####
 #       MORCEAU         #
 ####                #####
+class TimecodeBlock(blocks.StructBlock):
+    """Block pour un timecode individuel."""
+    timecode = blocks.CharBlock(
+        help_text="Format mm:ss, ex: 02:45",
+        label="Timecode",
+        validators=[
+            RegexValidator(
+                regex=r'^([0-5][0-9]):([0-5][0-9])$',
+                message="Le format doit être mm:ss (ex: 02:45)"
+            )
+        ]
+    )
+    texte = blocks.TextBlock(label="Texte associé")
+
+    class Meta:
+        template = 'blocks/timecode_block.html'
+        icon = 'time'
+
 
 class MorceauPage(Page):
     titre = models.CharField(max_length=250, null=True)
-    compositeur = models.CharField(max_length=250, null=True, )
+    compositeur = models.CharField(max_length=250, null=True)
     descr = RichTextField(blank=True)
     traduction = RichTextField(blank=True)
     interpretation = RichTextField(blank=True)
+
+    activer_timecodes = models.BooleanField(
+        default=False,
+        verbose_name="Activer les timecodes",
+        help_text="Cochez pour activer la fonctionnalité de timecodes"
+    )
+
+    timecodes = StreamField([
+        ('timecode', TimecodeBlock()),
+    ], null=True, blank=True, use_json_field=True,
+        verbose_name="Timecodes avec annotations")
 
     pdf = models.ForeignKey(
         Document,
@@ -97,6 +127,8 @@ class MorceauPage(Page):
 
     interpretation_panels = [
         FieldPanel('interpretation'),
+        FieldPanel('activer_timecodes'),
+        FieldPanel('timecodes'),
     ]
 
     edit_handler = TabbedInterface([
@@ -109,6 +141,20 @@ class MorceauPage(Page):
     def get_context(self, request):
         context = super().get_context(request)
         context['audios'] = sorted(self.audios, key=lambda x: x.value['pupitre'])
+
+        # Trier les timecodes par valeur numérique
+        if self.activer_timecodes:
+            sorted_timecodes = []
+            for block in self.timecodes:
+                if block.block_type == 'timecode':
+                    tc_parts = block.value['timecode'].split(':')
+                    # Convertir en secondes pour le tri
+                    tc_seconds = int(tc_parts[0]) * 60 + int(tc_parts[1])
+                    sorted_timecodes.append((tc_seconds, block))
+
+            sorted_timecodes.sort(key=lambda x: x[0])
+            context['sorted_timecodes'] = [item[1] for item in sorted_timecodes]
+
         return context
 
     parent_page_types = ["MorceauIndexPage"]
