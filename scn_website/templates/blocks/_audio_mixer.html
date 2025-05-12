@@ -1,0 +1,474 @@
+{% load static %}
+
+{% if page.activer_timecodes %}
+<section id="audio-mixer" class="content-box">
+    <div class="content-box-title">
+        <h3 class="text-white shadow-lg">Mixeur Audio</h3>
+    </div>
+    <div class="content-content">
+        <div class="audio-mixer-container p-4 bg-white rounded-lg shadow-md">
+            <!-- Section de mixage séparée -->
+            <div class="mix-section mb-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-medium mb-2">Mixer les pistes</h4>
+                <!-- Sélection des pistes -->
+                <div class="track-selector mb-4">
+                    <h5 class="font-medium mb-2">Sélectionner les pistes</h5>
+                    <p>Après chaque changement, appuyez sur "Mixer les pistes"</p>
+                    <div id="track-list" class="track-list space-y-2">
+                        {% for audio in page.audios %}
+                        <div class="flex items-center justify-between p-2 bg-gray-100 rounded-md">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" data-url="{{ audio.value.audio.url }}"
+                                       data-title="{{ audio.value.pupitre }}"
+                                       checked class="track-selector-checkbox rounded text-secondary">
+                                <span>{{ audio.value.pupitre }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Bouton de mixage séparé -->
+                <div class="controls mb-4">
+                    <button id="mix-button" class="px-4 py-2 bg-secondary text-white rounded-md hover:bg-pink-700">
+                        Mixer les pistes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section audio séparée -->
+            <div class="audio-section mb-6">
+                <h4 class="font-medium mb-2">Lecteur audio</h4>
+                <!-- Contrôles audio -->
+                <div class="controls mb-4 flex space-x-2">
+                    <button id="play-button" class="px-4 py-2 bg-secondary text-white rounded-md hover:bg-pink-700" disabled>
+                        Lecture
+                    </button>
+                    <button id="stop-button" class="px-4 py-2 bg-secondary text-white rounded-md hover:bg-pink-700" disabled>
+                        Stop
+                    </button>
+
+                </div>
+
+                <div class="relative">
+                    <div id="waveform-container" class="bg-gray-100 p-2 rounded-md" style="height: 90px;"></div>
+                    <div class="bottom-2 right-2">
+                        <button id="download-mix" class="px-4 py-2 bg-secondary text-white rounded-md hover:bg-pink-700" disabled>
+                            Télécharger
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timecodes -->
+            {% if page.activer_timecodes %}
+            <div id="timecodes-container" class="mt-6">
+                <h4 class="font-medium mb-2">Points de repère</h4>
+                <div id="timecodes-list" class="space-y-2">
+                    {% for timecode in sorted_timecodes %}
+                    <p class="timecode-item border-l-4 border-pink-400 pl-2 py-1 hover:bg-gray-100 cursor-pointer"
+                        data-timecode="{{ timecode.value.timecode }}">
+                        <span class="timecode-time font-bold text-pink-600 mr-2">{{ timecode.value.timecode }}</span>
+                        <span class="timecode-text">{{ timecode.value.texte }}</span>
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Script JavaScript intégré dans le composant -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.4/wavesurfer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.4/plugin/wavesurfer.markers.min.js"></script>
+    <script>
+        // Générer un ID unique pour ce composant
+        const componentId = 'audio-mixer-' + Math.random().toString(36).substring(2, 9);
+
+        // Renommer les IDs des éléments pour éviter les conflits
+        (function() {
+            const container = document.getElementById('audio-mixer');
+            if (!container) return;
+
+            const elementsToRename = [
+                'waveform-container',
+                'mix-button',
+                'play-button',
+                'stop-button',
+                'download-mix',
+                'track-list',
+                'timecodes-list',
+                'timecodes-container'
+            ];
+
+            elementsToRename.forEach(id => {
+                const element = container.querySelector('#' + id);
+                if (element) {
+                    element.id = id + '-' + componentId;
+                }
+            });
+        })();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Référencer les éléments avec leurs nouveaux IDs
+            const container = document.getElementById('audio-mixer');
+            const waveformContainer = document.getElementById('waveform-container-' + componentId);
+            const mixButton = document.getElementById('mix-button-' + componentId);
+            const playButton = document.getElementById('play-button-' + componentId);
+            const stopButton = document.getElementById('stop-button-' + componentId);
+            const downloadButton = document.getElementById('download-mix-' + componentId);
+            const trackList = document.getElementById('track-list-' + componentId);
+            const timecodesContainer = document.getElementById('timecodes-container-' + componentId);
+            const timecodesList = document.getElementById('timecodes-list-' + componentId);
+
+            if (!waveformContainer) return;
+
+            // Sélecteurs pour les éléments à l'intérieur du conteneur
+            const checkboxes = container.querySelectorAll('.track-selector-checkbox');
+            const timecodeItems = container.querySelectorAll('.timecode-item');
+
+            // Créer le plugin de marqueurs
+            const markersPlugin = WaveSurfer.markers.create();
+
+            // Initialiser WaveSurfer
+            const wavesurfer = WaveSurfer.create({
+                container: waveformContainer,
+                waveColor: '#211027',
+                progressColor: '#69207F',
+                cursorColor: 'blue',
+                height: 80,
+                plugins: [markersPlugin]
+            });
+
+            // Variables pour gérer l'état
+            let audioContext = null;
+            let tracks = [];
+            let isProcessing = false;
+            let currentMixUrl = null;
+            let audioDuration = 0;
+
+            // Structure des timecodes
+            const timecodes = [
+                {% for timecode in page.sorted_timecodes %}
+                {
+                    time: "{{ timecode.value.timecode }}",
+                    text: "{{ timecode.value.texte|escapejs }}"
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+
+            // Initialiser l'Audio Context
+            function initAudioContext() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                return audioContext;
+            }
+
+            // Convertir le format mm:ss en secondes
+            function convertTimeToSeconds(timeString) {
+                const [minutes, seconds] = timeString.split(':').map(Number);
+                return (minutes * 60) + seconds;
+            }
+
+            // Ajouter les marqueurs de timecode à la forme d'onde
+            function addTimecodeMarkers() {
+                markersPlugin.clearMarkers();
+
+                if (!timecodes || timecodes.length === 0 || !audioDuration) {
+                    return;
+                }
+
+                timecodes.forEach((tc, index) => {
+                    const timeInSeconds = convertTimeToSeconds(tc.time);
+
+                    if (timeInSeconds <= audioDuration) {
+                        markersPlugin.add({
+                            time: timeInSeconds,
+                            label: tc.time,
+                            color: '#FF5FA9',
+                            position: 'top'
+                        });
+                    }
+                });
+            }
+
+            // Charger les pistes
+            async function loadTrack(url, title) {
+                try {
+                    const ctx = initAudioContext();
+                    const response = await fetch(url);
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+                    return {
+                        url,
+                        title,
+                        buffer: audioBuffer
+                    };
+                } catch (error) {
+                    console.error('Erreur lors du chargement de la piste:', error);
+                    return null;
+                }
+            }
+
+            // Charger toutes les pistes au chargement
+            async function loadAllTracks() {
+                if (!mixButton) return;
+
+                mixButton.disabled = true;
+                mixButton.textContent = 'Chargement...';
+
+                const trackPromises = [];
+
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const url = checkbox.dataset.url;
+                        const title = checkbox.dataset.title;
+                        trackPromises.push(loadTrack(url, title));
+                    }
+                });
+
+                try {
+                    const loadedTracks = await Promise.all(trackPromises);
+                    tracks = loadedTracks.filter(t => t !== null);
+
+                    if (tracks.length > 0) {
+                        mixButton.disabled = false;
+                        mixButton.textContent = 'Mixer les pistes';
+                    }
+                } catch (error) {
+                    console.error('Erreur lors du chargement des pistes:', error);
+                } finally {
+                    if (mixButton) {
+                        mixButton.disabled = false;
+                        mixButton.textContent = 'Mixer les pistes';
+                    }
+                }
+            }
+
+            // Mixer les pistes sélectionnées
+            async function mixTracks() {
+                if (!mixButton || isProcessing || tracks.length === 0) return;
+
+                isProcessing = true;
+                mixButton.disabled = true;
+                mixButton.textContent = 'Mixage en cours...';
+
+                try {
+                    const ctx = initAudioContext();
+
+                    // Trouver la durée maximale et le nombre de canaux
+                    const maxLength = Math.max(...tracks.map(track => track.buffer.length));
+                    const numberOfChannels = Math.max(...tracks.map(track => track.buffer.numberOfChannels));
+
+                    // Créer un buffer pour le mix
+                    const mixedBuffer = ctx.createBuffer(
+                        numberOfChannels,
+                        maxLength,
+                        ctx.sampleRate
+                    );
+
+                    // Mixer les pistes
+                    tracks.forEach(track => {
+                        const buffer = track.buffer;
+                        for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+                            const mixedData = mixedBuffer.getChannelData(channel);
+                            const bufferData = buffer.getChannelData(channel);
+
+                            for (let i = 0; i < bufferData.length; i++) {
+                                mixedData[i] = (mixedData[i] || 0) + bufferData[i];
+                            }
+                        }
+                    });
+
+                    // Normalisation
+                    for (let channel = 0; channel < mixedBuffer.numberOfChannels; channel++) {
+                        const mixedData = mixedBuffer.getChannelData(channel);
+                        let maxSample = 0;
+
+                        for (let i = 0; i < mixedData.length; i++) {
+                            const absoluteSample = Math.abs(mixedData[i]);
+                            if (absoluteSample > maxSample) {
+                                maxSample = absoluteSample;
+                            }
+                        }
+
+                        if (maxSample > 1) {
+                            const normalizationFactor = 1 / maxSample;
+                            for (let i = 0; i < mixedData.length; i++) {
+                                mixedData[i] *= normalizationFactor;
+                            }
+                        }
+                    }
+
+                    // Enregistrer la durée pour les marqueurs
+                    audioDuration = mixedBuffer.duration;
+
+                    // Convertir en WAV
+                    const wavBlob = await audioBufferToWav(mixedBuffer);
+
+                    // Nettoyer l'URL précédente
+                    if (currentMixUrl) {
+                        URL.revokeObjectURL(currentMixUrl);
+                    }
+
+                    // Créer une nouvelle URL
+                    currentMixUrl = URL.createObjectURL(wavBlob);
+
+                    // Charger dans WaveSurfer
+                    wavesurfer.load(currentMixUrl);
+
+                    // Activer les contrôles
+                    if (playButton) playButton.disabled = false;
+                    if (stopButton) stopButton.disabled = false;
+                    if (downloadButton) downloadButton.disabled = false;
+
+                } catch (error) {
+                    console.error('Erreur lors du mixage:', error);
+                    alert('Une erreur est survenue lors du mixage des pistes.');
+                } finally {
+                    isProcessing = false;
+                    if (mixButton) {
+                        mixButton.disabled = false;
+                        mixButton.textContent = 'Mixer les pistes';
+                    }
+                }
+            }
+
+            // Convertir un AudioBuffer en WAV
+            function audioBufferToWav(audioBuffer) {
+                return new Promise(resolve => {
+                    const numberOfChannels = audioBuffer.numberOfChannels;
+                    const length = audioBuffer.length * numberOfChannels * 2;
+                    const buffer = new ArrayBuffer(44 + length);
+                    const view = new DataView(buffer);
+                    const sampleRate = audioBuffer.sampleRate;
+
+                    // Écrire l'en-tête WAV
+                    const writeString = (view, offset, string) => {
+                        for (let i = 0; i < string.length; i++) {
+                            view.setUint8(offset + i, string.charCodeAt(i));
+                        }
+                    };
+
+                    writeString(view, 0, 'RIFF');
+                    view.setUint32(4, 36 + length, true);
+                    writeString(view, 8, 'WAVE');
+                    writeString(view, 12, 'fmt ');
+                    view.setUint32(16, 16, true);
+                    view.setUint16(20, 1, true);
+                    view.setUint16(22, numberOfChannels, true);
+                    view.setUint32(24, sampleRate, true);
+                    view.setUint32(28, sampleRate * numberOfChannels * 2, true);
+                    view.setUint16(32, numberOfChannels * 2, true);
+                    view.setUint16(34, 16, true);
+                    writeString(view, 36, 'data');
+                    view.setUint32(40, length, true);
+
+                    // Écrire les données audio
+                    const offset = 44;
+                    for (let channel = 0; channel < numberOfChannels; channel++) {
+                        const channelData = audioBuffer.getChannelData(channel);
+                        for (let i = 0; i < audioBuffer.length; i++) {
+                            const sample = Math.max(-1, Math.min(1, channelData[i]));
+                            const int16 = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                            view.setInt16(offset + (i * numberOfChannels + channel) * 2, int16, true);
+                        }
+                    }
+
+                    // Créer le Blob et l'URL
+                    const blob = new Blob([buffer], { type: 'audio/wav' });
+                    resolve(blob);
+                });
+            }
+
+            // Fonction pour se positionner à un timecode spécifique
+            function seekToTimecode(timecodeString) {
+                if (!wavesurfer || !currentMixUrl) return;
+
+                const seconds = convertTimeToSeconds(timecodeString);
+                if (seconds <= audioDuration) {
+                    wavesurfer.seekTo(seconds / audioDuration);
+                }
+            }
+
+            // Vérifier si les éléments existent avant d'ajouter des écouteurs d'événements
+            if (mixButton) {
+                mixButton.addEventListener('click', mixTracks);
+            }
+
+            if (playButton) {
+                playButton.addEventListener('click', function() {
+                    if (wavesurfer.isPlaying()) {
+                        wavesurfer.pause();
+                        playButton.textContent = 'Lecture';
+                    } else {
+                        wavesurfer.play();
+                        playButton.textContent = 'Pause';
+                    }
+                });
+            }
+
+            if (stopButton) {
+                stopButton.addEventListener('click', function() {
+                    wavesurfer.stop();
+                    if (playButton) playButton.textContent = 'Lecture';
+                });
+            }
+
+            if (downloadButton) {
+                downloadButton.addEventListener('click', function() {
+                    if (currentMixUrl) {
+                        const a = document.createElement('a');
+                        a.href = currentMixUrl;
+                        a.download = 'mix_{{ page.titre|default:page.title|slugify }}.wav';
+                        a.click();
+                    }
+                });
+            }
+
+            // Gestion des timecodes - cliquer sur un élément de la liste
+            timecodeItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const timecode = this.dataset.timecode;
+                    seekToTimecode(timecode);
+                });
+            });
+
+            // Événements des checkboxes
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', async function() {
+                    // Recharger les pistes si la sélection change
+                    tracks = [];
+                    await loadAllTracks();
+                });
+            });
+
+            // Événements WaveSurfer
+            wavesurfer.on('ready', function() {
+                if (playButton) playButton.disabled = false;
+                if (stopButton) stopButton.disabled = false;
+                if (downloadButton) downloadButton.disabled = false;
+
+                // Ajouter les marqueurs une fois que l'audio est chargé
+                audioDuration = wavesurfer.getDuration();
+                addTimecodeMarkers();
+            });
+
+            wavesurfer.on('marker-click', function(marker) {
+                // Optionnel: lancer la lecture après avoir cliqué sur un marqueur
+                wavesurfer.play(marker.time);
+                if (playButton) playButton.textContent = 'Pause';
+            });
+
+            wavesurfer.on('finish', function() {
+                if (playButton) playButton.textContent = 'Lecture';
+            });
+
+            // Charger les pistes initialement
+            loadAllTracks();
+        });
+    </script>
+</section>
+{% endif %}
