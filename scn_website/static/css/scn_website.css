@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @font-face {
 
@@ -86,7 +84,7 @@ body {
     ol {
         @apply list-decimal mx-auto max-w-md text-left;
     }
-    
+
     section.content-box {
         @apply rounded-2xl border-2;
         border-color: var(--secondary-color);
@@ -117,6 +115,7 @@ body {
         }
     }
 }
+
 
 table .thead {
     @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-white
@@ -196,4 +195,14 @@ p:empty {
     margin-bottom: 0.5em;
     display: block;
     content: '';
+}
+
+/*
+Documents et liens
+ */
+a[href*="/documents/"]:not(.document-styled) {
+    @apply inline-flex items-center gap-2 border rounded-md px-3 py-2 no-underline transition-colors duration-150 my-1;
+    @apply hover:bg-gray-50;
+    @apply text-amber-600;
+    background: white;
 }
