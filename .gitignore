@@ -17,10 +17,12 @@ __pycache__
 /Vagrantfile.local
 node_modules/
 /npm-debug.log
-/.idea/
+.idea/
+**/.idea
 .vscode
 coverage
 .python-version
+**vcs.xml
 
 # Distribution / packaging
 .Python
