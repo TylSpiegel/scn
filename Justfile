@@ -18,7 +18,7 @@ runserver: venv
     python manage.py runserver
 
 buildcss:
-	npx tailwindcss build scn_website/static/css/scn_website.css -o scn_website/static/css/tailwind.css
+	npx @tailwindcss/cli  -i scn_website/static/css/scn_website.css -o scn_website/static/css/tailwind.css
 
 deploy_prod : venv
     python manage.py collectstatic
