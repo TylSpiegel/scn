@@ -3,7 +3,6 @@
 /static/
 /scn_website/static/
 *.sqlite3
-*/migrations/*
 /scn_website/css/tailwind.css
 
 # Python and others
