@@ -7,6 +7,7 @@ from django.db import models
 from django.utils import timezone
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django import forms
 from wagtail import blocks
 
 from wagtail.snippets.models import register_snippet
@@ -19,10 +20,16 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from .blocks import AudioDocumentBlock, AdditionalFilesBlock
 
+from wagtail.models import ClusterableModel
+from wagtail.admin.panels import InlinePanel
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
+
 PUPITRES_CHOICES = (
     ('Tutti', 'Tutti'),
     ('Soprano', 'Soprano'),
     ('Alto', 'Alto'),
+    ('Mezzo-alto', 'Mezzo-alto'),
+    ('Mezzo-soprano', 'Mezzo-soprano'),
     ('Ténor', 'Ténor'),
     ('Basse', 'Basse'),
     ('Autre', 'Autre'),
@@ -247,23 +254,97 @@ class CalendrierPage(Page):
 class ChoristesIndexPage(Page):
     max_count = 1
 
-    def get_children(self):
-        return Choriste.objects.order_by('pupitre').all()
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context['choristes'] = Choriste.objects.all().order_by('name')
+
+        return context
 
 
 @register_snippet
-class Choriste(models.Model):
-    name = models.CharField(max_length=255, null=False, blank=False)
-    pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25, null=True, blank=True)
-    mail = models.EmailField(null=True, blank=True)
-    phone = models.CharField(max_length=15, null=True, blank=True)
+class Choriste(ClusterableModel):
+    active = models.BooleanField(default=False, verbose_name="Actif")
+    name = models.CharField(max_length=255, null=False, blank=False,
+                            verbose_name="Nom", help_text="Nom du choriste")
+    pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25,
+                               null=True, blank=True, verbose_name="Pupitre")
+    mail = models.EmailField(null=True, blank=True, verbose_name="Email")
+    phone = models.CharField(max_length=15, null=True, blank=True,
+                             verbose_name="Téléphone")
+    birthdate = models.DateField(null=True, blank=True,
+                                 verbose_name="Date de naissance")
+    choir_functions = ParentalManyToManyField(
+        'ChoirRole',
+        blank=True,
+        related_name='choristes',
+        verbose_name="Fonctions",
+        help_text="Fonctions dans le chœur"
+    )
 
     panels = [
         FieldPanel('name'),
+        FieldPanel('active'),
         FieldPanel('pupitre'),
         FieldPanel('mail'),
-        FieldPanel('phone')
+        FieldPanel('phone'),
+        FieldPanel('birthdate'),
+        InlinePanel('addresses', label="Adresse", max_num=1),
+        FieldPanel('choir_functions', widget=forms.CheckboxSelectMultiple),
     ]
+
+    class Meta:
+        verbose_name = "Choriste"
+        verbose_name_plural = "Choristes"
+
+    def __str__(self):
+        return self.name
+
+
+class Address(Orderable):
+    choriste = ParentalKey(
+        'Choriste',
+        on_delete=models.CASCADE,
+        related_name='addresses',
+        null=True,
+        verbose_name="Choriste"
+    )
+    street = models.CharField(max_length=255, null=False, blank=False,
+                              verbose_name="Rue", help_text="Rue")
+    zip_code = models.CharField(max_length=10, null=False, blank=False,
+                                verbose_name="Code postal")
+    city = models.CharField(max_length=255, null=False, blank=False,
+                            verbose_name="Localité")
+
+    panels = [
+        FieldPanel('street'),
+        FieldPanel('zip_code'),
+        FieldPanel('city'),
+    ]
+
+    class Meta:
+        verbose_name = "Adresse"
+        verbose_name_plural = "Adresses"
+
+    def __str__(self):
+        return f"{self.street}, {self.zip_code} {self.city}"
+
+
+@register_snippet
+class ChoirRole(models.Model):
+    name = models.CharField(max_length=255, null=False, blank=False,
+                            verbose_name="Nom", help_text="Nom de la fonction")
+    description = models.TextField(null=True, blank=True,
+                                   verbose_name="Description")
+
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('description'),
+    ]
+
+    class Meta:
+        verbose_name = "Fonction"
+        verbose_name_plural = "Fonctions"
+        ordering = ['name']
 
     def __str__(self):
         return self.name
