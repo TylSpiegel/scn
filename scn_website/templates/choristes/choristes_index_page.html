@@ -2,44 +2,53 @@
 
 {% load wagtailcore_tags %}
 
-
-
-
 {% block content %}
     <div class="flex flex-wrap items-center">
-
         <div class="container md:w-4/6 items-center">
-
             <h1>Répertoire des membres</h1>
             <table class="min-w-full table-auto border-collapse border border-slate-200">
                 <thead class="bg-slate-700 text-white">
-                <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
-                    Nom
-                </th>
-                <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
-                    Pupitre
-                </th>
-                <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
-                    Mail
-                </th>
-                <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
-                    Téléphone
-                </th>
+                <tr>
+                    <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                        Nom
+                    </th>
+                    <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                        Pupitre
+                    </th>
+                    <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                        Mail
+                    </th>
+                    <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                        Téléphone
+                    </th>
+                    <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                        Adresse
+                    </th>
+                    <th class="px-6 py-3 border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wider">
+                        Date de naissance
+                    </th>
+                </tr>
                 </thead>
                 <tbody>
-
-                {% for choriste in page.get_children %}
-                    <tr class="bg-white border-b">
-                        <th>{{ choriste.name }}</th>
-                        <td>{{ choriste.pupitre }}</td>
-                        <td>{{ choriste.mail }}</td>
-                        <td>{{ choriste.phone }}</td>
-                    </tr>
-
+                {% for choriste in choristes %}
+                    {% if choriste.active %}
+                        <tr class="bg-white border-b">
+                            <td class="px-6 py-4">{{ choriste.name }}</td>
+                            <td class="px-6 py-4">{{ choriste.pupitre }}</td>
+                            <td class="px-6 py-4">{{ choriste.mail }}</td>
+                            <td class="px-6 py-4">{{ choriste.phone }}</td>
+                            <td class="px-6 py-4">
+                                {% for address in choriste.addresses.all %}
+                                    {{ address.street }}<br>
+                                    {{ address.zip_code }} {{ address.city }}
+                                {% endfor %}
+                            </td>
+                            <td class="px-6 py-4">{{ choriste.birthdate }}</td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
                 </tbody>
             </table>
-
         </div>
     </div>
 {% endblock %}
