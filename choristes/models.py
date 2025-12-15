@@ -38,7 +38,9 @@ PUPITRES_CHOICES = (
 PUPITRES_COLORS = {
     'Tutti': '#007BFF',
     'Soprano': '#DC3545',
+    'Mezzo-soprano': '#E91E63',
     'Alto': '#FFC107',
+    'Mezzo-alto': '#FF9800',
     'Ténor': '#28A745',
     'Basse': '#17A2B8',
     'Autre': '#6C757D',
@@ -256,7 +258,23 @@ class ChoristesIndexPage(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context['choristes'] = Choriste.objects.all().order_by('name')
+
+        # Créer un dictionnaire pour l'ordre des pupitres
+        pupitre_order = {pupitre[0]: idx for idx, pupitre in enumerate(PUPITRES_CHOICES)}
+
+        # Récupérer tous les choristes et les trier
+        choristes = Choriste.objects.all()
+
+        # Trier d'abord par l'ordre des pupitres, puis par nom
+        choristes_sorted = sorted(
+            choristes,
+            key=lambda c: (
+                pupitre_order.get(c.pupitre, 999),  # 999 pour les pupitres non définis
+                c.name
+            )
+        )
+
+        context['choristes'] = choristes_sorted
 
         return context
 

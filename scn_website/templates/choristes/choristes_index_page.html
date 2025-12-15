@@ -3,136 +3,154 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
+    <style>
+        .pupitre-tutti { background-color: #007BFF; }
+        .pupitre-soprano { background-color: #DC3545; }
+        .pupitre-mezzo-soprano { background-color: #E91E63; }
+        .pupitre-alto { background-color: #FFC107; }
+        .pupitre-mezzo-alto { background-color: #FF9800; }
+        .pupitre-tenor { background-color: #28A745; }
+        .pupitre-basse { background-color: #17A2B8; }
+        .pupitre-autre { background-color: #6C757D; }
+    </style>
+
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold mb-8">Répertoire des choristes</h1>
 
-        {% regroup choristes|dictsort:"pupitre" by pupitre as pupitres_list %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {% for choriste in choristes %}
+                {% if choriste.active %}
+                    <div x-data="{ open: false }"
+                         class="bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden">
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {% for pupitre_group in pupitres_list %}
-                {% for choriste in pupitre_group.list %}
-                    {% if choriste.active %}
-                        <div x-data="{ open: false }"
-                             class="bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden">
+                        <!-- Tag pupitre en haut à gauche avec couleur dynamique -->
+                        <div class="relative left-0 top-0 text-white text-xs font-semibold px-3 py-1 rounded-br-lg shadow-md z-10 whitespace-nowrap w-fit
+                            {% if choriste.pupitre == 'Tutti' %}pupitre-tutti
+                            {% elif choriste.pupitre == 'Soprano' %}pupitre-soprano
+                            {% elif choriste.pupitre == 'Mezzo-soprano' %}pupitre-mezzo-soprano
+                            {% elif choriste.pupitre == 'Alto' %}pupitre-alto text-slate-900
+                            {% elif choriste.pupitre == 'Mezzo-alto' %}pupitre-mezzo-alto
+                            {% elif choriste.pupitre == 'Ténor' %}pupitre-tenor
+                            {% elif choriste.pupitre == 'Basse' %}pupitre-basse
+                            {% else %}pupitre-autre{% endif %}">
+                            {{ choriste.pupitre|default:"Sans pupitre" }}
+                        </div>
 
-                            <!-- Tag pupitre en haut à gauche -->
-                            <div class="relative left-0 top-0 bg-slate-700 text-white text-xs font-semibold px-3 py-1 rounded-br-lg shadow-md z-10 whitespace-nowrap w-fit">
-                                {{ choriste.pupitre|default:"Sans pupitre" }}
-                            </div>
+                        <!-- Informations principales -->
+                        <div class="p-3 pt-8">
+                            <div class="flex flex-col items-center gap-2">
+                                <!-- Nom -->
+                                <h3 class="font-semibold text-lg text-slate-900 text-center">
+                                    {{ choriste.name }}
+                                </h3>
 
-                            <!-- Informations principales -->
-                            <div class="p-3 pt-8">
-                                <div class="flex flex-col items-center gap-1.5">
-                                    <!-- Nom -->
-                                    <h3 class="font-semibold text-lg text-slate-900 text-center">
-                                        {{ choriste.name }}
-                                    </h3>
-
-                                    <!-- Fonctions -->
-                                    {% if choriste.choir_functions.all %}
-                                        <div class="flex flex-wrap gap-1.5 justify-center px-4">
-                                            {% for role in choriste.choir_functions.all %}
-                                                <div class="flex flex-col items-center gap-1.5">
-                                                   <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-                                                        {{ role }}
-                                                    </span>
-                                                </div>
-
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-
-                                    <!-- Bouton toggle -->
-                                    <button @click="open = !open"
-                                            class="bg-primary text-white text-sm font-medium py-1.5 px-3 rounded transition-colors flex items-center gap-2 hover:opacity-90 mt-2">
-                                        <span x-text="open ? 'Masquer' : 'Contact'"></span>
-                                        <svg class="w-4 h-4 transition-transform"
-                                             :class="{ 'rotate-180': open }"
-                                             fill="none"
-                                             stroke="currentColor"
-                                             viewBox="0 0 24 24">
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M19 9l-7 7-7-7"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Informations détaillées (collapsible) -->
-                            <div x-show="open"
-                                 x-collapse
-                                 class="border-t border-slate-200 bg-slate-50 p-3">
-                                <dl class="space-y-2.5">
-                                    <!-- Date de naissance -->
-                                    <div>
-                                        <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
-                                            Date de naissance
-                                        </dt>
-                                        <dd class="text-sm text-slate-900">
-                                            {% if choriste.birthdate %}
-                                                {{ choriste.birthdate|date:"d/m/Y" }}
-                                            {% else %}
-                                                -
-                                            {% endif %}
-                                        </dd>
+                                <!-- Fonctions -->
+                                {% if choriste.choir_functions.all %}
+                                    <div class="flex flex-wrap gap-1.5 justify-center px-4">
+                                        {% for role in choriste.choir_functions.all %}
+                                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
+                                                {{ role }}
+                                            </span>
+                                        {% endfor %}
                                     </div>
+                                {% endif %}
 
-                                    <!-- Email -->
-                                    <div>
-                                        <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
-                                            Email
-                                        </dt>
-                                        <dd class="text-sm text-slate-900 break-all">
-                                            {% if choriste.mail %}
-                                                <a href="mailto:{{ choriste.mail }}"
-                                                   class="text-blue-600 hover:text-blue-800 hover:underline">
-                                                    {{ choriste.mail }}
-                                                </a>
-                                            {% else %}
-                                                -
-                                            {% endif %}
-                                        </dd>
-                                    </div>
-
-                                    <!-- Téléphone -->
-                                    <div>
-                                        <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
-                                            Téléphone
-                                        </dt>
-                                        <dd class="text-sm text-slate-900">
-                                            {% if choriste.phone %}
-                                                <a href="tel:{{ choriste.phone }}"
-                                                   class="text-blue-600 hover:text-blue-800 hover:underline">
-                                                    {{ choriste.phone }}
-                                                </a>
-                                            {% else %}
-                                                -
-                                            {% endif %}
-                                        </dd>
-                                    </div>
-
-                                    <!-- Adresse -->
-                                    <div>
-                                        <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
-                                            Adresse
-                                        </dt>
-                                        <dd class="text-sm text-slate-900">
-                                            {% for address in choriste.addresses.all %}
-                                                {{ address.street }}<br>
-                                                {{ address.zip_code }} {{ address.city }}
-                                            {% empty %}
-                                                -
-                                            {% endfor %}
-                                        </dd>
-                                    </div>
-                                </dl>
+                                <!-- Bouton toggle - plus haut pour mobile -->
+                                <button @click="open = !open"
+                                        class="bg-primary text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center gap-2 hover:opacity-90 mt-1 min-h-[44px]">
+                                    <span x-text="open ? 'Masquer' : 'Contact'"></span>
+                                    <svg class="w-4 h-4 transition-transform"
+                                         :class="{ 'rotate-180': open }"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                    {% endif %}
-                {% endfor %}
+
+                        <!-- Informations détaillées (collapsible) -->
+                        <div x-show="open"
+                             x-collapse
+                             class="border-t border-slate-200 bg-slate-50 p-3">
+                            <dl class="space-y-2.5">
+                                <!-- Date de naissance -->
+                                <div>
+                                    <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
+                                        Date de naissance
+                                    </dt>
+                                    <dd class="text-sm text-slate-900">
+                                        {% if choriste.birthdate %}
+                                            {{ choriste.birthdate|date:"d/m/Y" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </dd>
+                                </div>
+
+                                <!-- Email -->
+                                <div>
+                                    <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
+                                        Email
+                                    </dt>
+                                    <dd class="text-sm text-slate-900 break-all">
+                                        {% if choriste.mail %}
+                                            <a href="mailto:{{ choriste.mail }}"
+                                               class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                {{ choriste.mail }}
+                                            </a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </dd>
+                                </div>
+
+                                <!-- Téléphone -->
+                                <div>
+                                    <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
+                                        Téléphone
+                                    </dt>
+                                    <dd class="text-sm text-slate-900">
+                                        {% if choriste.phone %}
+                                            <a href="tel:{{ choriste.phone }}"
+                                               class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                {{ choriste.phone }}
+                                            </a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </dd>
+                                </div>
+
+                                <!-- Adresse -->
+                                <div>
+                                    <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
+                                        Adresse
+                                    </dt>
+                                    <dd class="text-sm text-slate-900">
+                                        {% for address in choriste.addresses.all %}
+                                            {{ address.street }}<br>
+                                            {{ address.zip_code }} {{ address.city }}
+                                        {% empty %}
+                                            -
+                                        {% endfor %}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
+
+    <style>
+    @media (min-width: 1280px) {
+    .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+    </style>
 {% endblock %}
