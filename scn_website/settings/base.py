@@ -172,3 +172,6 @@ WAGTAILSEARCH_BACKENDS = {
 WAGTAILADMIN_BASE_URL = "http://example.com"
 
 WAGTAILEMBEDS_RESPONSIVE_HTML = True
+
+# Fix for auto-created primary key warning
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

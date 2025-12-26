@@ -2,13 +2,20 @@
 {% load wagtailimages_tags wagtailcore_tags static %}
 
 {% block content %}
-    <section>
-        <div class="container section md:max-w-3/4">
-            <h1>{{ page.title }}</h1>
-            {% for b in page.content %}
-                {% include_block b %}
-            {% endfor %}
+    <section class="section">
+        <div class="container main-container">
+            <div class="elegant-card">
+                <div class="elegant-card-header">
+                    <h1 class="title is-2">{{ page.title }}</h1>
+                </div>
+                <div class="elegant-card-body">
+                    <div class="content">
+                        {% for b in page.content %}
+                            {% include_block b %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
-
-{% endblock %}s
+{% endblock %}

@@ -1,7 +1,7 @@
 import json
 import sys
 
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 
 from django.db import models
 from django.utils import timezone
@@ -11,7 +11,7 @@ from django import forms
 from wagtail import blocks
 
 from wagtail.snippets.models import register_snippet
-from wagtail.admin.panels import TabbedInterface, ObjectList
+from wagtail.admin.panels import TabbedInterface, ObjectList, MultiFieldPanel, FieldRowPanel
 from wagtail.admin.panels import (
     FieldPanel,
 )
@@ -221,24 +221,36 @@ class CalendrierPage(Page):
 
     def get_all_events(self):
         events = Evenement.objects.order_by('start_date').all()
-        events_list = [
-            {
-                'title': f'{event.name} {event.pupitre}' if event.is_repetition else f'{event.name}',
-                'start': event.start_date.strftime("%Y-%m-%dT%H:%M:%S"),
-                'end': event.end_date.strftime("%Y-%m-%dT%H:%M:%S") if event.end_date else None,
-                'color': self.get_event_color(event.pupitre),
-            }
-            for event in events
-        ]
+        events_list = []
+        
+        for event in events:
+            # Construire le datetime de début
+            start_datetime = datetime.combine(event.start_date, event.start_time or time(0, 0))
+            
+            # Construire le datetime de fin
+            end_date = event.end_date if event.end_date else event.start_date
+            end_datetime = None
+            if event.end_time:
+                end_datetime = datetime.combine(end_date, event.end_time)
+            
+            events_list.append({
+                'title': event.name,
+                'start': start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                'end': end_datetime.strftime("%Y-%m-%dT%H:%M:%S") if end_datetime else None,
+                'location': event.lieu if event.lieu else '',
+                'color': '#3e8ed0' if event.is_repetition else '#fa7c91',
+            })
+        
         return json.dumps(events_list)
 
     def get_event_color(self, pupitre):
         return PUPITRES_COLORS.get(pupitre, '#D3D3D3')
 
     def get_next_events(self):
-        today = datetime.today()
-        return Evenement.objects.filter(start_date__gte=today).order_by('start_date').all()[
-               0:self.how_many_events]
+        today = datetime.today().date()
+        # Filtrer sur start_date car c'est un DateField
+        upcoming = Evenement.objects.filter(start_date__gte=today).order_by('start_date', 'start_time')
+        return upcoming[0:self.how_many_events]
 
     def clean(self):
         if self.how_many_events < 1:
@@ -370,28 +382,167 @@ class ChoirRole(models.Model):
 
 @register_snippet
 class Evenement(models.Model):
-    name = models.CharField(max_length=255, null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    is_repetition = models.BooleanField(default=True)
-    pupitre = models.CharField(choices=PUPITRES_CHOICES, max_length=25)
-    start_date = models.DateField(null=False)
-    end_date = models.DateField(null=True)
-    start_hour = models.TimeField(null=True)
-    end_hour = models.TimeField(null=True)
-    lieu = models.CharField(null=True, blank=True, max_length=250)
-    adresse = models.CharField(null=True, blank=True, max_length=250)
+    name = models.CharField(
+        max_length=255, 
+        verbose_name="Nom de l'événement"
+    )
+    description = models.TextField(
+        null=True, 
+        blank=True,
+        verbose_name="Description"
+    )
+    is_repetition = models.BooleanField(
+        default=True,
+        verbose_name="Répétition"
+    )
+    pupitre = models.CharField(
+        choices=PUPITRES_CHOICES, 
+        max_length=25,
+        verbose_name="Pupitre"
+    )
+    
+    # Dates
+    start_date = models.DateField(
+        verbose_name="Date de début",
+        help_text="Date de début de l'événement (obligatoire)"
+    )
+    end_date = models.DateField(
+        null=True, 
+        blank=True,
+        verbose_name="Date de fin",
+        help_text="Date de fin (si différente de la date de début)"
+    )
+    
+    # Heures
+    time_tbd = models.BooleanField(
+        default=False,
+        verbose_name="Heure à déterminer",
+        help_text="Cochez si l'heure n'est pas encore fixée"
+    )
+    start_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name="Heure de début",
+        help_text="Heure de début (laissez vide si heure à déterminer)"
+    )
+    end_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name="Heure de fin",
+        help_text="Heure de fin (optionnel)"
+    )
+    
+    # Lieu
+    lieu = models.CharField(
+        null=True, 
+        blank=True, 
+        max_length=250,
+        verbose_name="Lieu"
+    )
+    adresse = models.CharField(
+        null=True, 
+        blank=True, 
+        max_length=250,
+        verbose_name="Adresse"
+    )
 
     panels = [
         FieldPanel('name'),
         FieldPanel('is_repetition'),
-        FieldPanel('description'),
         FieldPanel('pupitre'),
-        FieldPanel('start_date'),
-        FieldPanel('start_hour'),
-        FieldPanel('end_hour'),
-        FieldPanel('lieu'),
-        FieldPanel('adresse'),
+        FieldPanel('description'),
+        
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('start_date', classname="col6"),
+                FieldPanel('end_date', classname="col6"),
+            ]),
+            FieldPanel('time_tbd'),
+            FieldRowPanel([
+                FieldPanel('start_time', classname="col6"),
+                FieldPanel('end_time', classname="col6"),
+            ]),
+        ], heading="📅 Dates et heures"),
+        
+        MultiFieldPanel([
+            FieldPanel('lieu'),
+            FieldPanel('adresse'),
+        ], heading="📍 Localisation"),
     ]
 
+    class Meta:
+        verbose_name = "Événement"
+        verbose_name_plural = "Événements"
+        ordering = ['start_date', 'start_time']
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        # Si end_date n'est pas définie, la mettre égale à start_date
+        if not self.end_date:
+            self.end_date = self.start_date
+        
+        # Vérifier que end_date >= start_date
+        if self.end_date < self.start_date:
+            raise ValidationError({
+                'end_date': 'La date de fin ne peut pas être antérieure à la date de début.'
+            })
+        
+        # Si time_tbd est coché, les heures doivent être vides
+        if self.time_tbd:
+            if self.start_time or self.end_time:
+                raise ValidationError({
+                    'time_tbd': 'Si "Heure à déterminer" est coché, les heures doivent être vides.'
+                })
+        
+        # Si time_tbd n'est pas coché, avertir si pas d'heure de début
+        if not self.time_tbd and not self.start_time:
+            # Cette validation pourrait être transformée en warning dans l'admin
+            pass
+        
+        # Si une heure de fin est définie, il faut une heure de début
+        if self.end_time and not self.start_time:
+            raise ValidationError({
+                'end_time': 'Vous devez définir une heure de début si vous définissez une heure de fin.'
+            })
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.start_date.strftime('%d-%m')} // {self.name} - {self.pupitre} "
+        date_str = self.start_date.strftime('%d-%m')
+        time_str = ""
+        
+        if self.time_tbd:
+            time_str = " (heure TBD)"
+        elif self.start_time:
+            time_str = f" {self.start_time.strftime('%H:%M')}"
+        
+        return f"{date_str}{time_str} // {self.name} - {self.pupitre}"
+    
+    @property
+    def display_time(self):
+        """Retourne l'affichage formaté de l'heure"""
+        if self.time_tbd:
+            return "Heure à déterminer"
+        elif self.start_time:
+            if self.end_time:
+                return f"{self.start_time.strftime('%H:%M')} - {self.end_time.strftime('%H:%M')}"
+            return self.start_time.strftime('%H:%M')
+        return ""
+    
+    @property
+    def datetime_start(self):
+        """Retourne un datetime combinant date et heure de début"""
+        if self.start_time:
+            return datetime.combine(self.start_date, self.start_time)
+        return datetime.combine(self.start_date, time(0, 0))
+    
+    @property
+    def datetime_end(self):
+        """Retourne un datetime combinant date et heure de fin"""
+        end_date = self.end_date if self.end_date else self.start_date
+        if self.end_time:
+            return datetime.combine(end_date, self.end_time)
+        return None

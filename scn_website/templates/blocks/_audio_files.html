@@ -1,0 +1,183 @@
+{% load static %}
+
+<div class="colored-block mb-5">
+    <div class="colored-block-header">
+        <h3 class="title is-4">Fichiers</h3>
+    </div>
+    
+    <div class="colored-block-body">
+        <!-- Partition PDF -->
+        {% if pdf_url %}
+            <div class="mb-5 pb-5" style="border-bottom: 2px solid color-mix(in srgb, var(--primary-color) 10%, white);">
+                <h4 class="title is-5 mb-3">Partition</h4>
+                <a href="{{ pdf_url }}" target="_blank" class="button is-primary">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Télécharger la partition</span>
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Fichiers audio -->
+        {% if audios %}
+            <h4 class="title is-5 mb-3">Fichiers audio</h4>
+            <div class="file-list">
+                {% for audio in audios %}
+                    <div class="file-item" x-data="audioPlayer{{ forloop.counter }}()" x-init="init()">
+                        
+                        <div class="file-actions">
+                            <span class="has-text-weight-semibold" style="flex: 1;">
+                                {{ audio.pupitre }}
+                            </span>
+                            
+                            <a href="{{ audio.url }}" 
+                               download 
+                               class="button is-small is-info is-light">
+                                <span class="icon"><i class="fas fa-download"></i></span>
+                                <span>Télécharger</span>
+                            </a>
+                            
+                            <button x-on:click="togglePlay()" 
+                                    class="button is-small is-primary" 
+                                    type="button">
+                                <span class="icon">
+                                    <i x-show="!isPlaying" class="fas fa-play"></i>
+                                    <i x-show="isPlaying" class="fas fa-pause"></i>
+                                </span>
+                                <span x-text="isPlaying ? 'Pause' : 'Lire'"></span>
+                            </button>
+                        </div>
+                        
+                        <div class="compact-audio-player" x-show="isPlaying || progress > 0" x-transition>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <button x-on:click="togglePlay()" 
+                                        class="play-button-compact" 
+                                        type="button"
+                                        aria-label="Lecture">
+                                    <i x-show="!isPlaying" class="fas fa-play"></i>
+                                    <i x-show="isPlaying" class="fas fa-pause"></i>
+                                </button>
+                                
+                                <div style="flex: 1;">
+                                    <div class="progress-bar-compact" x-on:click="seek($event)">
+                                        <div class="progress-fill" x-bind:style="'width: ' + progress + '%'"></div>
+                                    </div>
+                                </div>
+                                
+                                <span class="time-display-compact" x-text="formatTime(currentTime)"></span>
+                                <span class="time-display-compact">/</span>
+                                <span class="time-display-compact" x-text="formatTime(duration)"></span>
+                            </div>
+                        </div>
+                        
+                        <script>
+                            function audioPlayer{{ forloop.counter }}() {
+                                return {
+                                    audio: null,
+                                    isPlaying: false,
+                                    currentTime: 0,
+                                    duration: 0,
+                                    progress: 0,
+                                    audioUrl: '{{ audio.url }}',
+                                    
+                                    init: function() {
+                                        var self = this;
+                                        this.audio = new Audio();
+                                        this.audio.preload = 'none';
+                                        
+                                        this.audio.addEventListener('loadedmetadata', function() {
+                                            self.duration = self.audio.duration;
+                                        });
+                                        
+                                        this.audio.addEventListener('timeupdate', function() {
+                                            self.currentTime = self.audio.currentTime;
+                                            self.progress = (self.currentTime / self.duration) * 100 || 0;
+                                        });
+                                        
+                                        this.audio.addEventListener('ended', function() {
+                                            self.isPlaying = false;
+                                            self.currentTime = 0;
+                                            self.progress = 0;
+                                        });
+                                        
+                                        this.audio.addEventListener('play', function() {
+                                            self.isPlaying = true;
+                                        });
+                                        
+                                        this.audio.addEventListener('pause', function() {
+                                            self.isPlaying = false;
+                                        });
+                                        
+                                        this.audio.addEventListener('error', function(e) {
+                                            console.error('Audio error:', e);
+                                            alert('Erreur lors du chargement du fichier audio');
+                                        });
+                                    },
+                                    
+                                    togglePlay: function() {
+                                        var self = this;
+                                        
+                                        if (!this.audio.src) {
+                                            this.audio.src = this.audioUrl;
+                                        }
+                                        
+                                        if (this.isPlaying) {
+                                            this.audio.pause();
+                                        } else {
+                                            // Pause tous les autres players
+                                            document.querySelectorAll('audio').forEach(function(a) {
+                                                if (a !== self.audio) {
+                                                    a.pause();
+                                                }
+                                            });
+                                            
+                                            var playPromise = this.audio.play();
+                                            if (playPromise !== undefined) {
+                                                playPromise.catch(function(error) {
+                                                    console.error('Play error:', error);
+                                                    alert('Impossible de lire le fichier audio');
+                                                });
+                                            }
+                                        }
+                                    },
+                                    
+                                    seek: function(event) {
+                                        if (!this.audio.src) return;
+                                        var rect = event.currentTarget.getBoundingClientRect();
+                                        var x = event.clientX - rect.left;
+                                        var percentage = x / rect.width;
+                                        this.audio.currentTime = percentage * this.duration;
+                                    },
+                                    
+                                    formatTime: function(seconds) {
+                                        if (!seconds || isNaN(seconds)) return '0:00';
+                                        var mins = Math.floor(seconds / 60);
+                                        var secs = Math.floor(seconds % 60);
+                                        return mins + ':' + (secs < 10 ? '0' : '') + secs;
+                                    }
+                                };
+                            }
+                        </script>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Fichiers additionnels -->
+        {% if additional_files %}
+            {% for section in additional_files %}
+                <hr class="my-4">
+                <h4 class="title is-5 mb-3">{{ section.title }}</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for file in section.audios %}
+                        <a href="{{ file.audio.url }}" 
+                           download 
+                           class="button is-small is-white">
+                            <span class="icon"><i class="fas fa-music"></i></span>
+                            <span>{{ file.pupitre }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>

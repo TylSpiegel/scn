@@ -2,155 +2,120 @@
 
 {% load wagtailcore_tags %}
 
+{% block extra_css %}
+<style>
+    .pupitre-tutti { background: linear-gradient(135deg, #007BFF 0%, #0056D2 100%); }
+    .pupitre-soprano { background: linear-gradient(135deg, #DC3545 0%, #A82835 100%); }
+    .pupitre-mezzo-soprano { background: linear-gradient(135deg, #E91E63 0%, #AD1457 100%); }
+    .pupitre-alto { background: linear-gradient(135deg, #FFC107 0%, #FFA000 100%); color: #333; }
+    .pupitre-mezzo-alto { background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); }
+    .pupitre-tenor { background: linear-gradient(135deg, #28A745 0%, #1E7E34 100%); }
+    .pupitre-basse { background: linear-gradient(135deg, #17A2B8 0%, #117A8B 100%); }
+    .pupitre-autre { background: linear-gradient(135deg, #6C757D 0%, #495057 100%); }
+</style>
+{% endblock %}
+
 {% block content %}
-    <style>
-        .pupitre-tutti { background-color: #007BFF; }
-        .pupitre-soprano { background-color: #DC3545; }
-        .pupitre-mezzo-soprano { background-color: #E91E63; }
-        .pupitre-alto { background-color: #FFC107; }
-        .pupitre-mezzo-alto { background-color: #FF9800; }
-        .pupitre-tenor { background-color: #28A745; }
-        .pupitre-basse { background-color: #17A2B8; }
-        .pupitre-autre { background-color: #6C757D; }
-    </style>
+    <section class="section">
+        <div class="container main-container">
+            <div class="elegant-card">
+                <div class="elegant-card-header">
+                    <h1 class="title is-2">Répertoire des choristes</h1>
+                </div>
+                <div class="elegant-card-body">
+                    <div class="columns is-multiline">
+                        {% for choriste in choristes %}
+                            {% if choriste.active %}
+                                <div class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile">
+                                    <div class="choriste-card">
+                                        <div class="card-header
+                                            {% if choriste.pupitre == 'Tutti' %}pupitre-tutti
+                                            {% elif choriste.pupitre == 'Soprano' %}pupitre-soprano
+                                            {% elif choriste.pupitre == 'Mezzo-soprano' %}pupitre-mezzo-soprano
+                                            {% elif choriste.pupitre == 'Alto' %}pupitre-alto
+                                            {% elif choriste.pupitre == 'Mezzo-alto' %}pupitre-mezzo-alto
+                                            {% elif choriste.pupitre == 'Ténor' %}pupitre-tenor
+                                            {% elif choriste.pupitre == 'Basse' %}pupitre-basse
+                                            {% else %}pupitre-autre{% endif %}">
+                                            <p class="card-header-title has-text-white">
+                                                {{ choriste.pupitre|default:"Sans pupitre" }}
+                                            </p>
+                                        </div>
 
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-8">Répertoire des choristes</h1>
+                                        <div class="card-content">
+                                            <p class="title is-5 has-text-centered mb-3">{{ choriste.name }}</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {% for choriste in choristes %}
-                {% if choriste.active %}
-                    <div x-data="{ open: false }"
-                         class="bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden">
+                                            {% if choriste.choir_functions.all %}
+                                                <div class="tags are-small is-centered mb-4">
+                                                    {% for role in choriste.choir_functions.all %}
+                                                        <span class="tag is-info is-light">{{ role }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
 
-                        <!-- Tag pupitre en haut à gauche avec couleur dynamique -->
-                        <div class="relative left-0 top-0 text-white text-xs font-semibold px-3 py-1 rounded-br-lg shadow-md z-10 whitespace-nowrap w-fit
-                            {% if choriste.pupitre == 'Tutti' %}pupitre-tutti
-                            {% elif choriste.pupitre == 'Soprano' %}pupitre-soprano
-                            {% elif choriste.pupitre == 'Mezzo-soprano' %}pupitre-mezzo-soprano
-                            {% elif choriste.pupitre == 'Alto' %}pupitre-alto text-slate-900
-                            {% elif choriste.pupitre == 'Mezzo-alto' %}pupitre-mezzo-alto
-                            {% elif choriste.pupitre == 'Ténor' %}pupitre-tenor
-                            {% elif choriste.pupitre == 'Basse' %}pupitre-basse
-                            {% else %}pupitre-autre{% endif %}">
-                            {{ choriste.pupitre|default:"Sans pupitre" }}
-                        </div>
-
-                        <!-- Informations principales -->
-                        <div class="p-3 pt-8">
-                            <div class="flex flex-col items-center gap-2">
-                                <!-- Nom -->
-                                <h3 class="font-semibold text-lg text-slate-900 text-center">
-                                    {{ choriste.name }}
-                                </h3>
-
-                                <!-- Fonctions -->
-                                {% if choriste.choir_functions.all %}
-                                    <div class="flex flex-wrap gap-1.5 justify-center px-4">
-                                        {% for role in choriste.choir_functions.all %}
-                                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-                                                {{ role }}
-                                            </span>
-                                        {% endfor %}
+                                            <div class="has-text-centered">
+                                                <button class="button is-primary is-light is-small js-modal-trigger" data-target="modal-{{ forloop.counter }}">
+                                                    <span class="icon"><i class="fas fa-envelope"></i></span>
+                                                    <span>Contact</span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                {% endif %}
 
-                                <!-- Bouton toggle - plus haut pour mobile -->
-                                <button @click="open = !open"
-                                        class="bg-primary text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center gap-2 hover:opacity-90 mt-1 min-h-[44px]">
-                                    <span x-text="open ? 'Masquer' : 'Contact'"></span>
-                                    <svg class="w-4 h-4 transition-transform"
-                                         :class="{ 'rotate-180': open }"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         viewBox="0 0 24 24">
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M19 9l-7 7-7-7"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Informations détaillées (collapsible) -->
-                        <div x-show="open"
-                             x-collapse
-                             class="border-t border-slate-200 bg-slate-50 p-3">
-                            <dl class="space-y-2.5">
-                                <!-- Date de naissance -->
-                                <div>
-                                    <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
-                                        Date de naissance
-                                    </dt>
-                                    <dd class="text-sm text-slate-900">
-                                        {% if choriste.birthdate %}
-                                            {{ choriste.birthdate|date:"d/m/Y" }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </dd>
+                                    <!-- Modal -->
+                                    <div id="modal-{{ forloop.counter }}" class="modal">
+                                        <div class="modal-background"></div>
+                                        <div class="modal-card">
+                                            <header class="modal-card-head">
+                                                <p class="modal-card-title">{{ choriste.name }}</p>
+                                                <button class="delete" aria-label="close"></button>
+                                            </header>
+                                            <section class="modal-card-body">
+                                                <div class="content">
+                                                    <div class="mb-4">
+                                                        <p class="has-text-weight-semibold has-text-grey">Date de naissance</p>
+                                                        <p>{% if choriste.birthdate %}{{ choriste.birthdate|date:"d/m/Y" }}{% else %}-{% endif %}</p>
+                                                    </div>
+                                                    <div class="mb-4">
+                                                        <p class="has-text-weight-semibold has-text-grey">Email</p>
+                                                        <p>{% if choriste.mail %}<a href="mailto:{{ choriste.mail }}">{{ choriste.mail }}</a>{% else %}-{% endif %}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="has-text-weight-semibold has-text-grey">Téléphone</p>
+                                                        <p>{% if choriste.phone %}{{ choriste.phone }}{% else %}-{% endif %}</p>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <!-- Email -->
-                                <div>
-                                    <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
-                                        Email
-                                    </dt>
-                                    <dd class="text-sm text-slate-900 break-all">
-                                        {% if choriste.mail %}
-                                            <a href="mailto:{{ choriste.mail }}"
-                                               class="text-blue-600 hover:text-blue-800 hover:underline">
-                                                {{ choriste.mail }}
-                                            </a>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </dd>
-                                </div>
-
-                                <!-- Téléphone -->
-                                <div>
-                                    <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
-                                        Téléphone
-                                    </dt>
-                                    <dd class="text-sm text-slate-900">
-                                        {% if choriste.phone %}
-                                            <a href="tel:{{ choriste.phone }}"
-                                               class="text-blue-600 hover:text-blue-800 hover:underline">
-                                                {{ choriste.phone }}
-                                            </a>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </dd>
-                                </div>
-
-                                <!-- Adresse -->
-                                <div>
-                                    <dt class="text-xs font-semibold text-slate-600 uppercase mb-0.5">
-                                        Adresse
-                                    </dt>
-                                    <dd class="text-sm text-slate-900">
-                                        {% for address in choriste.addresses.all %}
-                                            {{ address.street }}<br>
-                                            {{ address.zip_code }} {{ address.city }}
-                                        {% empty %}
-                                            -
-                                        {% endfor %}
-                                    </dd>
-                                </div>
-                            </dl>
-                        </div>
+                            {% endif %}
+                        {% endfor %}
                     </div>
-                {% endif %}
-            {% endfor %}
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
+{% endblock %}
 
-    <style>
-    @media (min-width: 1280px) {
-    .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-    </style>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const modalTriggers = document.querySelectorAll('.js-modal-trigger');
+    const modalCloses = document.querySelectorAll('.modal-background, .modal-card-head .delete');
+
+    modalTriggers.forEach(trigger => {
+        const modal = document.getElementById(trigger.dataset.target);
+        trigger.addEventListener('click', () => {
+            modal.classList.add('is-active');
+        });
+    });
+
+    modalCloses.forEach(close => {
+        close.addEventListener('click', () => {
+            close.closest('.modal').classList.remove('is-active');
+        });
+    });
+});
+</script>
 {% endblock %}
