@@ -121,15 +121,14 @@ wheels = [
 
 [[package]]
 name = "django-modelcluster"
-version = "6.3"
+version = "6.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
-    { name = "pytz" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3d/dd/db1ab2e256f9fda6796ac312686561cbe2740d960c920f74410559ef7739/django-modelcluster-6.3.tar.gz", hash = "sha256:0caed8a0e889f3abb92f144670878a466ef954ffa6c4c7b9c80e6426b720a49d", size = 28903, upload-time = "2024-02-26T19:26:53.185Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/f7/51efcea27d74665230be07b63e631e16204893ef32338a0e671c5ee0cd40/django_modelcluster-6.4.1.tar.gz", hash = "sha256:e736fcee925f83b63218dbf9c869ab50618b0f5e98869a5aa497f7a5331aa263", size = 29029, upload-time = "2025-12-04T12:21:41.907Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ee/6d/8deb2dfde2e1177412b759a1c32713be19b1d3af1da686e44e64c165e8c0/django_modelcluster-6.3-py2.py3-none-any.whl", hash = "sha256:a8783d6565a0663f41cd6003ea361c3a5711e8a2a326160f1ec1eceb3e973d4f", size = 29039, upload-time = "2024-02-26T19:26:50.903Z" },
+    { url = "https://files.pythonhosted.org/packages/a5/e4/ec99d52aa04e204e938564b603f4591e2e82e236ed59af664fee35179e75/django_modelcluster-6.4.1-py2.py3-none-any.whl", hash = "sha256:ccc190cd9e22c24900ea2410bff64d444d48f43f0f4aedeed0f6cd94e2536698", size = 29315, upload-time = "2025-12-04T12:21:39.911Z" },
 ]
 
 [[package]]
@@ -185,14 +184,14 @@ wheels = [
 
 [[package]]
 name = "django-treebeard"
-version = "4.7.1"
+version = "4.8.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bb/24/eaccbce17355380cb3a8fe6ad92a85b76453dc1f0ecd04f48bfe8929065b/django-treebeard-4.7.1.tar.gz", hash = "sha256:846e462904b437155f76e04907ba4e48480716855f88b898df4122bdcfbd6e98", size = 294139, upload-time = "2024-01-31T16:35:19.751Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/d2/615c2d33b3b55e106ee590b164c0d4a8372527293c85c61175e81ded2aea/django_treebeard-4.8.0.tar.gz", hash = "sha256:61b8076b576107da21f6f6040774c0d17025200c2efdb70dd1f14b18c9206c3a", size = 292517, upload-time = "2025-12-03T03:58:40.625Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/79/259966820614746cc4d81762edf97a53bf1e3b8e74797c010d310c6f4a8f/django_treebeard-4.7.1-py3-none-any.whl", hash = "sha256:995c7120153ab999898fe3043bbdcd8a0fc77cc106eb94de7350e9d02c885135", size = 93210, upload-time = "2024-01-31T16:35:17.843Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/3a/3731f6d5696b5dfd1c7830a64450e1f49b512cb192b2d3e37b72cc75470b/django_treebeard-4.8.0-py3-none-any.whl", hash = "sha256:ecaa7a0bbfa86a48fc91ff335513e83c841cdfe1add6229d04ac7096198d5d51", size = 70997, upload-time = "2025-12-03T03:58:37.292Z" },
 ]
 
 [[package]]
@@ -209,11 +208,11 @@ wheels = [
 
 [[package]]
 name = "draftjs-exporter"
-version = "2.1.7"
+version = "5.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/8d/ee/eeb5d159b6ad55efb7f2ad96803b6527fb5a29737b4e2ec9cd8e4635dada/draftjs_exporter-2.1.7.tar.gz", hash = "sha256:5839cbc29d7bce2fb99837a404ca40c3a07313f2a20e2700de7ad6aa9a9a18fb", size = 27941, upload-time = "2019-09-26T21:16:21.768Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/52/8b98525ab5477410bdbaf279c5fe0a99108211d40818bb769460784c1c41/draftjs_exporter-5.1.0.tar.gz", hash = "sha256:9f44b8dcecb702540e3aab24af2fad8683aec910fe0034c12cfab5d716ac5f84", size = 33500, upload-time = "2025-02-21T17:32:57.175Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/21/5ecec14572c86eed3173b8cd8ece268ec20be2faa4ead09669531739d31e/draftjs_exporter-2.1.7-py3-none-any.whl", hash = "sha256:d415a9964690a2cddb66a31ef32dd46c277e9b80434b94e39e3043188ed83e33", size = 43720, upload-time = "2020-07-05T23:45:44.553Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/99/26d5524aaa3e89266e0af19332053aa9f8a61b1c39b29c0dc709f43fbb29/draftjs_exporter-5.1.0-py3-none-any.whl", hash = "sha256:c32932b7933b994fd5ea74c1decf47b5c41e13ba06363f5b69b76ef10137d4e9", size = 26302, upload-time = "2025-02-21T17:32:54.4Z" },
 ]
 
 [[package]]
