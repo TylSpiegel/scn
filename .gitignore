@@ -1,32 +1,38 @@
-# Django project
-/media/
-/static/
-/scn_website/static/
-*.sqlite3
-/scn_website/css/tailwind.css
+# Environment
+**/.env
+**/.env.*
+!**/.env.example
 
-# Python and others
-__pycache__
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
 *.pyc
-.DS_Store
-*.swp
-/venv/
-/tmp/
-/.vagrant/
-/Vagrantfile.local
-node_modules/
-/npm-debug.log
-.idea/
-**/.idea
-.vscode
-coverage
-.python-version
-**vcs.xml
+*.pyo
+*.pyd
+*.so
 
-# Distribution / packaging
-.Python
-.env
+# Virtual environments
+venv/
 env/
+ENV/
+.venv/
+.Python
+
+# Django
+**/*.sqlite3
+*.db
+db.sqlite3
+**/media/
+media/
+**/static/
+staticfiles/
+static_root/
+*.log
+logs/
+
+# Distribution / Packaging
 build/
 develop-eggs/
 dist/
@@ -42,14 +48,37 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.idea/
-code_removed/
 
-# Hosting
-*.log*/tailwind.css
-*.log
-reload_website.sh
-start.sh
+# IDE
+.idea/
+**/.idea/
+.vscode/
+**vcs.xml
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node
+node_modules/
+package-lock.json
+package.json
+npm-debug.log
+
+# Project specific
+meta/
+code_removed/
+tmp/
+.vagrant/
+Vagrantfile.local
+coverage/
+.python-version
 
 # Other
-meta/*
+**/tailwind.css
+tailwind.css
