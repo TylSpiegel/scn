@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load wagtailimages_tags wagtailcore_tags static %}
 {% load wagtailembeds_tags %}
+{% load youtube_filters %}
 
 {% block extra_css %}
 <style>
@@ -315,14 +316,14 @@
                                 {% if page.descr %}
                                     <div class="section-card">
                                         <h3 class="title is-4">Présentation de l'œuvre</h3>
-                                        <div class="content">{{ page.descr|richtext }}</div>
+                                        <div class="content">{{ page.descr|youtube_nocookie|richtext }}</div>
                                     </div>
                                 {% endif %}
 
                                 {% if page.traduction %}
                                     <div class="section-card">
                                         <h3 class="title is-4">Texte et traduction</h3>
-                                        <div class="content">{{ page.traduction|richtext }}</div>
+                                        <div class="content">{{ page.traduction|youtube_nocookie|richtext }}</div>
                                     </div>
                                 {% endif %}
 

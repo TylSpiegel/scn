@@ -49,13 +49,14 @@
 
 <script>
 function audioPlayer{{ player_id }}() {
+    var audioUrl = '{{ audio_url|escapejs }}';
+    
     return {
         audio: null,
         isPlaying: false,
         currentTime: 0,
         duration: 0,
         progress: 0,
-        audioUrl: '{{ audio_url }}',
         
         init: function() {
             var self = this;
@@ -86,7 +87,7 @@ function audioPlayer{{ player_id }}() {
             });
             
             this.audio.addEventListener('error', function(e) {
-                console.error('Audio error:', self.audioUrl);
+                console.error('Audio error:', audioUrl);
             });
         },
         
@@ -94,7 +95,7 @@ function audioPlayer{{ player_id }}() {
             var self = this;
             
             if (!this.audio.src) {
-                this.audio.src = this.audioUrl;
+                this.audio.src = audioUrl;
             }
             
             if (this.isPlaying) {
