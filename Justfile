@@ -5,22 +5,38 @@ refresh:
     just migrate
     just runserver
 
-venv:
-    source ./venv/bin/activate
+migrate:
+    uv run python manage.py migrate
 
-migrate: venv
-    python manage.py migrate
+makemigrations:
+    uv run python manage.py makemigrations
 
-makemigrations: venv
-    python manage.py makemigrations
-
-runserver: venv
-    python manage.py runserver
+runserver:
+    uv run python manage.py runserver
 
 buildcss:
-	npx @tailwindcss/cli  -i scn_website/static/css/scn_website.css -o scn_website/static/css/tailwind.css
+    npx @tailwindcss/cli -i scn_website/static/css/scn_website.css -o scn_website/static/css/tailwind.css
 
-deploy_prod : venv
-    python manage.py collectstatic
+deploy_prod:
+    uv run python manage.py collectstatic
     git checkout prod
-    gunicorn scn_website.wsgi:application --bind localhost:9200
+    uv run gunicorn scn_website.wsgi:application --bind localhost:9200
+
+# Commandes utiles supplémentaires
+sync:
+    uv sync
+
+lock:
+    uv lock
+
+add package:
+    uv add {{package}}
+
+remove package:
+    uv remove {{package}}
+
+shell:
+    uv run python manage.py shell
+
+test:
+    uv run python manage.py test
