@@ -1,0 +1,41 @@
+[project]
+name = "scn"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "anyascii==0.3.2",
+    "asgiref==3.8.1",
+    "beautifulsoup4==4.11.2",
+    "certifi==2024.2.2",
+    "charset-normalizer==3.3.2",
+    "defusedxml==0.7.1",
+    "django>=5.0",
+    "django-filter==23.5",
+    "django-permissionedforms==0.1",
+    "djangorestframework==3.15.1",
+    "et-xmlfile==1.1.0",
+    "filetype==1.2.0",
+    "gunicorn==22.0.0",
+    "html5lib==1.1",
+    "idna==3.7",
+    "l18n==2021.3",
+    "openpyxl==3.1.2",
+    "packaging==24.0",
+    "pillow==10.3.0",
+    "pillow-heif==0.16.0",
+    "python-dotenv==1.0.1",
+    "pytz==2024.1",
+    "requests==2.31.0",
+    "six==1.16.0",
+    "soupsieve==2.5",
+    "sqlparse==0.5.0",
+    "telepath==0.3.1",
+    "typing-extensions==4.11.0",
+    "urllib3==2.2.1",
+    "wagtail>=7.0",
+    "wagtail-color-panel>=1.7",
+    "wagtail-modeladmin==2.2.0",
+    "webencodings==0.5.1",
+]

@@ -1,16 +1,14 @@
 from django.db import models
 from django.db.models import TextField
-from django.forms import CharField
-from wagtail.admin.panels import FieldPanel
+
+from wagtail.admin.panels import FieldPanel, TabbedInterface, ObjectList
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.blocks import RichTextBlock, StreamBlock
-from wagtail.images.blocks import ImageChooserBlock
+
 from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
-from wagtail.admin.panels import FieldPanel, TabbedInterface, ObjectList
 
 from wagtail_color_panel.fields import ColorField
-from wagtail_color_panel.edit_handlers import NativeColorPanel
 
 from .blocks import LinkBlock, ImageBlock, MultiColumnBlock
 
@@ -49,9 +47,9 @@ class StyleSettings(BaseGenericSetting):
     generic_theme = models.BooleanField(default=False)
 
     theme_panel = [
-        NativeColorPanel('primary_color'),
-        NativeColorPanel('secondary_color'),
-        NativeColorPanel('third_color'),
+        FieldPanel('primary_color'),
+        FieldPanel('secondary_color'),
+        FieldPanel('third_color'),
     ]
     # BRANDING
     logo = models.ForeignKey(
