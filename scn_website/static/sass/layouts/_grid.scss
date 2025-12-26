@@ -1,0 +1,19 @@
+/* ============================================
+   GRID & COLUMNS
+   ============================================ */
+
+.morceau-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: $spacing-xl;
+    margin-top: $spacing-xl;
+    
+    @include mobile {
+        grid-template-columns: 1fr;
+        gap: $spacing-lg;
+    }
+}
+
+.columns.is-centered {
+    justify-content: center;
+}

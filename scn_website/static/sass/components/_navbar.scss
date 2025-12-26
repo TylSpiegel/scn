@@ -1,0 +1,27 @@
+/* ============================================
+   NAVBAR
+   ============================================ */
+
+.navbar {
+    background-color: var(--navbar-bg);
+    
+    .navbar-brand,
+    .navbar-menu {
+        background-color: var(--navbar-bg);
+    }
+    
+    .navbar-item,
+    .navbar-link {
+        color: var(--navbar-text);
+        
+        &:hover,
+        &.is-active {
+            background-color: var(--navbar-hover-bg);
+            color: var(--navbar-text);
+        }
+    }
+    
+    .navbar-burger {
+        color: var(--navbar-text);
+    }
+}

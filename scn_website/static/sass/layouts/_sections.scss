@@ -1,0 +1,49 @@
+/* ============================================
+   SECTIONS & SUBSECTIONS
+   ============================================ */
+
+.section {
+    padding: 3rem 1.5rem;
+    
+    @include mobile {
+        padding: 2rem 1rem;
+    }
+}
+
+.content-body {
+    padding: $spacing-xxl;
+    
+    @include mobile {
+        padding: $spacing-lg;
+    }
+}
+
+.subsection {
+    margin-top: $spacing-lg;
+    
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.subsection-label {
+    font-weight: 600;
+    color: $primary-color;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: $spacing-sm;
+}
+
+.subsection-divider {
+    height: 1px;
+    background: color-mix(in srgb, var(--primary-color) 15%, white);
+    margin: $spacing-lg 0;
+}
+
+// Hero section
+.hero {
+    &.is-primary {
+        @include primary-gradient(0.9, 0.7);
+    }
+}

@@ -1,0 +1,32 @@
+/* ============================================
+   MAIN STYLESHEET
+   Point d'entrée principal
+   ============================================ */
+
+// 1. Configuration
+@import 'variables';
+@import 'mixins';
+
+// 2. Vendor
+@import 'bulma/bulma';
+
+// 3. Base
+//@import 'base/reset';
+//@import 'base/typography';
+//@import 'base/utilities';
+
+// 4. Layouts
+@import 'layouts/sections';
+
+// 5. Components
+@import 'components/buttons';
+@import 'components/cards';
+@import 'components/tabs';
+@import 'components/audio-player';
+@import 'components/breadcrumb';
+
+// 6. Pages
+@import 'pages/morceau';
+
+// 7. Richtext (iframes, embeds)
+@import 'richtext';

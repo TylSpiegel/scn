@@ -1,0 +1,93 @@
+// Navigation
+.navbar {
+  background-color: var(--navbar-bg) !important;
+  flex-shrink: 0;
+  
+  .navbar-item, .navbar-link {
+    color: var(--navbar-text);
+    transition: background-color 0.3s ease;
+    
+    &:hover {
+      background-color: var(--navbar-hover-bg);
+      color: var(--navbar-text);
+    }
+  }
+  
+  .navbar-burger span {
+    background-color: var(--navbar-text);
+  }
+}
+
+// Breadcrumb
+.breadcrumb {
+  a {
+    color: var(--primary-color);
+    font-weight: 500;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: var(--secondary-color);
+    }
+  }
+  
+  li.is-active a {
+    color: var(--text-muted-color);
+  }
+}
+
+// ============================================
+// OPTIMISATIONS MOBILE
+// ============================================
+@media screen and (max-width: 1023px) {
+  // Navbar plus compacte
+  .navbar {
+    padding: 0.5rem 0;
+    min-height: 3rem;
+  }
+  
+  .navbar-brand {
+    min-height: 3rem;
+    
+    .navbar-item {
+      padding: 0.5rem 0.75rem;
+      
+      img {
+        max-height: 2rem;
+      }
+    }
+  }
+  
+  .navbar-burger {
+    height: 3rem;
+    width: 3rem;
+  }
+  
+  // Menu déroulant optimisé
+  .navbar-menu {
+    &.is-active {
+      max-height: calc(100vh - 3rem);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .navbar-item {
+      padding: 0.75rem 1rem;
+    }
+  }
+  
+  // Breadcrumb compact sur mobile
+  .breadcrumb {
+    padding: 0.5rem 0;
+    margin-bottom: 1rem !important;
+    font-size: 0.9rem;
+    
+    li + li::before {
+      padding: 0 0.3rem;
+    }
+    
+    .icon {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+}

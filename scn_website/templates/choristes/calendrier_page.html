@@ -7,190 +7,218 @@
         <div class="container">
             <!-- Centrage du contenu -->
             <div class="columns is-centered">
-                <div class="column is-8-desktop is-10-tablet is-12-mobile">
+                <div class="column is-10-desktop is-11-tablet is-12-mobile">
                     
                     <!-- En-tête -->
-                    <div class="colored-block mb-5">
-                        <div class="colored-block-header">
+                    <div class="main-card mb-5">
+                        <div class="title-header">
                             <h1 class="title is-2">{{ page.title }}</h1>
                         </div>
                     </div>
 
-                    <!-- Actualités -->
-                    {% if page.comment %}
-                        <div class="colored-block mb-5">
-                            <div class="colored-block-header">
-                                <h3 class="title is-4">Actualités</h3>
-                            </div>
-                            <div class="colored-block-body">
-                                <div class="content">
-                                    {{ page.comment|richtext }}
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <!-- Prochains événements -->
-                    <div class="colored-block mb-5">
-                        <div class="colored-block-header">
-                            <h3 class="title is-4">Prochains événements</h3>
-                        </div>
-                        <div class="colored-block-body">
-                            <div class="content">
-                                <ul class="upcoming-events-list" aria-label="Liste des prochains événements">
-                                    {% for event in page.get_next_events %}
-                                        <li>
-                                            <strong>{{ event.name }}</strong>
-                                            {% if event.is_repetition %}
-                                                <span class="tag is-info is-light is-small">Répétition</span>
-                                            {% endif %}
-                                            <br>
-                                            <span class="has-text-grey">
-                                                {{ event.start_date|date:"l d F Y" }}
-                                                {% if event.display_time %}
-                                                    • {{ event.display_time }}
-                                                {% endif %}
-                                                {% if event.lieu %}
-                                                    • {{ event.lieu }}
-                                                {% endif %}
-                                            </span>
-                                        </li>
-                                    {% empty %}
-                                        <li class="has-text-grey">Aucun événement à venir pour le moment</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Alpine.js Calendar Component -->
-                    <div class="colored-block mb-5" 
-                         x-data="calendarApp()" 
-                         x-init="init()"
-                         id="calendar-block"
-                         role="region"
-                         aria-label="Calendrier complet des événements">
-                        <div class="colored-block-header">
-                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                                <h3 class="title is-4" style="margin: 0;">Tous les événements</h3>
-                                <div class="view-toggle-container" role="tablist" aria-label="Sélection de la vue">
-                                    <button class="view-toggle-link" 
+                    <!-- Layout à deux colonnes sur desktop -->
+                    <div class="columns is-variable is-6">
+                        <div class="column is-8">
+                            <!-- Alpine.js Calendar Component -->
+                            <div class="main-card calendar-container" 
+                                 x-data="calendarApp()" 
+                                 x-init="init()"
+                                 id="calendar-block"
+                                 role="region"
+                                 aria-label="Calendrier complet des événements">
+                                
+                                <div class="tabs-header">
+                                    <button class="tab-button" 
                                             :class="{ 'active': currentView === 'list' }"
                                             @click="switchView('list')"
                                             type="button"
                                             role="tab"
                                             :aria-selected="currentView === 'list'"
                                             aria-controls="list-view">
-                                        Vue liste
+                                        <span class="icon"><i class="fas fa-list"></i></span>
+                                        <span>Vue liste</span>
                                     </button>
-                                    <span class="view-toggle-separator" aria-hidden="true">|</span>
-                                    <button class="view-toggle-link" 
+                                    <button class="tab-button" 
                                             :class="{ 'active': currentView === 'grid' }"
                                             @click="switchView('grid')"
                                             type="button"
                                             role="tab"
                                             :aria-selected="currentView === 'grid'"
                                             aria-controls="grid-view">
-                                        Vue calendrier
+                                        <span class="icon"><i class="fas fa-calendar"></i></span>
+                                        <span>Vue calendrier</span>
                                     </button>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Vue Liste (par défaut) -->
-                        <div class="colored-block-body calendar-view-container" 
-                             x-show="currentView === 'list'"
-                             x-transition
-                             id="list-view"
-                             role="tabpanel">
-                            <div class="calendar-list-controls mb-4">
-                                <div class="calendar-nav-wrapper">
-                                    <div class="calendar-nav-left">
-                                        <button class="button" 
-                                                @click="prevMonth()" 
-                                                type="button"
-                                                aria-label="Mois précédent">
-                                            <span class="icon" aria-hidden="true"><i class="fas fa-chevron-left"></i></span>
-                                        </button>
-                                        <button class="button" 
-                                                @click="nextMonth()" 
-                                                type="button"
-                                                aria-label="Mois suivant">
-                                            <span class="icon" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
-                                        </button>
-                                    </div>
-                                    <div class="calendar-nav-center">
-                                        <input class="input has-text-centered has-text-weight-semibold" 
-                                               type="text" 
-                                               x-model="currentMonthDisplay" 
-                                               readonly
-                                               aria-label="Mois actuellement affiché">
-                                    </div>
-                                    <div class="calendar-nav-right">
-                                        <button class="button is-primary" 
-                                                @click="goToToday()" 
-                                                type="button">
-                                            <span>Aujourd'hui</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="events-list-container" role="list" aria-label="Événements du mois">
-                                <template x-if="currentMonthEvents.length === 0">
-                                    <div class="has-text-centered has-text-grey py-6" role="status">
-                                        <p class="is-size-5">Aucun événement ce mois-ci</p>
-                                    </div>
-                                </template>
                                 
-                                <template x-for="(event, index) in currentMonthEvents" :key="'event-' + index">
-                                    <div class="event-list-card"
-                                         :class="{
-                                             'is-rehearsal': event.isRehearsal,
-                                             'is-concert': !event.isRehearsal,
-                                             'is-past': event.isPast
-                                         }"
-                                         role="listitem">
-                                        <div class="event-list-card-content">
-                                            <div class="event-list-card-date" aria-hidden="true">
-                                                <div class="event-date-day" x-text="event.day"></div>
-                                                <div class="event-date-month" x-text="event.monthShort"></div>
-                                            </div>
-                                            <div class="event-list-card-info">
-                                                <div class="event-list-card-title" x-text="event.title"></div>
-                                                <div class="event-list-card-meta">
-                                                    <template x-if="event.timeRange">
-                                                        <span class="icon-text">
-                                                            <span class="icon" aria-hidden="true"><i class="fas fa-clock"></i></span>
-                                                            <span x-text="event.timeRange"></span>
-                                                        </span>
-                                                    </template>
-                                                    <template x-if="event.location">
-                                                        <span class="icon-text">
-                                                            <span class="icon" aria-hidden="true"><i class="fas fa-map-marker-alt"></i></span>
-                                                            <span x-text="event.location"></span>
-                                                        </span>
-                                                    </template>
-                                                </div>
-                                            </div>
-                                            <template x-if="event.isRehearsal">
-                                                <div class="event-list-card-badge">
-                                                    <span class="tag is-info is-light">Répétition</span>
-                                                </div>
-                                            </template>
+                                <!-- Vue Liste (par défaut) -->
+                                <div class="content-body" 
+                                     x-show="currentView === 'list'"
+                                     x-transition
+                                     id="list-view"
+                                     role="tabpanel">
+                                    <div class="calendar-list-controls mb-4">
+                                        <div class="buttons is-centered has-addons">
+                                            <button class="button" 
+                                                    @click="prevMonth()" 
+                                                    type="button"
+                                                    aria-label="Mois précédent">
+                                                <span class="icon"><i class="fas fa-chevron-left"></i></span>
+                                            </button>
+                                            <button class="button is-static has-text-weight-semibold" 
+                                                    style="min-width: 200px;">
+                                                <span x-text="currentMonthDisplay"></span>
+                                            </button>
+                                            <button class="button" 
+                                                    @click="nextMonth()" 
+                                                    type="button"
+                                                    aria-label="Mois suivant">
+                                                <span class="icon"><i class="fas fa-chevron-right"></i></span>
+                                            </button>
+                                        </div>
+                                        <div class="has-text-centered mt-3">
+                                            <button class="button is-primary is-small" 
+                                                    @click="goToToday()" 
+                                                    type="button">
+                                                <span class="icon"><i class="fas fa-calendar-day"></i></span>
+                                                <span>Aujourd'hui</span>
+                                            </button>
                                         </div>
                                     </div>
-                                </template>
+                                    
+                                    <div class="event-list" role="list" aria-label="Événements du mois">
+                                        <template x-if="currentMonthEvents.length === 0">
+                                            <div class="no-events" role="status">
+                                                <div class="icon">
+                                                    <i class="fas fa-calendar-times"></i>
+                                                </div>
+                                                <p class="is-size-5">Aucun événement ce mois-ci</p>
+                                            </div>
+                                        </template>
+                                        
+                                        <template x-for="(event, index) in currentMonthEvents" :key="'event-' + index">
+                                            <div class="event-item"
+                                                 :class="{
+                                                     'is-repetition': event.isRehearsal,
+                                                     'is-concert': !event.isRehearsal,
+                                                     'is-past': event.isPast
+                                                 }"
+                                                 role="listitem">
+                                                <div class="event-header">
+                                                    <span class="event-icon">
+                                                        <i :class="event.isRehearsal ? 'fas fa-music' : 'fas fa-star'"></i>
+                                                    </span>
+                                                    <span class="event-title" x-text="event.title"></span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <div class="event-date">
+                                                        <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+                                                        <span x-text="event.day + ' ' + event.monthShort"></span>
+                                                    </div>
+                                                    <template x-if="event.timeRange">
+                                                        <div class="event-time">
+                                                            <span class="icon"><i class="fas fa-clock"></i></span>
+                                                            <span x-text="event.timeRange"></span>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="event.location">
+                                                        <div class="event-location">
+                                                            <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                                                            <span x-text="event.location"></span>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                                <div class="event-pupitre">
+                                                    <span class="tag" x-text="event.isRehearsal ? 'Répétition' : 'Concert'"></span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                                
+                                <!-- Vue Grille -->
+                                <div class="content-body" 
+                                     x-show="currentView === 'grid'"
+                                     x-transition
+                                     id="grid-view"
+                                     role="tabpanel">
+                                    <div id="calendar" aria-label="Vue calendrier mensuel"></div>
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Vue Grille -->
-                        <div class="colored-block-body calendar-view-container" 
-                             x-show="currentView === 'grid'"
-                             x-transition
-                             id="grid-view"
-                             role="tabpanel">
-                            <div id="calendar" aria-label="Vue calendrier mensuel"></div>
+                        <!-- Sidebar à droite -->
+                        <div class="column is-4">
+                            <!-- Actualités -->
+                            {% if page.comment %}
+                                <div class="events-sidebar mb-5">
+                                    <div class="sidebar-header">
+                                        <h3 class="title is-4">Actualités</h3>
+                                    </div>
+                                    <div class="content">
+                                        {{ page.comment|richtext }}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Prochains événements -->
+                            <div class="events-sidebar">
+                                <div class="sidebar-header">
+                                    <h3 class="title is-4">Prochains événements</h3>
+                                </div>
+                                <div class="event-list">
+                                    {% for event in page.get_next_events %}
+                                        <div class="event-item {% if event.is_repetition %}is-repetition{% else %}is-concert{% endif %}">
+                                            <div class="event-header">
+                                                <span class="event-icon">
+                                                    {% if event.is_repetition %}
+                                                        <i class="fas fa-music"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% endif %}
+                                                </span>
+                                                <span class="event-title">{{ event.name }}</span>
+                                            </div>
+                                            <div class="event-details">
+                                                <div class="event-date">
+                                                    <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+                                                    <span>{{ event.start_date|date:"d M Y" }}</span>
+                                                </div>
+                                                {% if event.display_time %}
+                                                    <div class="event-time">
+                                                        <span class="icon"><i class="fas fa-clock"></i></span>
+                                                        <span>{{ event.display_time }}</span>
+                                                    </div>
+                                                {% endif %}
+                                                {% if event.lieu %}
+                                                    <div class="event-location">
+                                                        <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                                                        <span>{{ event.lieu }}</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="event-pupitre">
+                                                <span class="tag">{{ event.pupitre }}</span>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <div class="no-events">
+                                            <p>Aucun événement à venir</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Légende -->
+                            <div class="calendar-legend mt-5">
+                                <div class="legend-item">
+                                    <div class="legend-color is-repetition"></div>
+                                    <span class="legend-label">Répétitions</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color is-concert"></div>
+                                    <span class="legend-label">Concerts</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -220,10 +248,9 @@
                 
                 monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
                             'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-                dayNames: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
                 
                 get currentMonthDisplay() {
-                    return `${this.monthNames[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
+                    return this.monthNames[this.currentDate.getMonth()] + ' ' + this.currentDate.getFullYear();
                 },
                 
                 get currentMonthEvents() {
@@ -233,33 +260,37 @@
                     today.setHours(0, 0, 0, 0);
                     
                     return this.events
-                        .filter(event => {
+                        .filter(function(event) {
                             const eventDate = new Date(event.start);
                             return eventDate.getFullYear() === year && eventDate.getMonth() === month;
                         })
-                        .sort((a, b) => new Date(a.start) - new Date(b.start))
-                        .map(event => {
+                        .sort(function(a, b) {
+                            return new Date(a.start) - new Date(b.start);
+                        })
+                        .map(function(event) {
                             const eventDate = new Date(event.start);
                             const eventDateOnly = new Date(eventDate);
                             eventDateOnly.setHours(0, 0, 0, 0);
                             
+                            const monthShort = this.monthNames[eventDate.getMonth()].substring(0, 3);
+                            
                             return {
                                 title: event.title,
                                 day: eventDate.getDate(),
-                                monthShort: this.monthNames[eventDate.getMonth()].substring(0, 3),
+                                monthShort: monthShort,
                                 timeRange: this.formatTimeRange(event.start, event.end),
                                 location: event.location || '',
-                                isRehearsal: event.title.toLowerCase().includes('répétition'),
+                                isRehearsal: event.color === '#3e8ed0',
                                 isPast: eventDateOnly < today
                             };
-                        });
+                        }.bind(this));
                 },
                 
-                init() {
+                init: function() {
                     this.events = {{ page.get_all_events | safe }};
                 },
                 
-                formatTimeRange(start, end) {
+                formatTimeRange: function(start, end) {
                     const startDate = new Date(start);
                     const startTime = startDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                     
@@ -271,14 +302,14 @@
                         const endDate = new Date(end);
                         const endTime = endDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                         if (endTime !== '00:00') {
-                            return `${startTime} - ${endTime}`;
+                            return startTime + ' - ' + endTime;
                         }
                     }
                     
                     return startTime;
                 },
                 
-                saveBlockPosition() {
+                saveBlockPosition: function() {
                     const block = document.getElementById('calendar-block');
                     if (block) {
                         const rect = block.getBoundingClientRect();
@@ -287,31 +318,33 @@
                     }
                 },
                 
-                restoreBlockPosition() {
-                    this.$nextTick(() => {
-                        requestAnimationFrame(() => {
+                restoreBlockPosition: function() {
+                    var self = this;
+                    this.$nextTick(function() {
+                        requestAnimationFrame(function() {
                             window.scrollTo({
-                                top: this.blockPosition,
+                                top: self.blockPosition,
                                 behavior: 'instant'
                             });
                         });
                     });
                 },
                 
-                switchView(view) {
+                switchView: function(view) {
+                    var self = this;
                     this.saveBlockPosition();
                     this.currentView = view;
                     
                     if (view === 'grid' && !this.calendar) {
-                        this.$nextTick(() => {
-                            this.initCalendar();
+                        this.$nextTick(function() {
+                            self.initCalendar();
                         });
                     }
                     
                     this.restoreBlockPosition();
                 },
                 
-                initCalendar() {
+                initCalendar: function() {
                     const calendarEl = document.getElementById('calendar');
                     this.calendar = new FullCalendar.Calendar(calendarEl, {
                         plugins: ['dayGrid'],
@@ -340,15 +373,15 @@
                     this.calendar.render();
                 },
                 
-                prevMonth() {
+                prevMonth: function() {
                     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
                 },
                 
-                nextMonth() {
+                nextMonth: function() {
                     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
                 },
                 
-                goToToday() {
+                goToToday: function() {
                     this.currentDate = new Date();
                 }
             };

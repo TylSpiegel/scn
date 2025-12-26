@@ -12,6 +12,7 @@ ENV/
 db.sqlite3
 media/
 static/
+!scn_website/static
 
 # Environment
 .env
