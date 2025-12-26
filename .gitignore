@@ -20,10 +20,6 @@ static/
 # Node
 node_modules/
 
-# Build artifacts
-scn_website/static/vendor/
-scn_website/static/css/bulma.css
-
 # IDE
 .vscode/
 .idea/
