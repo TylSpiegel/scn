@@ -1,44 +1,172 @@
 /* ============================================
-   PAGE CALENDRIER
+   CALENDAR PAGE - Single column layout
+   Matches morceau page style with sections
    ============================================ */
 
-// Container principal du calendrier
-.calendar-container {
-    background: white;
-    border-radius: $radius-md;
-    padding: $spacing-xl;
-    @include shadow-md;
-    margin-bottom: $spacing-xl;
+// Section divider between content blocks
+.section-divider {
+    border: none;
+    height: 1px;
+    background: color-mix(in srgb, var(--primary-color) 15%, white);
+    margin: $spacing-xl 0;
 }
 
+// Section header with toggle on same line
+.section-header-with-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-lg;
+    
+    .title {
+        margin-bottom: 0;
+    }
+    
+    .buttons {
+        margin-bottom: 0;
+        
+        .button {
+            margin-bottom: 0;
+        }
+    }
+    
+    .button.is-primary {
+        background-color: $primary-color;
+        border-color: $primary-color;
+        color: white;
+    }
+}
+
+// Events box list
+.events-box-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+}
+
+// Event box (white card style)
+.event-box {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: $radius-sm;
+    
+    &.is-past {
+        opacity: 0.5;
+    }
+}
+
+.event-box-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    padding: $spacing-sm;
+    border-radius: $radius-sm;
+    flex-shrink: 0;
+    color: white;
+    
+    &.is-repetition {
+        background: var(--event-rehearsal-color);
+    }
+    
+    &.is-concert {
+        background: var(--event-concert-color);
+    }
+    
+    .day {
+        font-size: 1.25rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    
+    .month {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+}
+
+.event-box-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.event-box-title {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.event-box-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    font-size: 0.875rem;
+    color: var(--text-muted-color);
+    
+    i {
+        margin-right: 4px;
+        font-size: 0.8rem;
+    }
+}
+
+.event-box-time,
+.event-box-location {
+    white-space: nowrap;
+}
+
+// Month navigation centered
+.calendar-month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    
+    .month-display {
+        font-weight: 600;
+        min-width: 140px;
+        text-align: center;
+    }
+}
+
+// FullCalendar container
 #calendar {
     background: white;
+    border-radius: $radius-sm;
+    overflow: hidden;
     
-    // Customisation FullCalendar
     .fc {
         font-family: $family-sans-serif;
     }
     
-    // Toolbar (header)
     .fc-toolbar {
         margin-bottom: $spacing-lg;
+        padding: 0 $spacing-sm;
         
         h2 {
             color: $primary-color;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
         }
     }
     
-    // Boutons
     .fc-button {
         background-color: $primary-color;
         border-color: $primary-color;
         color: white;
         border-radius: $radius-sm;
-        padding: 0.5rem 1rem;
+        padding: 0.4rem 0.8rem;
         font-weight: 600;
-        transition: $transition-fast;
+        font-size: 0.875rem;
         
         &:hover:not(:disabled) {
             background-color: $secondary-color;
@@ -47,7 +175,6 @@
         
         &:disabled {
             opacity: 0.5;
-            cursor: not-allowed;
         }
         
         &.fc-button-active {
@@ -56,33 +183,16 @@
         }
     }
     
-    .fc-button-group {
-        .fc-button {
-            margin-left: 0;
-        }
-    }
-    
-    // Jours de la semaine
     .fc-col-header-cell {
         background-color: color-mix(in srgb, var(--primary-color) 10%, white);
         color: $primary-color;
         font-weight: 600;
         padding: $spacing-sm;
-        border-color: color-mix(in srgb, var(--primary-color) 20%, white);
-    }
-    
-    // Cellules de jour
-    .fc-daygrid-day {
-        transition: $transition-fast;
-        
-        &:hover {
-            background-color: color-mix(in srgb, var(--primary-color) 5%, white);
-        }
     }
     
     .fc-daygrid-day-number {
         color: var(--text-color);
-        padding: 0.5rem;
+        padding: 0.4rem;
         font-weight: 500;
     }
     
@@ -95,20 +205,13 @@
         }
     }
     
-    // Événements
     .fc-event {
         border-radius: $radius-sm;
         padding: 2px 4px;
         margin: 1px 2px;
         border: none;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         cursor: pointer;
-        transition: $transition-fast;
-        
-        &:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
         
         .fc-event-title {
             font-weight: 600;
@@ -120,179 +223,33 @@
         }
     }
     
-    // Bordures
     .fc-theme-standard td,
     .fc-theme-standard th {
         border-color: #e0e0e0;
     }
 }
 
-// Liste d'événements à côté
-.events-sidebar {
-    background: white;
-    border-radius: $radius-md;
-    padding: $spacing-xl;
-    @include shadow-md;
-    
-    .sidebar-header {
-        @include primary-gradient(0.85, 0.65);
-        color: white;
-        padding: $spacing-lg;
-        margin: -$spacing-xl -$spacing-xl $spacing-lg -$spacing-xl;
-        border-radius: $radius-md $radius-md 0 0;
-        
-        .title {
-            color: white;
-            margin: 0;
-        }
-    }
-}
-
-.event-list {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-md;
-    
-    .event-item {
-        background: white;
-        border-left: 4px solid $primary-color;
-        padding: $spacing-md;
-        border-radius: $radius-sm;
-        @include shadow-sm;
-        transition: $transition-fast;
-        cursor: pointer;
-        
-        &:hover {
-            @include shadow-md;
-            transform: translateX(4px);
-        }
-        
-        &.is-repetition {
-            border-left-color: var(--event-rehearsal-color);
-            
-            .event-icon {
-                color: var(--event-rehearsal-color);
-            }
-        }
-        
-        &.is-concert {
-            border-left-color: var(--event-concert-color);
-            
-            .event-icon {
-                color: var(--event-concert-color);
-            }
-        }
-        
-        .event-header {
-            display: flex;
-            align-items: center;
-            gap: $spacing-sm;
-            margin-bottom: $spacing-xs;
-            
-            .event-icon {
-                font-size: 1.2rem;
-            }
-            
-            .event-title {
-                font-weight: 700;
-                color: var(--text-color);
-                font-size: 1rem;
-            }
-        }
-        
-        .event-details {
-            display: flex;
-            flex-direction: column;
-            gap: $spacing-xs;
-            font-size: 0.9rem;
-            color: var(--text-muted-color);
-            
-            .event-date,
-            .event-time,
-            .event-location {
-                display: flex;
-                align-items: center;
-                gap: $spacing-xs;
-                
-                .icon {
-                    width: 1rem;
-                }
-            }
-        }
-        
-        .event-pupitre {
-            margin-top: $spacing-sm;
-            
-            .tag {
-                font-size: 0.75rem;
-                background-color: color-mix(in srgb, var(--primary-color) 15%, white);
-                color: $primary-color;
-                border: 1px solid color-mix(in srgb, var(--primary-color) 30%, white);
-            }
-        }
-    }
-}
-
-// Empty state pour la liste
-.no-events {
-    text-align: center;
-    padding: $spacing-xxl;
-    color: var(--text-muted-color);
-    
-    .icon {
-        font-size: 3rem;
-        margin-bottom: $spacing-md;
-    }
-}
-
-// Légende
-.calendar-legend {
-    display: flex;
-    gap: $spacing-lg;
-    justify-content: center;
-    margin-top: $spacing-lg;
-    flex-wrap: wrap;
-    
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: $spacing-sm;
-        
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: $radius-sm;
-            
-            &.is-repetition {
-                background-color: var(--event-rehearsal-color);
-            }
-            
-            &.is-concert {
-                background-color: var(--event-concert-color);
-            }
-        }
-        
-        .legend-label {
-            font-size: 0.9rem;
-            color: var(--text-color);
-        }
-    }
-}
-
-// Responsive
+// Mobile responsiveness
 @include mobile {
-    .calendar-container {
-        padding: $spacing-md;
+    .section-header-with-toggle {
+        flex-direction: column;
+        align-items: flex-start;
     }
     
-    .events-sidebar {
-        padding: $spacing-md;
-        margin-top: $spacing-lg;
-    }
-    
-    .fc {
-        font-size: 0.85rem;
+    .event-box {
+        align-items: flex-start;
         
+        .event-box-date {
+            min-width: 45px;
+        }
+    }
+    
+    .event-box-details {
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+    
+    #calendar {
         .fc-toolbar {
             flex-direction: column;
             gap: $spacing-sm;
@@ -305,8 +262,8 @@
         }
         
         .fc-button {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
         }
     }
 }
