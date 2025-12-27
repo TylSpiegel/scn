@@ -37,3 +37,7 @@ logs/
 # Coverage
 htmlcov/
 .coverage
+
+# Generated
+bulma.css
+bulma.css.map
