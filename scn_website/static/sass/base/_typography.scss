@@ -1,27 +1,53 @@
 /* ============================================
    TYPOGRAPHY
+   Global typography styles
    ============================================ */
 
+// Import elegant font for titles (Google Fonts)
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap');
+
+// Title font family
+$title-font-family: 'Lora', Georgia, serif;
+
+// Apply elegant font to titles
+h1, h2, h3, h4, h5, h6,
+.title {
+    font-family: $title-font-family;
+    letter-spacing: -0.01em;
+}
+
+// Bulma title overrides
+.title {
+    font-family: $title-font-family;
+    
+    &.is-1 {
+        font-weight: 700;
+    }
+    
+    &.is-2 {
+        font-weight: 600;
+    }
+    
+    &.is-3,
+    &.is-4,
+    &.is-5,
+    &.is-6 {
+        font-weight: 500;
+    }
+}
+
+// Body text
 body {
     font-family: $family-sans-serif;
     color: var(--text-color);
+    line-height: 1.6;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-}
-
-.title.is-1,
-h1 {
-    color: var(--title-h1-color);
-}
-
-.title.is-2,
-h2 {
-    color: var(--title-h2-color);
-}
-
-.title.is-3,
-h3 {
-    color: var(--title-h3-color);
+// Links
+a {
+    color: $primary-color;
+    
+    &:hover {
+        color: $secondary-color;
+    }
 }

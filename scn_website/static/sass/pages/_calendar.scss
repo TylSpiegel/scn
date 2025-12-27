@@ -3,14 +3,6 @@
    Matches morceau page style with sections
    ============================================ */
 
-// Section divider between content blocks
-.section-divider {
-    border: none;
-    height: 1px;
-    background: color-mix(in srgb, var(--primary-color) 15%, white);
-    margin: $spacing-xl 0;
-}
-
 // Section header with toggle on same line
 .section-header-with-toggle {
     display: flex;
