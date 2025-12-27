@@ -1,9 +1,261 @@
-// Cards choristes
+/* ============================================
+   CHORISTES COMPONENTS
+   ============================================ */
+
+// Pupitre colors
+$pupitre-colors: (
+    'tutti': #007BFF,
+    'soprano': #DC3545,
+    'mezzo-soprano': #E91E63,
+    'alto': #FFC107,
+    'mezzo-alto': #FF9800,
+    'tenor': #28A745,
+    'basse': #17A2B8,
+    'sans-pupitre': #6C757D
+);
+
+// Generate pupitre header colors with gradient
+@each $name, $color in $pupitre-colors {
+    .pupitre-#{$name} {
+        background: linear-gradient(to right, 
+            color-mix(in srgb, #{$color} 75%, white),
+            #{$color}
+        );
+    }
+}
+
+// Filter buttons
+.choristes-filter {
+    .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-sm;
+        justify-content: center;
+    }
+    
+    .filter-btn {
+        padding: $spacing-xs $spacing-md;
+        border: none;
+        border-radius: $radius-sm;
+        color: white;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        opacity: 0.6;
+        
+        &:hover {
+            opacity: 0.8;
+        }
+        
+        &.is-active {
+            opacity: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    }
+    
+    // Filter button colors
+    .filter-all {
+        background: $primary-color;
+    }
+    
+    @each $name, $color in $pupitre-colors {
+        .filter-#{$name} {
+            background: #{$color};
+            @if $name == 'alto' {
+                color: #333;
+            }
+        }
+    }
+}
+
+// Choristes grid
+.choristes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: $spacing-lg;
+    align-items: start;
+}
+
+// Card wrapper - contains card + expandable details
+.choriste-card-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+// Choriste card - fixed height
 .choriste-card {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  }
+    background: white;
+    border-radius: $radius-md;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    @include shadow-sm;
+    display: flex;
+    flex-direction: column;
+    height: 160px;
+}
+
+// Header with pupitre color and name
+.choriste-card-header {
+    padding: $spacing-xs $spacing-sm;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    
+    .pupitre-label {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.choriste-card-body {
+    padding: $spacing-sm $spacing-md;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+}
+
+.choriste-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: $spacing-xs;
+    text-align: center;
+}
+
+// Function tags
+.choriste-functions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    justify-content: center;
+    flex: 1;
+    align-content: flex-start;
+    min-height: 24px;
+}
+
+.function-tag {
+    display: inline-block;
+    padding: 2px $spacing-sm;
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--secondary-color) 80%, white),
+        var(--secondary-color)
+    );
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 600;
+    border-radius: $radius-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    height: fit-content;
+}
+
+.function-placeholder {
+    height: 20px;
+}
+
+// Contact toggle button - bottom right
+.choriste-contact-toggle {
+    position: absolute;
+    bottom: $spacing-sm;
+    right: $spacing-sm;
+}
+
+.contact-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: color-mix(in srgb, var(--primary-color) 15%, white);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 30%, white);
+    border-radius: 50%;
+    color: $primary-color;
+    font-size: 0.75rem;
+    cursor: pointer;
+    
+    &:hover {
+        background: color-mix(in srgb, var(--primary-color) 25%, white);
+    }
+    
+    .toggle-icon {
+        line-height: 1;
+    }
+}
+
+// Contact details - outside card, does not affect grid
+.choriste-contact-details {
+    margin-top: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: color-mix(in srgb, var(--primary-color) 5%, white);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 15%, white);
+    border-radius: $radius-sm;
+}
+
+.contact-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: $spacing-xs;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.contact-label {
+    font-size: 0.65rem;
+    color: var(--text-muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 1px;
+}
+
+.contact-value {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    word-break: break-word;
+    
+    a {
+        color: $primary-color;
+        text-decoration: none;
+        
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.no-contact {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+    font-style: italic;
+    text-align: center;
+    margin: 0;
+}
+
+// Mobile responsiveness
+@include mobile {
+    .choristes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: $spacing-md;
+    }
+    
+    .choriste-card {
+        height: 150px;
+    }
+    
+    .filter-buttons {
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: $spacing-sm;
+        -webkit-overflow-scrolling: touch;
+        
+        .filter-btn {
+            flex-shrink: 0;
+        }
+    }
 }

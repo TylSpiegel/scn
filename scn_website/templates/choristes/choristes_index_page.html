@@ -2,96 +2,101 @@
 
 {% load wagtailcore_tags %}
 
-{% block extra_css %}
-<style>
-    .pupitre-tutti { background: linear-gradient(135deg, #007BFF 0%, #0056D2 100%); }
-    .pupitre-soprano { background: linear-gradient(135deg, #DC3545 0%, #A82835 100%); }
-    .pupitre-mezzo-soprano { background: linear-gradient(135deg, #E91E63 0%, #AD1457 100%); }
-    .pupitre-alto { background: linear-gradient(135deg, #FFC107 0%, #FFA000 100%); color: #333; }
-    .pupitre-mezzo-alto { background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); }
-    .pupitre-tenor { background: linear-gradient(135deg, #28A745 0%, #1E7E34 100%); }
-    .pupitre-basse { background: linear-gradient(135deg, #17A2B8 0%, #117A8B 100%); }
-    .pupitre-autre { background: linear-gradient(135deg, #6C757D 0%, #495057 100%); }
-</style>
-{% endblock %}
-
 {% block content %}
     <section class="section">
-        <div class="container main-container">
-            <div class="elegant-card">
-                <div class="elegant-card-header">
-                    <h1 class="title is-2">Répertoire des choristes</h1>
-                </div>
-                <div class="elegant-card-body">
-                    <div class="columns is-multiline">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-10-desktop is-11-tablet is-12-mobile">
+                    
+                    <!-- Header -->
+                    <div class="page-header">
+                        <h1 class="title is-2">Repertoire des choristes</h1>
+                    </div>
+                    
+                    <!-- Filter buttons -->
+                    <div class="choristes-filter mb-5">
+                        <div class="filter-buttons">
+                            <button class="filter-btn filter-all is-active" data-filter="all" onclick="filterChoristes('all', this)">
+                                Tous
+                            </button>
+                            {% regroup choristes by pupitre as pupitres_list %}
+                            {% for pupitre_group in pupitres_list %}
+                                {% if pupitre_group.grouper %}
+                                    <button class="filter-btn filter-{{ pupitre_group.grouper|slugify }}" data-filter="{{ pupitre_group.grouper|slugify }}" onclick="filterChoristes('{{ pupitre_group.grouper|slugify }}', this)">
+                                        {{ pupitre_group.grouper }}
+                                    </button>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Choristes grid -->
+                    <div class="choristes-grid">
                         {% for choriste in choristes %}
                             {% if choriste.active %}
-                                <div class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile">
+                                <div class="choriste-card-wrapper" data-pupitre="{{ choriste.pupitre|slugify }}">
                                     <div class="choriste-card">
-                                        <div class="card-header
-                                            {% if choriste.pupitre == 'Tutti' %}pupitre-tutti
-                                            {% elif choriste.pupitre == 'Soprano' %}pupitre-soprano
-                                            {% elif choriste.pupitre == 'Mezzo-soprano' %}pupitre-mezzo-soprano
-                                            {% elif choriste.pupitre == 'Alto' %}pupitre-alto
-                                            {% elif choriste.pupitre == 'Mezzo-alto' %}pupitre-mezzo-alto
-                                            {% elif choriste.pupitre == 'Ténor' %}pupitre-tenor
-                                            {% elif choriste.pupitre == 'Basse' %}pupitre-basse
-                                            {% else %}pupitre-autre{% endif %}">
-                                            <p class="card-header-title has-text-white">
-                                                {{ choriste.pupitre|default:"Sans pupitre" }}
-                                            </p>
+                                        <!-- Header line with pupitre color and name -->
+                                        <div class="choriste-card-header pupitre-{{ choriste.pupitre|slugify }}">
+                                            <span class="pupitre-label">{{ choriste.pupitre|default:"Sans pupitre" }}</span>
                                         </div>
-
-                                        <div class="card-content">
-                                            <p class="title is-5 has-text-centered mb-3">{{ choriste.name }}</p>
-
-                                            {% if choriste.choir_functions.all %}
-                                                <div class="tags are-small is-centered mb-4">
-                                                    {% for role in choriste.choir_functions.all %}
-                                                        <span class="tag is-info is-light">{{ role }}</span>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-
-                                            <div class="has-text-centered">
-                                                <button class="button is-primary is-light is-small js-modal-trigger" data-target="modal-{{ forloop.counter }}">
-                                                    <span class="icon"><i class="fas fa-envelope"></i></span>
-                                                    <span>Contact</span>
+                                        
+                                        <!-- Card content -->
+                                        <div class="choriste-card-body">
+                                            <p class="choriste-name">{{ choriste.name }}</p>
+                                            
+                                            <div class="choriste-functions">
+                                                {% for role in choriste.choir_functions.all %}
+                                                    <span class="function-tag">{{ role }}</span>
+                                                {% empty %}
+                                                    <span class="function-placeholder"></span>
+                                                {% endfor %}
+                                            </div>
+                                            
+                                            <!-- Contact toggle button -->
+                                            <div class="choriste-contact-toggle">
+                                                <button class="contact-toggle-btn" onclick="toggleContact(this)">
+                                                    <i class="fas fa-chevron-down toggle-icon"></i>
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Modal -->
-                                    <div id="modal-{{ forloop.counter }}" class="modal">
-                                        <div class="modal-background"></div>
-                                        <div class="modal-card">
-                                            <header class="modal-card-head">
-                                                <p class="modal-card-title">{{ choriste.name }}</p>
-                                                <button class="delete" aria-label="close"></button>
-                                            </header>
-                                            <section class="modal-card-body">
-                                                <div class="content">
-                                                    <div class="mb-4">
-                                                        <p class="has-text-weight-semibold has-text-grey">Date de naissance</p>
-                                                        <p>{% if choriste.birthdate %}{{ choriste.birthdate|date:"d/m/Y" }}{% else %}-{% endif %}</p>
-                                                    </div>
-                                                    <div class="mb-4">
-                                                        <p class="has-text-weight-semibold has-text-grey">Email</p>
-                                                        <p>{% if choriste.mail %}<a href="mailto:{{ choriste.mail }}">{{ choriste.mail }}</a>{% else %}-{% endif %}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p class="has-text-weight-semibold has-text-grey">Téléphone</p>
-                                                        <p>{% if choriste.phone %}{{ choriste.phone }}{% else %}-{% endif %}</p>
-                                                    </div>
-                                                </div>
-                                            </section>
-                                        </div>
+                                    
+                                    <!-- Contact details outside the card -->
+                                    <div class="choriste-contact-details" style="display: none;">
+                                        {% if choriste.birthdate %}
+                                            <div class="contact-item">
+                                                <span class="contact-label">Date de naissance</span>
+                                                <span class="contact-value">{{ choriste.birthdate|date:"d/m/Y" }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if choriste.mail %}
+                                            <div class="contact-item">
+                                                <span class="contact-label">Email</span>
+                                                <span class="contact-value"><a href="mailto:{{ choriste.mail }}">{{ choriste.mail }}</a></span>
+                                            </div>
+                                        {% endif %}
+                                        {% if choriste.phone %}
+                                            <div class="contact-item">
+                                                <span class="contact-label">Telephone</span>
+                                                <span class="contact-value"><a href="tel:{{ choriste.phone }}">{{ choriste.phone }}</a></span>
+                                            </div>
+                                        {% endif %}
+                                        {% if choriste.address %}
+                                            <div class="contact-item">
+                                                <span class="contact-label">Adresse</span>
+                                                <span class="contact-value">{{ choriste.address }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if not choriste.birthdate and not choriste.mail and not choriste.phone and not choriste.address %}
+                                            <p class="no-contact">Aucune information de contact</p>
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% endif %}
                         {% endfor %}
                     </div>
+                    
                 </div>
             </div>
         </div>
@@ -100,22 +105,39 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const modalTriggers = document.querySelectorAll('.js-modal-trigger');
-    const modalCloses = document.querySelectorAll('.modal-background, .modal-card-head .delete');
-
-    modalTriggers.forEach(trigger => {
-        const modal = document.getElementById(trigger.dataset.target);
-        trigger.addEventListener('click', () => {
-            modal.classList.add('is-active');
-        });
+function filterChoristes(pupitre, btn) {
+    // Update active button
+    var buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(function(b) {
+        b.classList.remove('is-active');
     });
-
-    modalCloses.forEach(close => {
-        close.addEventListener('click', () => {
-            close.closest('.modal').classList.remove('is-active');
-        });
+    btn.classList.add('is-active');
+    
+    // Filter cards
+    var cards = document.querySelectorAll('.choriste-card-wrapper');
+    cards.forEach(function(card) {
+        if (pupitre === 'all' || card.dataset.pupitre === pupitre) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
     });
-});
+}
+
+function toggleContact(btn) {
+    var wrapper = btn.closest('.choriste-card-wrapper');
+    var details = wrapper.querySelector('.choriste-contact-details');
+    var icon = btn.querySelector('.toggle-icon');
+    
+    if (details.style.display === 'none') {
+        details.style.display = 'block';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    } else {
+        details.style.display = 'none';
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    }
+}
 </script>
 {% endblock %}
