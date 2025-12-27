@@ -23070,206 +23070,106 @@ h3 {
 }
 
 /* ============================================
-   PAGE MORCEAU INDEX - Liste des chants
+   MORCEAU INDEX PAGE - List of songs
    ============================================ */
-.search-box {
-  margin-bottom: 2rem;
-}
-.search-box .control.has-icons-left {
-  width: 100%;
-}
-.search-box input {
-  border-radius: 8px;
-  border: 2px solid color-mix(in srgb, var(--primary-color) 30%, white);
-  transition: 0.2s ease;
-  padding-left: 2.5rem;
-}
-.search-box input:focus {
-  border-color: var(--primary-color, #8a4d76);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, white);
-  outline: none;
-}
-.search-box input::placeholder {
-  color: var(--text-muted-color);
-}
-.search-box .icon.is-left {
-  color: var(--primary-color, #8a4d76);
-}
-
-.filter-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  justify-content: center;
-}
-.filter-buttons .button {
-  transition: 0.3s ease;
-}
-.filter-buttons .button.is-active {
+.morceau-index-header {
   background-color: var(--primary-color, #8a4d76);
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+.morceau-index-header .title,
+.morceau-index-header .subtitle {
   color: white;
-  border-color: var(--primary-color, #8a4d76);
+  margin: 0;
+}
+.morceau-index-header .subtitle {
+  margin-top: 0.75rem;
+  opacity: 0.95;
 }
 
-.morceau-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-@media (max-width: 767px) {
-  .morceau-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-}
-@media (min-width: 768px) {
-  .morceau-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-}
-
-.morceau-card {
-  position: relative;
+.morceau-index-content {
   background: white;
   border-radius: 12px;
-  overflow: hidden;
-  transition: 0.3s ease;
-  cursor: pointer;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 2px solid transparent;
-}
-.morceau-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  border-color: color-mix(in srgb, var(--primary-color) 30%, white);
-}
-.morceau-card:hover .morceau-card-header {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 95%, white), color-mix(in srgb, var(--primary-color) 75%, white));
-}
-
-.morceau-card-header {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 85%, white), color-mix(in srgb, var(--primary-color) 65%, white));
-  padding: 2rem 1.5rem;
-  color: white;
-  min-height: 140px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-  transition: 0.3s ease;
-}
-.morceau-card-header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  border-radius: 50%;
-  transform: translate(30%, -30%);
-}
-.morceau-card-header .title {
-  color: white;
-  margin-bottom: 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-.morceau-card-header .subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.1rem;
-  font-style: italic;
-  margin: 0;
-}
-
-.morceau-card-body {
   padding: 1.5rem;
-  flex-grow: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.morceau-index-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary-color) 5%, white);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 15%, white);
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+.morceau-index-item:last-child {
+  margin-bottom: 0;
+}
+.morceau-index-item:hover {
+  background: color-mix(in srgb, var(--primary-color) 10%, white);
+  border-color: color-mix(in srgb, var(--primary-color) 25%, white);
+}
+
+.morceau-index-item-text {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  background: white;
-}
-.morceau-card-body .content {
-  color: var(--text-color);
-  font-size: 0.95rem;
-  line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.morceau-card-body .has-files-indicator {
-  margin-top: auto;
-  padding-top: 1rem;
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-.morceau-card-body .has-files-indicator .tag {
-  font-size: 0.75rem;
-}
-.morceau-card-body .has-files-indicator .tag.has-pdf {
-  background-color: #ffebee;
-  color: #c62828;
-}
-.morceau-card-body .has-files-indicator .tag.has-audio {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-
-.morceau-card-footer {
-  padding: 1rem 1.5rem;
-  background-color: #fafafa;
-  border-top: 1px solid #eee;
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
-  align-items: center;
 }
-.morceau-card-footer .tag {
-  margin: 0;
-}
-.morceau-card-footer .tag.is-pupitre {
-  background-color: color-mix(in srgb, var(--primary-color) 15%, white);
-  color: var(--primary-color, #8a4d76);
+
+.morceau-index-title {
+  font-size: 1.1rem;
   font-weight: 600;
-  border: 1px solid color-mix(in srgb, var(--primary-color) 30%, white);
+  color: var(--text-color);
 }
 
-.empty-state {
-  text-align: center;
-  padding: 5rem;
-}
-.empty-state .icon {
-  font-size: 4rem;
-  color: var(--text-muted-color);
-  margin-bottom: 1.5rem;
-}
-.empty-state .title {
-  color: var(--text-muted-color);
-  margin-bottom: 0.75rem;
-}
-.empty-state .subtitle {
-  color: var(--text-muted-color);
+.morceau-index-composer {
+  font-size: 0.95rem;
+  color: var(--text-muted-color, #6b7280);
+  font-style: italic;
 }
 
-.results-count {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: var(--text-muted-color);
-  font-size: 0.9rem;
-}
-.results-count strong {
+.morceau-index-item-arrow {
   color: var(--primary-color, #8a4d76);
+  font-size: 1rem;
+  margin-left: 1rem;
+  flex-shrink: 0;
 }
 
+.morceau-index-empty {
+  text-align: center;
+  padding: 2.5rem;
+  color: var(--text-muted-color, #6b7280);
+}
+
+@media (max-width: 767px) {
+  .morceau-index-header {
+    padding: 1.5rem;
+  }
+  .morceau-index-header .title {
+    font-size: 1.5rem;
+  }
+  .morceau-index-header .subtitle {
+    font-size: 1rem;
+  }
+  .morceau-index-content {
+    padding: 1rem;
+  }
+  .morceau-index-item {
+    padding: 1rem;
+  }
+  .morceau-index-title {
+    font-size: 1rem;
+  }
+  .morceau-index-composer {
+    font-size: 0.875rem;
+  }
+}
 /* ============================================
    PAGE MORCEAU - Détail d'un chant
    ============================================ */

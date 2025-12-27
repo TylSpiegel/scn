@@ -1,231 +1,119 @@
 /* ============================================
-   PAGE MORCEAU INDEX - Liste des chants
+   MORCEAU INDEX PAGE - List of songs
    ============================================ */
 
-// Search box
-.search-box {
-    margin-bottom: $spacing-xl;
-    
-    .control.has-icons-left {
-        width: 100%;
-    }
-    
-    input {
-        border-radius: $radius-sm;
-        border: 2px solid color-mix(in srgb, var(--primary-color) 30%, white);
-        transition: $transition-fast;
-        padding-left: 2.5rem;
-        
-        &:focus {
-            border-color: $primary-color;
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, white);
-            outline: none;
-        }
-        
-        &::placeholder {
-            color: var(--text-muted-color);
-        }
-    }
-    
-    .icon.is-left {
-        color: $primary-color;
-    }
-}
-
-// Filter buttons
-.filter-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-sm;
-    margin-bottom: $spacing-lg;
-    justify-content: center;
-    
-    .button {
-        transition: $transition-normal;
-        
-        &.is-active {
-            background-color: $primary-color;
-            color: white;
-            border-color: $primary-color;
-        }
-    }
-}
-
-// Grid de morceaux
-.morceau-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: $spacing-xl;
-    margin-top: $spacing-xl;
-    
-    @include mobile {
-        grid-template-columns: 1fr;
-        gap: $spacing-lg;
-    }
-    
-    @include tablet {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-}
-
-// Carte morceau
-.morceau-card {
-    position: relative;
-    background: white;
+// Header with solid primary background and white text
+.morceau-index-header {
+    background-color: $primary-color;
+    padding: $spacing-xl;
     border-radius: $radius-md;
-    overflow: hidden;
-    transition: $transition-normal;
-    cursor: pointer;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    @include shadow-sm;
-    border: 2px solid transparent;
-
-    &:hover {
-        transform: translateY(-8px);
-        @include shadow-lg;
-        border-color: color-mix(in srgb, var(--primary-color) 30%, white);
-        
-        .morceau-card-header {
-            @include primary-gradient(0.95, 0.75);
-        }
-    }
-}
-
-.morceau-card-header {
-    @include primary-gradient(0.85, 0.65);
-    padding: $spacing-xl $spacing-lg;
-    color: white;
-    min-height: 140px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    transition: $transition-normal;
+    margin-bottom: $spacing-lg;
     
-    // Pattern décoratif optionnel
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100px;
-        height: 100px;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        transform: translate(30%, -30%);
-    }
-    
-    .title {
+    .title,
+    .subtitle {
         color: white;
-        margin-bottom: $spacing-xs;
-        font-size: 1.5rem;
-        font-weight: 700;
-        line-height: 1.3;
+        margin: 0;
     }
     
     .subtitle {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.1rem;
-        font-style: italic;
-        margin: 0;
+        margin-top: $spacing-sm;
+        opacity: 0.95;
     }
 }
 
-.morceau-card-body {
+// White content container
+.morceau-index-content {
+    background: white;
+    border-radius: $radius-md;
     padding: $spacing-lg;
-    flex-grow: 1;
+    @include shadow-sm;
+}
+
+// Individual list items
+.morceau-index-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md $spacing-lg;
+    margin-bottom: $spacing-sm;
+    border-radius: $radius-sm;
+    background: color-mix(in srgb, var(--primary-color) 5%, white);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 15%, white);
+    text-decoration: none;
+    transition: $transition-fast;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+    
+    &:hover {
+        background: color-mix(in srgb, var(--primary-color) 10%, white);
+        border-color: color-mix(in srgb, var(--primary-color) 25%, white);
+    }
+}
+
+// Text content of each item
+.morceau-index-item-text {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    background: white;
-    
-    .content {
-        color: var(--text-color);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        
-        // Limiter à 3 lignes
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .has-files-indicator {
-        margin-top: auto;
-        padding-top: $spacing-md;
-        display: flex;
-        gap: $spacing-sm;
-        flex-wrap: wrap;
-        
-        .tag {
-            font-size: 0.75rem;
-            
-            &.has-pdf {
-                background-color: #ffebee;
-                color: #c62828;
-            }
-            
-            &.has-audio {
-                background-color: #e3f2fd;
-                color: #1565c0;
-            }
-        }
-    }
+    gap: $spacing-xs;
 }
 
-.morceau-card-footer {
-    padding: $spacing-md $spacing-lg;
-    background-color: #fafafa;
-    border-top: 1px solid #eee;
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-xs;
-    align-items: center;
-    
-    .tag {
-        margin: 0;
-        
-        &.is-pupitre {
-            background-color: color-mix(in srgb, var(--primary-color) 15%, white);
-            color: $primary-color;
-            font-weight: 600;
-            border: 1px solid color-mix(in srgb, var(--primary-color) 30%, white);
-        }
-    }
+.morceau-index-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.morceau-index-composer {
+    font-size: 0.95rem;
+    color: var(--text-muted-color, #6b7280);
+    font-style: italic;
+}
+
+// Arrow icon
+.morceau-index-item-arrow {
+    color: $primary-color;
+    font-size: 1rem;
+    margin-left: $spacing-md;
+    flex-shrink: 0;
 }
 
 // Empty state
-.empty-state {
+.morceau-index-empty {
     text-align: center;
-    padding: $spacing-xxl * 2;
-    
-    .icon {
-        font-size: 4rem;
-        color: var(--text-muted-color);
-        margin-bottom: $spacing-lg;
-    }
-    
-    .title {
-        color: var(--text-muted-color);
-        margin-bottom: $spacing-sm;
-    }
-    
-    .subtitle {
-        color: var(--text-muted-color);
-    }
+    padding: $spacing-xxl;
+    color: var(--text-muted-color, #6b7280);
 }
 
-// Stats/Count
-.results-count {
-    text-align: center;
-    margin-bottom: $spacing-lg;
-    color: var(--text-muted-color);
-    font-size: 0.9rem;
+// Mobile responsiveness
+@include mobile {
+    .morceau-index-header {
+        padding: $spacing-lg;
+        
+        .title {
+            font-size: 1.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+        }
+    }
     
-    strong {
-        color: $primary-color;
+    .morceau-index-content {
+        padding: $spacing-md;
+    }
+    
+    .morceau-index-item {
+        padding: $spacing-md;
+    }
+    
+    .morceau-index-title {
+        font-size: 1rem;
+    }
+    
+    .morceau-index-composer {
+        font-size: 0.875rem;
     }
 }

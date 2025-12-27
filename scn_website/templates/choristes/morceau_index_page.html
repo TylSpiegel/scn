@@ -6,41 +6,34 @@
 {% block content %}
     <section class="section">
         <div class="container">
-            <!-- Centrage du contenu -->
             <div class="columns is-centered">
                 <div class="column is-8-desktop is-10-tablet is-12-mobile">
                     
-                    <!-- En-tête -->
-                    <div class="colored-block mb-5">
-                        <div class="colored-block-header">
-                            <h1 class="title is-2">{{ page.title }}</h1>
-                            {% if page.introduction %}
-                                <p class="subtitle is-5">{{ page.introduction }}</p>
-                            {% endif %}
-                        </div>
+                    <!-- Header with solid primary background -->
+                    <div class="morceau-index-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                        {% if page.introduction %}
+                            <p class="subtitle is-5">{{ page.introduction }}</p>
+                        {% endif %}
                     </div>
 
-                    <!-- Liste des morceaux -->
-                    <div class="colored-block">
-                        <div class="colored-block-body" style="padding: 1.5rem;">
-                            {% for post in page.children %}
-                                <a href="{{ post.url }}" class="morceau-card">
-                                    <div class="morceau-card-content">
-                                        <div class="morceau-card-text">
-                                            <span class="morceau-title">{{ post.specific.titre }}</span>
-                                            <span class="morceau-composer">{{ post.specific.compositeur }}</span>
-                                        </div>
-                                        <div class="morceau-card-arrow">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </div>
-                                    </div>
-                                </a>
-                            {% empty %}
-                                <div class="has-text-centered has-text-grey py-6">
-                                    <p class="is-size-5">Aucun morceau disponible pour le moment.</p>
+                    <!-- List container with white background -->
+                    <div class="morceau-index-content">
+                        {% for post in page.children %}
+                            <a href="{{ post.url }}" class="morceau-index-item">
+                                <div class="morceau-index-item-text">
+                                    <span class="morceau-index-title">{{ post.specific.titre }}</span>
+                                    <span class="morceau-index-composer">{{ post.specific.compositeur }}</span>
                                 </div>
-                            {% endfor %}
-                        </div>
+                                <div class="morceau-index-item-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="morceau-index-empty">
+                                <p class="is-size-5">Aucun morceau disponible pour le moment.</p>
+                            </div>
+                        {% endfor %}
                     </div>
                     
                 </div>
