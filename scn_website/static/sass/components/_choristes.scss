@@ -2,7 +2,7 @@
    CHORISTES COMPONENTS
    ============================================ */
 
-// Pupitre colors
+// Pupitre colors (matching PUPITRES_COLORS from models.py)
 $pupitre-colors: (
     'tutti': #007BFF,
     'soprano': #DC3545,
@@ -11,6 +11,7 @@ $pupitre-colors: (
     'mezzo-alto': #FF9800,
     'tenor': #28A745,
     'basse': #17A2B8,
+    'autre': #6C757D,
     'sans-pupitre': #6C757D
 );
 
@@ -91,14 +92,14 @@ $pupitre-colors: (
     @include shadow-sm;
     display: flex;
     flex-direction: column;
-    height: 160px;
+    height: 140px;
 }
 
-// Header with pupitre color and name
+// Header with pupitre color and name - smaller font
 .choriste-card-header {
-    padding: $spacing-xs $spacing-sm;
+    padding: 3px $spacing-sm;
     color: white;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -118,49 +119,46 @@ $pupitre-colors: (
 }
 
 .choriste-name {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-color);
     margin-bottom: $spacing-xs;
     text-align: center;
 }
 
-// Function tags
+// Function tags - smaller, like calendar switch buttons
 .choriste-functions {
     display: flex;
     flex-wrap: wrap;
-    gap: $spacing-xs;
+    gap: 4px;
     justify-content: center;
     flex: 1;
     align-content: flex-start;
-    min-height: 24px;
+    min-height: 20px;
 }
 
 .function-tag {
     display: inline-block;
-    padding: 2px $spacing-sm;
-    background: linear-gradient(135deg, 
-        color-mix(in srgb, var(--secondary-color) 80%, white),
-        var(--secondary-color)
-    );
+    padding: 1px 6px;
+    background: $primary-color;
     color: white;
-    font-size: 0.65rem;
-    font-weight: 600;
-    border-radius: $radius-sm;
+    font-size: 0.6rem;
+    font-weight: 500;
+    border-radius: 3px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
     height: fit-content;
 }
 
 .function-placeholder {
-    height: 20px;
+    height: 16px;
 }
 
 // Contact toggle button - bottom right
 .choriste-contact-toggle {
     position: absolute;
-    bottom: $spacing-sm;
-    right: $spacing-sm;
+    bottom: $spacing-xs;
+    right: $spacing-xs;
 }
 
 .contact-toggle-btn {
@@ -244,7 +242,7 @@ $pupitre-colors: (
     }
     
     .choriste-card {
-        height: 150px;
+        height: 130px;
     }
     
     .filter-buttons {

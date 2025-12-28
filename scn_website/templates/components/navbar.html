@@ -1,0 +1,62 @@
+{% load wagtailcore_tags wagtailimages_tags static %}
+{% load wagtailsettings_tags %}
+{% get_settings %}
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-logo" href="/">
+                {% if settings.home.StyleSettings.logo %}
+                    {% image settings.home.StyleSettings.logo max-150x50 as logo_img %}
+                    <img src="{{ logo_img.url }}" alt="Logo">
+                {% endif %}
+                <span class="navbar-site-name">
+                    {% firstof settings.home.StyleSettings.site_name "Site" %}
+                </span>
+            </a>
+
+            <button class="navbar-burger" aria-label="menu" aria-expanded="false" onclick="toggleMobileMenu()">
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+            </button>
+        </div>
+
+        <div id="navbarMenu" class="navbar-menu">
+            <div class="navbar-end">
+                {% for item in settings.home.StyleSettings.menu_items.all %}
+                    <a class="navbar-item {% if not item.show_on_mobile %}hide-on-mobile{% endif %}"
+                       href="{{ item.url }}"
+                       {% if item.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                        {% if item.icon_class %}
+                            <i class="{{ item.icon_class }}"></i>
+                        {% endif %}
+                        <span>{{ item.title }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="navbar-mobile-overlay" onclick="closeMobileMenu()"></div>
+
+<script>
+    function toggleMobileMenu() {
+        document.querySelector('.navbar-burger').classList.toggle('is-active');
+        document.getElementById('navbarMenu').classList.toggle('is-active');
+        document.querySelector('.navbar-mobile-overlay').classList.toggle('is-active');
+        document.body.classList.toggle('navbar-mobile-open');
+    }
+
+    function closeMobileMenu() {
+        document.querySelector('.navbar-burger').classList.remove('is-active');
+        document.getElementById('navbarMenu').classList.remove('is-active');
+        document.querySelector('.navbar-mobile-overlay').classList.remove('is-active');
+        document.body.classList.remove('navbar-mobile-open');
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeMobileMenu();
+    });
+</script>

@@ -1,27 +1,229 @@
 /* ============================================
-   NAVBAR
+   NAVBAR COMPONENT
+   Responsive navigation with logo and links
    ============================================ */
 
+// Navbar variables (all in px for consistency)
+$navbar-height: 60px;
+$navbar-mobile-height: 56px;
+$navbar-bg: white;
+$navbar-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
 .navbar {
-    background-color: var(--navbar-bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: $navbar-bg;
+    box-shadow: $navbar-shadow;
+    height: $navbar-height;
     
-    .navbar-brand,
-    .navbar-menu {
-        background-color: var(--navbar-bg);
+    .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+}
+
+// Brand section (logo + site name)
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    height: 100%;
+    
+    img {
+        height: 40px;
+        width: auto;
+        object-fit: contain;
+    }
+}
+
+.navbar-site-name {
+    font-family: $title-font-family;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $primary-color;
+    white-space: nowrap;
+}
+
+// Menu section
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.navbar-end {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.navbar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: $radius-sm;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    
+    &:hover {
+        background: color-mix(in srgb, var(--primary-color) 10%, white);
+        color: $primary-color;
     }
     
-    .navbar-item,
-    .navbar-link {
-        color: var(--navbar-text);
+    i {
+        font-size: 0.9rem;
+    }
+}
+
+// Burger menu (hidden on desktop)
+.navbar-burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    gap: 5px;
+    
+    .burger-line {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: var(--text-color);
+        border-radius: 1px;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    
+    &.is-active {
+        .burger-line:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
         
-        &:hover,
-        &.is-active {
-            background-color: var(--navbar-hover-bg);
-            color: var(--navbar-text);
+        .burger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .burger-line:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+    }
+}
+
+// Mobile overlay
+.navbar-mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    
+    &.is-active {
+        display: block;
+        opacity: 1;
+    }
+}
+
+// Prevent body scroll when mobile menu is open
+body.navbar-mobile-open {
+    overflow: hidden;
+}
+
+// Mobile styles
+@include mobile {
+    .navbar {
+        height: $navbar-mobile-height;
+        
+        .container {
+            padding: 0 1rem;
         }
     }
     
+    .navbar-site-name {
+        font-size: 1.1rem;
+    }
+    
+    .navbar-logo img {
+        height: 32px;
+    }
+    
     .navbar-burger {
-        color: var(--navbar-text);
+        display: flex;
+    }
+    
+    .navbar-menu {
+        position: fixed;
+        top: 0;
+        right: -280px;
+        width: 280px;
+        height: 100vh;
+        background: white;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        padding-top: 80px;
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+        transition: right 0.3s ease;
+        z-index: 101;
+        overflow-y: auto;
+        
+        &.is-active {
+            right: 0;
+        }
+    }
+    
+    .navbar-end {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0 1rem;
+    }
+    
+    .navbar-item {
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        border-radius: 0;
+        font-size: 1rem;
+        
+        &:last-child {
+            border-bottom: none;
+        }
+        
+        &.hide-on-mobile {
+            display: none;
+        }
+    }
+}
+
+// Tablet styles
+@include tablet {
+    .navbar-item {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
     }
 }

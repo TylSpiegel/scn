@@ -1,15 +1,18 @@
 from django.db import models
 from django.db.models import TextField
 
-from wagtail.admin.panels import FieldPanel, TabbedInterface, ObjectList, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, TabbedInterface, ObjectList, MultiFieldPanel, InlinePanel
 from wagtail.fields import RichTextField, StreamField
-from wagtail.models import Page
+from wagtail.models import Page, Orderable
 from wagtail.blocks import RichTextBlock
-
+from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
 
 from wagtail_color_panel.fields import ColorField
 from wagtail_color_panel.edit_handlers import NativeColorPanel
+
+from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
 
 from .blocks import LinkBlock, ImageBlock, MultiColumnBlock
 
@@ -38,42 +41,80 @@ class ContentPage(Page):
     ]
 
 
+class MenuItem(Orderable):
+    """Individual menu item for navigation."""
+
+    settings = ParentalKey(
+        'StyleSettings',
+        on_delete=models.CASCADE,
+        related_name='menu_items'
+    )
+
+    title = models.CharField(
+        max_length=50,
+        verbose_name="Titre",
+        help_text="Texte affiché dans le menu"
+    )
+
+    link_page = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name="Page interne",
+        help_text="Lien vers une page du site"
+    )
+
+    link_url = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name="URL externe",
+        help_text="Ou lien vers une URL externe (si pas de page interne)"
+    )
+
+    open_in_new_tab = models.BooleanField(
+        default=False,
+        verbose_name="Ouvrir dans un nouvel onglet"
+    )
+
+    icon_class = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="Classe d'icône",
+        help_text="Classe FontAwesome (ex: fas fa-home)"
+    )
+
+    show_on_mobile = models.BooleanField(
+        default=True,
+        verbose_name="Afficher sur mobile"
+    )
+
+    panels = [
+        FieldPanel('title'),
+        FieldPanel('link_page'),
+        FieldPanel('link_url'),
+        FieldPanel('open_in_new_tab'),
+        FieldPanel('icon_class'),
+        FieldPanel('show_on_mobile'),
+    ]
+
+    @property
+    def url(self):
+        if self.link_page:
+            return self.link_page.url
+        return self.link_url or '#'
+
+    def __str__(self):
+        return self.title
+
+
 @register_setting
-class StyleSettings(BaseGenericSetting):
+class StyleSettings(ClusterableModel, BaseSiteSetting):
     """
     Paramètres de style et couleurs du site.
-    
-    NOMENCLATURE DES COULEURS:
-    
-    🎨 COULEURS PRINCIPALES:
-    - primary_color: Couleur principale (boutons, liens actifs, accents)
-    - secondary_color: Couleur secondaire (survols, éléments secondaires)
-    - tertiary_color: Couleur tertiaire (badges, tags, éléments d'information)
-    
-    📦 BLOCS DE CONTENU:
-    - block_header_bg: Fond des en-têtes de blocs (sections colorées des cartes)
-    - block_header_text: Texte des en-têtes de blocs (doit contraster avec block_header_bg)
-    
-    🎯 TITRES:
-    - title_h1_color: Couleur des titres principaux (h1)
-    - title_h2_color: Couleur des sous-titres (h2)
-    - title_h3_color: Couleur des titres de sections (h3)
-    
-    📄 PAGE:
-    - background_color: Couleur de fond général de la page
-    - text_color: Couleur du texte principal
-    - text_muted_color: Couleur du texte secondaire/grisé
-    
-    🔗 NAVIGATION:
-    - navbar_bg: Fond de la barre de navigation
-    - navbar_text: Texte de la navigation
-    - navbar_hover_bg: Fond au survol des liens de navigation
-    
-    🎪 ÉVÉNEMENTS (Calendrier):
-    - event_rehearsal_color: Couleur pour les répétitions
-    - event_concert_color: Couleur pour les concerts
     """
-    
+
     # ===============================
     # COULEURS PRINCIPALES
     # ===============================
@@ -89,137 +130,82 @@ class StyleSettings(BaseGenericSetting):
         default='#3e8ed0',
         help_text="🎨 Couleur tertiaire - Badges, tags, informations"
     )
-    
+
     # ===============================
     # BLOCS DE CONTENU
     # ===============================
     block_header_bg = ColorField(
         default='#8a4d76',
-        help_text="📦 Fond des en-têtes de blocs - Sections colorées des cartes de contenu"
+        help_text="📦 Fond des en-têtes de blocs"
     )
     block_header_text = ColorField(
         default='#ffffff',
-        help_text="📦 Texte des en-têtes de blocs - Doit contraster avec le fond"
+        help_text="📦 Texte des en-têtes de blocs"
     )
-    
+
     # ===============================
     # TITRES
     # ===============================
     title_h1_color = ColorField(
         default='#2c3e50',
-        help_text="🎯 Titres principaux (h1) - Titres de pages"
+        help_text="🎯 Titres principaux (h1)"
     )
     title_h2_color = ColorField(
         default='#34495e',
-        help_text="🎯 Sous-titres (h2) - Titres de sections majeures"
+        help_text="🎯 Sous-titres (h2)"
     )
     title_h3_color = ColorField(
         default='#7f8c8d',
-        help_text="🎯 Titres de sections (h3) - Sous-sections"
+        help_text="🎯 Titres de sections (h3)"
     )
-    
+
     # ===============================
     # PAGE & TEXTE
     # ===============================
     background_color = ColorField(
         default='#f5f5f5',
-        help_text="📄 Fond de page - Couleur de fond général du site"
+        help_text="📄 Fond de page"
     )
     text_color = ColorField(
         default='#2c3e50',
-        help_text="📄 Texte principal - Couleur du contenu textuel"
+        help_text="📄 Texte principal"
     )
     text_muted_color = ColorField(
         default='#95a5a6',
-        help_text="📄 Texte secondaire - Texte grisé, moins important"
+        help_text="📄 Texte secondaire"
     )
-    
+
     # ===============================
     # NAVIGATION
     # ===============================
     navbar_bg = ColorField(
         default='#8a4d76',
-        help_text="🔗 Fond de la navigation - Barre de menu principale"
+        help_text="🔗 Fond de la navigation"
     )
     navbar_text = ColorField(
         default='#ffffff',
-        help_text="🔗 Texte de navigation - Liens du menu"
+        help_text="🔗 Texte de navigation"
     )
     navbar_hover_bg = ColorField(
         default='#6b3a5d',
-        help_text="🔗 Fond au survol - Couleur quand on survole un lien du menu"
+        help_text="🔗 Fond au survol"
     )
-    
+
     # ===============================
     # ÉVÉNEMENTS (Calendrier)
     # ===============================
     event_rehearsal_color = ColorField(
         default='#3e8ed0',
-        help_text="🎪 Répétitions - Couleur pour les événements de type répétition"
+        help_text="🎪 Répétitions"
     )
     event_concert_color = ColorField(
         default='#fa7c91',
-        help_text="🎪 Concerts - Couleur pour les événements de type concert"
-    )
-    
-    # ===============================
-    # THÈME GÉNÉRIQUE
-    # ===============================
-    generic_theme = models.BooleanField(
-        default=False,
-        help_text="Utiliser le thème générique simple"
+        help_text="🎪 Concerts"
     )
 
     # ===============================
-    # PANELS D'ADMINISTRATION
+    # BRANDING & NAVIGATION
     # ===============================
-    colors_main_panel = [
-        MultiFieldPanel([
-            NativeColorPanel('primary_color'),
-            NativeColorPanel('secondary_color'),
-            NativeColorPanel('tertiary_color'),
-        ], heading="🎨 Couleurs Principales"),
-    ]
-    
-    colors_blocks_panel = [
-        MultiFieldPanel([
-            NativeColorPanel('block_header_bg'),
-            NativeColorPanel('block_header_text'),
-        ], heading="📦 Blocs de Contenu"),
-    ]
-    
-    colors_titles_panel = [
-        MultiFieldPanel([
-            NativeColorPanel('title_h1_color'),
-            NativeColorPanel('title_h2_color'),
-            NativeColorPanel('title_h3_color'),
-        ], heading="🎯 Titres"),
-    ]
-    
-    colors_page_panel = [
-        MultiFieldPanel([
-            NativeColorPanel('background_color'),
-            NativeColorPanel('text_color'),
-            NativeColorPanel('text_muted_color'),
-        ], heading="📄 Page & Texte"),
-    ]
-    
-    colors_nav_panel = [
-        MultiFieldPanel([
-            NativeColorPanel('navbar_bg'),
-            NativeColorPanel('navbar_text'),
-            NativeColorPanel('navbar_hover_bg'),
-        ], heading="🔗 Navigation"),
-    ]
-    
-    colors_events_panel = [
-        MultiFieldPanel([
-            NativeColorPanel('event_rehearsal_color'),
-            NativeColorPanel('event_concert_color'),
-        ], heading="🎪 Événements"),
-    ]
-    
-    # BRANDING
     logo = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
@@ -229,12 +215,17 @@ class StyleSettings(BaseGenericSetting):
         help_text="Logo de votre site"
     )
 
-    branding_panel = [
-        FieldPanel('logo'),
-        FieldPanel('generic_theme'),
-    ]
+    site_name = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        verbose_name="Nom du site",
+        help_text="Affiché à côté du logo dans la navbar"
+    )
 
+    # ===============================
     # PASSWORD
+    # ===============================
     password_message = RichTextField(
         help_text="Le texte qui sera affiché sur la page de demande de mot de passe.",
         default="",
@@ -249,6 +240,64 @@ class StyleSettings(BaseGenericSetting):
         help_text="Image qui sera affichée sur la page de demande de mot de passe."
     )
 
+    # ===============================
+    # PANELS D'ADMINISTRATION
+    # ===============================
+    colors_main_panel = [
+        MultiFieldPanel([
+            NativeColorPanel('primary_color'),
+            NativeColorPanel('secondary_color'),
+            NativeColorPanel('tertiary_color'),
+        ], heading="🎨 Couleurs Principales"),
+    ]
+
+    colors_blocks_panel = [
+        MultiFieldPanel([
+            NativeColorPanel('block_header_bg'),
+            NativeColorPanel('block_header_text'),
+        ], heading="📦 Blocs de Contenu"),
+    ]
+
+    colors_titles_panel = [
+        MultiFieldPanel([
+            NativeColorPanel('title_h1_color'),
+            NativeColorPanel('title_h2_color'),
+            NativeColorPanel('title_h3_color'),
+        ], heading="🎯 Titres"),
+    ]
+
+    colors_page_panel = [
+        MultiFieldPanel([
+            NativeColorPanel('background_color'),
+            NativeColorPanel('text_color'),
+            NativeColorPanel('text_muted_color'),
+        ], heading="📄 Page & Texte"),
+    ]
+
+    colors_nav_panel = [
+        MultiFieldPanel([
+            NativeColorPanel('navbar_bg'),
+            NativeColorPanel('navbar_text'),
+            NativeColorPanel('navbar_hover_bg'),
+        ], heading="🔗 Couleurs Navigation"),
+    ]
+
+    colors_events_panel = [
+        MultiFieldPanel([
+            NativeColorPanel('event_rehearsal_color'),
+            NativeColorPanel('event_concert_color'),
+        ], heading="🎪 Événements"),
+    ]
+
+    branding_panel = [
+        FieldPanel('logo'),
+        FieldPanel('site_name'),
+    ]
+
+    navigation_panel = [
+        InlinePanel('menu_items', label="Liens du menu"),
+    ]
+
     password_panel = [
         FieldPanel('password_message'),
         FieldPanel('image_password')
@@ -257,13 +306,12 @@ class StyleSettings(BaseGenericSetting):
     edit_handler = TabbedInterface([
         ObjectList(colors_main_panel + colors_blocks_panel, heading='🎨 Couleurs - Base'),
         ObjectList(colors_titles_panel + colors_page_panel, heading='📝 Couleurs - Typographie'),
-        ObjectList(colors_nav_panel + colors_events_panel, heading='🔗 Couleurs - Navigation'),
+        ObjectList(colors_nav_panel + colors_events_panel, heading='🔗 Couleurs - Événements'),
         ObjectList(branding_panel, heading='🖼️ Branding'),
+        ObjectList(navigation_panel, heading='📍 Menu'),
         ObjectList(password_panel, heading='🔒 Protection'),
     ])
 
-    default_auto_field = 'django.db.models.BigAutoField'
-    
     class Meta:
         verbose_name = 'Customisation du Site'
         verbose_name_plural = 'Customisation du Site'

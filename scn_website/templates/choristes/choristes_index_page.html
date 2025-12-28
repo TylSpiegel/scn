@@ -31,7 +31,7 @@
                     </div>
                     
                     <!-- Choristes grid -->
-                    <div class="choristes-grid">
+                    <div class="choristes-grid" id="choristes-grid">
                         {% for choriste in choristes %}
                             {% if choriste.active %}
                                 <div class="choriste-card-wrapper" data-pupitre="{{ choriste.pupitre|slugify }}">
@@ -55,7 +55,7 @@
                                             
                                             <!-- Contact toggle button -->
                                             <div class="choriste-contact-toggle">
-                                                <button class="contact-toggle-btn" onclick="toggleContact(this)">
+                                                <button class="contact-toggle-btn" onclick="toggleContact(event, this)">
                                                     <i class="fas fa-chevron-down toggle-icon"></i>
                                                 </button>
                                             </div>
@@ -82,13 +82,15 @@
                                                 <span class="contact-value"><a href="tel:{{ choriste.phone }}">{{ choriste.phone }}</a></span>
                                             </div>
                                         {% endif %}
-                                        {% if choriste.address %}
-                                            <div class="contact-item">
-                                                <span class="contact-label">Adresse</span>
-                                                <span class="contact-value">{{ choriste.address }}</span>
-                                            </div>
-                                        {% endif %}
-                                        {% if not choriste.birthdate and not choriste.mail and not choriste.phone and not choriste.address %}
+                                        {% with choriste.addresses.first as address %}
+                                            {% if address %}
+                                                <div class="contact-item">
+                                                    <span class="contact-label">Adresse</span>
+                                                    <span class="contact-value">{{ address.street }}, {{ address.zip_code }} {{ address.city }}</span>
+                                                </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                        {% if not choriste.birthdate and not choriste.mail and not choriste.phone and not choriste.addresses.first %}
                                             <p class="no-contact">Aucune information de contact</p>
                                         {% endif %}
                                     </div>
@@ -122,22 +124,50 @@ function filterChoristes(pupitre, btn) {
             card.style.display = 'none';
         }
     });
+    
+    // Close all open contacts
+    closeAllContacts();
 }
 
-function toggleContact(btn) {
+function closeAllContacts() {
+    var allDetails = document.querySelectorAll('.choriste-contact-details');
+    var allIcons = document.querySelectorAll('.contact-toggle-btn .toggle-icon');
+    
+    allDetails.forEach(function(details) {
+        details.style.display = 'none';
+    });
+    
+    allIcons.forEach(function(icon) {
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    });
+}
+
+function toggleContact(event, btn) {
+    event.stopPropagation();
+    
     var wrapper = btn.closest('.choriste-card-wrapper');
     var details = wrapper.querySelector('.choriste-contact-details');
     var icon = btn.querySelector('.toggle-icon');
+    var isOpening = details.style.display === 'none';
     
-    if (details.style.display === 'none') {
+    // Close all other contacts first
+    closeAllContacts();
+    
+    // Toggle current contact
+    if (isOpening) {
         details.style.display = 'block';
         icon.classList.remove('fa-chevron-down');
         icon.classList.add('fa-chevron-up');
-    } else {
-        details.style.display = 'none';
-        icon.classList.remove('fa-chevron-up');
-        icon.classList.add('fa-chevron-down');
     }
 }
+
+// Close contacts when clicking outside
+document.addEventListener('click', function(event) {
+    var isClickInside = event.target.closest('.choriste-card-wrapper');
+    if (!isClickInside) {
+        closeAllContacts();
+    }
+});
 </script>
 {% endblock %}

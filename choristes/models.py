@@ -546,3 +546,112 @@ class Evenement(models.Model):
         if self.end_time:
             return datetime.combine(end_date, self.end_time)
         return None
+
+
+####                            #####
+#       NAVIGATION SETTINGS         #
+####                            #####
+
+from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
+from wagtail.images.models import Image
+
+
+@register_setting
+class NavigationSettings(BaseSiteSetting, ClusterableModel):
+    """Site navigation settings - logo and menu links."""
+    
+    logo = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name="Logo",
+        help_text="Logo affiche dans la navbar (recommande: 150x50px)"
+    )
+    
+    site_name = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Nom du site",
+        help_text="Affiche a cote du logo ou seul si pas de logo"
+    )
+    
+    panels = [
+        MultiFieldPanel([
+            FieldPanel('logo'),
+            FieldPanel('site_name'),
+        ], heading="Identite du site"),
+        InlinePanel('menu_items', label="Liens du menu", heading="Menu de navigation"),
+    ]
+
+    class Meta:
+        verbose_name = "Navigation"
+        verbose_name_plural = "Navigation"
+
+
+class MenuItem(Orderable):
+    """Individual menu item."""
+    
+    navigation = ParentalKey(
+        NavigationSettings,
+        on_delete=models.CASCADE,
+        related_name='menu_items'
+    )
+    
+    title = models.CharField(
+        max_length=50,
+        verbose_name="Titre",
+        help_text="Texte affiche dans le menu"
+    )
+    
+    link_page = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name="Page interne",
+        help_text="Lien vers une page du site"
+    )
+    
+    link_url = models.URLField(
+        blank=True,
+        verbose_name="URL externe",
+        help_text="Ou lien vers une URL externe (si pas de page interne)"
+    )
+    
+    open_in_new_tab = models.BooleanField(
+        default=False,
+        verbose_name="Ouvrir dans un nouvel onglet"
+    )
+    
+    icon_class = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="Classe d'icone",
+        help_text="Classe FontAwesome (ex: fas fa-home)"
+    )
+    
+    show_on_mobile = models.BooleanField(
+        default=True,
+        verbose_name="Afficher sur mobile"
+    )
+    
+    panels = [
+        FieldPanel('title'),
+        FieldPanel('link_page'),
+        FieldPanel('link_url'),
+        FieldPanel('open_in_new_tab'),
+        FieldPanel('icon_class'),
+        FieldPanel('show_on_mobile'),
+    ]
+    
+    @property
+    def url(self):
+        if self.link_page:
+            return self.link_page.url
+        return self.link_url or '#'
+    
+    def __str__(self):
+        return self.title

@@ -19,13 +19,12 @@
 @import 'layouts/sections';
 
 // 5. Components - Composants réutilisables
-@import 'components/navbar';
 @import 'components/buttons';
 @import 'components/cards';
 @import 'components/tabs';
 @import 'components/audio-player';
 @import 'components/breadcrumb';
-
+@import 'components/navbar';
 @import 'components/choristes';
 // 6. Pages - Styles spécifiques par page
 @import 'pages/morceau-index';

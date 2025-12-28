@@ -56,6 +56,10 @@ makemigrations:
 migrate:
     uv run python manage.py migrate
 
+full-migration:
+    makemigrations
+    migrate
+
 # Reset complet de la base de données
 reset-db:
     rm -f db.sqlite3
