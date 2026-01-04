@@ -37,6 +37,9 @@
 // 7. Richtext - Embeds & iframes (YouTube, etc.)
 @import 'richtext';
 
+// Content blocks (alerts, tables, rows, columns)
+@import 'components/content-blocks';
+
 // 8. Utilities & Helpers - Classes utilitaires
 .has-text-centered {
   text-align: center;

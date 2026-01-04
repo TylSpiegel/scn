@@ -7,12 +7,14 @@
         <div class="navbar-brand">
             <a class="navbar-logo" href="/">
                 {% if settings.home.StyleSettings.logo %}
-                    {% image settings.home.StyleSettings.logo max-150x50 as logo_img %}
+                    {% image settings.home.StyleSettings.logo max-200x70 as logo_img %}
                     <img src="{{ logo_img.url }}" alt="Logo">
                 {% endif %}
-                <span class="navbar-site-name">
-                    {% firstof settings.home.StyleSettings.site_name "Site" %}
-                </span>
+                {% if settings.home.StyleSettings.site_name %}
+                    <span class="navbar-site-name">
+                        {{ settings.home.StyleSettings.site_name }}
+                    </span>
+                {% endif %}
             </a>
 
             <button class="navbar-burger" aria-label="menu" aria-expanded="false" onclick="toggleMobileMenu()">

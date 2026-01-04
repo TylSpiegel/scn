@@ -57,8 +57,8 @@ migrate:
     uv run python manage.py migrate
 
 full-migration:
-    makemigrations
-    migrate
+    just makemigrations
+    just migrate
 
 # Reset complet de la base de données
 reset-db:

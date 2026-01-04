@@ -1,0 +1,9 @@
+{% load wagtailcore_tags %}
+
+{% if self.title %}
+    <h3 class="title is-4">{{ self.title }}</h3>
+{% endif %}
+
+{% for row in self.rows %}
+    {% include_block row %}
+{% endfor %}

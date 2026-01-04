@@ -1,27 +1,19 @@
 {% load wagtailimages_tags %}
 
-<div class="image-block mx-auto p-4 rounded-lg flex flex-col justify-center items-center">
-    <div>
-        {% if self.image %}
-            {% if self.width == '160' %}
-                {% image self.image max-160x160 as img %}
-                <img src="{{ img.url }}" alt="{{ self.caption }}" class="max-w-xs">
-            {% elif self.width == '320' %}
-                {% image self.image max-320x320 as img %}
-                <img src="{{ img.url }}" alt="{{ img.alt }}" class="max-w-sm">
-            {% elif self.width == '640' %}
-                {% image self.image max-640x640 as img %}
-                <img src="{{ img.url }}" alt="{{ img.alt }}" class="max-w-md">
-            {% elif self.width == 'full' %}
-                {% image self.image original as img %}
-                <img src="{{ img.url }}" alt="{{ img.alt }}" class="max-w-full">
-            {% endif %}
+<figure class="image-block has-text-centered">
+    {% if self.image %}
+        {% if self.width == '160' %}
+            {% image self.image max-160x160 as img %}
+        {% elif self.width == '320' %}
+            {% image self.image max-320x320 as img %}
+        {% elif self.width == '640' %}
+            {% image self.image max-640x640 as img %}
+        {% elif self.width == 'full' %}
+            {% image self.image original as img %}
         {% endif %}
-    </div>
-
-    {% if self.caption %}
-        <div class="caption mt-2 text-center">
-            <p>{{ self.caption }}</p>
-        </div>
+        <img src="{{ img.url }}" alt="{{ self.caption|default:img.alt }}">
     {% endif %}
-</div>
+    {% if self.caption %}
+        <figcaption class="image-caption">{{ self.caption }}</figcaption>
+    {% endif %}
+</figure>

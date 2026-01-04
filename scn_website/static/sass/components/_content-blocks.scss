@@ -1,0 +1,166 @@
+// =============================================================================
+// CONTENT BLOCKS STYLES
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Alert Block
+// -----------------------------------------------------------------------------
+
+.alert-block {
+    padding: $spacing-md;
+    border-radius: 4px;
+    margin-bottom: $spacing-md;
+
+    // Blue (info)
+    &.alert-blue {
+        background-color: #e8f4fd;
+        color: #1565c0;
+
+        .alert-title {
+            color: #0d47a1;
+        }
+    }
+
+    // Green (success)
+    &.alert-green {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+
+        .alert-title {
+            color: #1b5e20;
+        }
+    }
+
+    // Yellow (warning)
+    &.alert-yellow {
+        background-color: #fff8e1;
+        color: #f57f17;
+
+        .alert-title {
+            color: #e65100;
+        }
+    }
+
+    // Red (danger)
+    &.alert-red {
+        background-color: #ffebee;
+        color: #c62828;
+
+        .alert-title {
+            color: #b71c1c;
+        }
+    }
+
+    .alert-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: $spacing-xs;
+    }
+
+    .alert-content {
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Table Block
+// -----------------------------------------------------------------------------
+
+.table-block {
+    width: 100%;
+    margin-bottom: $spacing-md;
+
+    &.table-striped {
+        tbody tr:nth-child(odd) {
+            background-color: color-mix(in srgb, var(--primary-color) 5%, white);
+        }
+    }
+
+    &.table-bordered {
+        border: 1px solid #dbdbdb;
+
+        th, td {
+            border: 1px solid #dbdbdb;
+        }
+    }
+
+    &.has-header-row {
+        thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+    }
+
+    &.has-header-col {
+        tbody th {
+            background-color: color-mix(in srgb, var(--primary-color) 15%, white);
+            font-weight: 600;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Row and Column Blocks
+// -----------------------------------------------------------------------------
+
+.row-block {
+    margin-bottom: $spacing-md;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.column-block {
+    height: 100%;
+
+    &.has-text-left {
+        text-align: left;
+    }
+
+    &.has-text-center {
+        text-align: center;
+    }
+
+    &.has-text-right {
+        text-align: right;
+    }
+
+    .column-block-item {
+        margin-bottom: $spacing-sm;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Image Block
+// -----------------------------------------------------------------------------
+
+.image-block {
+    margin-bottom: $spacing-md;
+
+    img {
+        border-radius: $radius-sm;
+    }
+
+    .image-caption {
+        margin-top: $spacing-xs;
+        font-size: 0.9rem;
+        color: var(--text-muted-color);
+        font-style: italic;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Button Block
+// -----------------------------------------------------------------------------
+
+.button-block {
+    margin: $spacing-md 0;
+}

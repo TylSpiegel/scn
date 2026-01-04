@@ -1,0 +1,10 @@
+{% load wagtailcore_tags %}
+
+<div class="alert-block alert-{{ self.color }}">
+    {% if self.title %}
+        <div class="alert-title">{{ self.title }}</div>
+    {% endif %}
+    <div class="alert-content">
+        {{ self.content|richtext }}
+    </div>
+</div>

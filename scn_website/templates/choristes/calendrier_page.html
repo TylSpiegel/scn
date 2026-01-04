@@ -22,7 +22,7 @@
                             <!-- News section -->
                             {% if page.comment %}
                                 <div class="section-card">
-                                    <h3 class="title is-4">Actualites</h3>
+                                    <h3 class="title is-4">Actualités</h3>
                                     <div class="content">
                                         {{ page.comment|richtext }}
                                     </div>
@@ -32,7 +32,7 @@
                             
                             <!-- Upcoming events section -->
                             <div class="section-card">
-                                <h3 class="title is-4">Prochains evenements</h3>
+                                <h3 class="title is-4">Prochains événements</h3>
                                 
                                 <div class="events-box-list">
                                     {% for event in page.get_next_events %}
@@ -76,7 +76,7 @@
                                 <div class="section-card">
                                     <!-- Title with view toggle on same line -->
                                     <div class="section-header-with-toggle">
-                                        <h3 class="title is-4">Tous les evenements</h3>
+                                        <h3 class="title is-4">Tous les événements</h3>
                                         <div class="buttons has-addons">
                                             <button class="button is-small is-primary" id="btn-list-view" type="button" onclick="showListView()">
                                                 Liste
