@@ -1,30 +1,96 @@
 {% load wagtailcore_tags %}
 
-<div class="box mb-3" style="border-left: 4px solid {% if event.is_repetition %}var(--third-color){% else %}var(--secondary-color){% endif %};">
-    <div class="level is-mobile">
-        <div class="level-left">
-            <div class="level-item">
-                <div>
-                    <p class="has-text-weight-bold is-size-5">{{ event.name }}</p>
-                    {% if event.is_repetition %}
-                        <p class="has-text-info">Répétition - {{ event.pupitre }}</p>
+<div x-data="{ open: false }">
+    <div class="event-box" style="cursor: pointer;" @click="open = true">
+        <div class="event-box-date">
+            <span class="day">{{ self.event.start_date|date:"d" }}</span>
+            <span class="month">{{ self.event.start_date|date:"M" }}</span>
+        </div>
+        <div class="event-box-content">
+            <span class="event-box-title">{{ self.event.name }}</span>
+            <div class="event-box-details">
+                {% if self.event.time_tbd %}
+                    <span class="event-box-time"><i class="fas fa-clock"></i> Heure à déterminer</span>
+                {% elif self.event.start_time %}
+                    <span class="event-box-time">
+                        <i class="fas fa-clock"></i>
+                        {{ self.event.start_time|time:"H:i" }}{% if self.event.end_time %} – {{ self.event.end_time|time:"H:i" }}{% endif %}
+                    </span>
+                {% endif %}
+                {% if self.event.lieu %}
+                    <span class="event-box-location"><i class="fas fa-map-marker-alt"></i> {{ self.event.lieu }}</span>
+                {% endif %}
+            </div>
+            {% with tags=self.event.tags.all %}
+                {% if tags %}
+                    <div class="event-box-tags mt-1">
+                        {% for tag in tags %}
+                            <span class="tag is-light is-small">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+        <div class="event-box-action" style="align-self: center; padding-right: 0.75rem; color: var(--text-muted-color);">
+            <i class="fas fa-expand-alt"></i>
+        </div>
+    </div>
+
+    <div class="modal" :class="{ 'is-active': open }" x-show="open" x-cloak @keydown.escape.window="open = false">
+        <div class="modal-background" @click="open = false"></div>
+        <div class="modal-card">
+            <header class="modal-card-head" style="background-color: var(--primary-color);">
+                <p class="modal-card-title has-text-white">{{ self.event.name }}</p>
+                <button class="delete" aria-label="close" @click="open = false"></button>
+            </header>
+            <section class="modal-card-body">
+                {% with tags=self.event.tags.all %}
+                    {% if tags %}
+                        <div class="is-flex is-flex-wrap-wrap gap-2 mb-4">
+                            {% for tag in tags %}
+                                <span class="tag is-primary is-medium">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
                     {% endif %}
-                    <p class="has-text-grey-dark">
-                        <span class="icon"><i class="far fa-calendar"></i></span>
-                        {{ event.start_date|date:"d/m/Y" }}
-                    </p>
-                    {% if event.end_date %}
-                        <p class="is-size-7 has-text-grey">Fin: {{ event.end_date|date:"d/m/Y H:i" }}</p>
+                {% endwith %}
+
+                <div class="event-detail-grid">
+                    <p><span class="icon-text">
+                        <span class="icon"><i class="fas fa-calendar"></i></span>
+                        <span>{{ self.event.start_date|date:"l d F Y" }}</span>
+                    </span></p>
+
+                    {% if self.event.time_tbd %}
+                        <p><span class="icon-text">
+                            <span class="icon"><i class="fas fa-clock"></i></span>
+                            <span>Heure à déterminer</span>
+                        </span></p>
+                    {% elif self.event.start_time %}
+                        <p><span class="icon-text">
+                            <span class="icon"><i class="fas fa-clock"></i></span>
+                            <span>{{ self.event.start_time|time:"H:i" }}{% if self.event.end_time %} – {{ self.event.end_time|time:"H:i" }}{% endif %}</span>
+                        </span></p>
+                    {% endif %}
+
+                    {% if self.event.lieu %}
+                        <p><span class="icon-text">
+                            <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                            <span>{{ self.event.lieu }}{% if self.event.adresse %}, {{ self.event.adresse }}{% endif %}</span>
+                        </span></p>
                     {% endif %}
                 </div>
-            </div>
-        </div>
-        <div class="level-right">
-            <div class="level-item">
-                <span class="tag is-medium {% if event.is_repetition %}is-info{% else %}is-primary{% endif %}">
-                    {{ event.start_date|date:"H:i" }}
-                </span>
-            </div>
+
+                {% if self.event.description %}
+                    <div class="content mt-3">
+                        <p>{{ self.event.description }}</p>
+                    </div>
+                {% endif %}
+
+                {% if self.extra_content %}
+                    <hr>
+                    <div class="content">{{ self.extra_content }}</div>
+                {% endif %}
+            </section>
         </div>
     </div>
 </div>

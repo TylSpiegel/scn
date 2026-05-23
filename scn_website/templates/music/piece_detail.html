@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-10-desktop is-11-tablet is-12-mobile">
+
+                    <div class="page-header">
+                        <h1 class="title is-2 mb-1">{{ piece.titre }}</h1>
+                        <p class="subtitle is-5" style="color: var(--text-muted-color);">{{ piece.compositeur }}</p>
+                    </div>
+
+                    <div class="main-card">
+
+                        {% with tags=piece.tags.all %}
+                            {% if tags %}
+                                <div class="section-card pb-2">
+                                    {% for tag in tags %}
+                                        <a href="?tag={{ tag.name }}" class="tag is-primary is-light">{{ tag }}</a>
+                                    {% endfor %}
+                                </div>
+                                <hr class="section-divider">
+                            {% endif %}
+                        {% endwith %}
+
+                        {% if piece.descr %}
+                            <div class="section-card">
+                                <div class="content">{{ piece.descr|richtext }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if piece.pdf %}
+                            <hr class="section-divider">
+                            <div class="section-card">
+                                <h2 class="title is-5 mb-3">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                                        <span>Partition</span>
+                                    </span>
+                                </h2>
+                                <a href="{{ piece.pdf.url }}" class="button" target="_blank" rel="noopener">
+                                    <span class="icon"><i class="fas fa-download"></i></span>
+                                    <span>{{ piece.pdf.title }}</span>
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        {% if piece.audios %}
+                            <hr class="section-divider">
+                            <div class="section-card">
+                                <h2 class="title is-5 mb-3">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-headphones"></i></span>
+                                        <span>Fichiers audio</span>
+                                    </span>
+                                </h2>
+                                <div class="audio-list">
+                                    {% for block in piece.audios %}
+                                        {% include_block block %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if piece.activer_timecodes and piece.timecodes %}
+                            <hr class="section-divider">
+                            <div class="section-card">
+                                <h2 class="title is-5 mb-3">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-list-ol"></i></span>
+                                        <span>Timecodes</span>
+                                    </span>
+                                </h2>
+                                <div class="timecode-list">
+                                    {% for block in piece.get_sorted_timecodes %}
+                                        {% include_block block %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if piece.traduction %}
+                            <hr class="section-divider">
+                            <div class="section-card">
+                                <h2 class="title is-5 mb-3">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-language"></i></span>
+                                        <span>Traduction</span>
+                                    </span>
+                                </h2>
+                                <div class="content">{{ piece.traduction|richtext }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if piece.interpretation %}
+                            <hr class="section-divider">
+                            <div class="section-card">
+                                <h2 class="title is-5 mb-3">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-music"></i></span>
+                                        <span>Indications musicales</span>
+                                    </span>
+                                </h2>
+                                <div class="content">{{ piece.interpretation|richtext }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if piece.additional_files %}
+                            <hr class="section-divider">
+                            <div class="section-card">
+                                <h2 class="title is-5 mb-3">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-folder-open"></i></span>
+                                        <span>Fichiers supplémentaires</span>
+                                    </span>
+                                </h2>
+                                {% for block in piece.additional_files %}
+                                    {% include_block block %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

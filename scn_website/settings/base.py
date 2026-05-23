@@ -26,8 +26,10 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # Application definition
 
 INSTALLED_APPS = [
-    "choristes",
-    "home",
+    "apps.community",
+    "apps.music",
+    "apps.content",
+    "apps.core",
     "search",
     "wagtail.contrib.settings",
     "wagtail.contrib.forms",
@@ -81,7 +83,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "home.context_processors.first_level_page",
+                "apps.content.context_processors.first_level_page",
 
             ],
         },

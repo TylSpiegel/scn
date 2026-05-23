@@ -22,8 +22,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="robots" content="noindex, nofollow">
 
-    {% if settings.home.StyleSettings.logo %}
-        {% image settings.home.StyleSettings.logo fill-32x32 as favicon_img %}
+    {% if settings.core.NavigationSettings.logo %}
+        {% image settings.core.NavigationSettings.logo fill-32x32 as favicon_img %}
         <link rel="shortcut icon" href="{{ favicon_img.url }}" type="image/x-icon">
     {% endif %}
 
@@ -32,36 +32,19 @@
         <base target="_blank">
     {% endif %}
 
-    {# 🎨 SYSTÈME DE PALETTE DE COULEURS DYNAMIQUE #}
     <style>
         :root {
-            /* 🎨 Couleurs principales */
-            --primary-color: {{ settings.home.StyleSettings.primary_color | default:"#8a4d76" }};
-            --secondary-color: {{ settings.home.StyleSettings.secondary_color | default:"#fa7c91" }};
-            --tertiary-color: {{ settings.home.StyleSettings.tertiary_color | default:"#3e8ed0" }};
-
-            /* 📦 Blocs de contenu */
-            --block-header-bg: {{ settings.home.StyleSettings.block_header_bg | default:"#8a4d76" }};
-            --block-header-text: {{ settings.home.StyleSettings.block_header_text | default:"#ffffff" }};
-
-            /* 🎯 Titres */
-            --title-h1-color: {{ settings.home.StyleSettings.title_h1_color | default:"#2c3e50" }};
-            --title-h2-color: {{ settings.home.StyleSettings.title_h2_color | default:"#34495e" }};
-            --title-h3-color: {{ settings.home.StyleSettings.title_h3_color | default:"#7f8c8d" }};
-
-            /* 📄 Page & Texte */
-            --background-color: {{ settings.home.StyleSettings.background_color | default:"#f5f5f5" }};
-            --text-color: {{ settings.home.StyleSettings.text_color | default:"#2c3e50" }};
-            --text-muted-color: {{ settings.home.StyleSettings.text_muted_color | default:"#95a5a6" }};
-
-            /* 🔗 Navigation */
-            --navbar-bg: {{ settings.home.StyleSettings.navbar_bg | default:"#8a4d76" }};
-            --navbar-text: {{ settings.home.StyleSettings.navbar_text | default:"#ffffff" }};
-            --navbar-hover-bg: {{ settings.home.StyleSettings.navbar_hover_bg | default:"#6b3a5d" }};
-
-            /* 🎪 Événements */
-            --event-rehearsal-color: {{ settings.home.StyleSettings.event_rehearsal_color | default:"#3e8ed0" }};
-            --event-concert-color: {{ settings.home.StyleSettings.event_concert_color | default:"#fa7c91" }};
+            --primary-color: {{ settings.core.ThemeSettings.primary_color | default:"#8a4d76" }};
+            --secondary-color: {{ settings.core.ThemeSettings.secondary_color | default:"#fa7c91" }};
+            --tertiary-color: {{ settings.core.ThemeSettings.tertiary_color | default:"#3e8ed0" }};
+            --background-color: {{ settings.core.ThemeSettings.background_color | default:"#f5f5f5" }};
+            --text-color: {{ settings.core.ThemeSettings.text_color | default:"#2c3e50" }};
+            --text-muted-color: {{ settings.core.ThemeSettings.text_muted_color | default:"#95a5a6" }};
+            --navbar-bg: {{ settings.core.ThemeSettings.navbar_bg | default:"#8a4d76" }};
+            --navbar-text: {{ settings.core.ThemeSettings.navbar_text | default:"#ffffff" }};
+            --navbar-hover-bg: {{ settings.core.ThemeSettings.navbar_hover_bg | default:"#6b3a5d" }};
+            --event-rehearsal-color: #3e8ed0;
+            --event-concert-color: #fa7c91;
         }
 
         /* Force le fond à couvrir toute la page */

@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags static %}
+
+{% block content %}
+    <section class="section" aria-label="Calendrier">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-8-desktop is-10-tablet is-12-mobile">
+
+                    <div class="page-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                    </div>
+
+                    <div class="main-card">
+                        <div class="content-body">
+
+                            {% if page.comment %}
+                                <div class="section-card">
+                                    <h3 class="title is-4">Actualités</h3>
+                                    <div class="content">{{ page.comment|richtext }}</div>
+                                </div>
+                                <hr class="section-divider">
+                            {% endif %}
+
+                            <div class="section-card">
+                                <h3 class="title is-4">Prochains événements</h3>
+                                <div class="events-box-list">
+                                    {% for event in page.get_next_events %}
+                                        <div x-data="{ open: false }">
+                                            <div class="event-box" style="cursor: pointer;" @click="open = true">
+                                                <div class="event-box-date">
+                                                    <span class="day">{{ event.start_date|date:"d" }}</span>
+                                                    <span class="month">{{ event.start_date|date:"M" }}</span>
+                                                </div>
+                                                <div class="event-box-content">
+                                                    <span class="event-box-title">{{ event.name }}</span>
+                                                    <div class="event-box-details">
+                                                        {% if event.time_tbd %}
+                                                            <span class="event-box-time"><i class="fas fa-clock"></i> Heure à déterminer</span>
+                                                        {% elif event.start_time %}
+                                                            <span class="event-box-time">
+                                                                <i class="fas fa-clock"></i>
+                                                                {{ event.start_time|time:"H:i" }}{% if event.end_time %} – {{ event.end_time|time:"H:i" }}{% endif %}
+                                                            </span>
+                                                        {% endif %}
+                                                        {% if event.lieu %}
+                                                            <span class="event-box-location"><i class="fas fa-map-marker-alt"></i> {{ event.lieu }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% with tags=event.tags.all %}
+                                                        {% if tags %}
+                                                            <div class="event-box-tags mt-1">
+                                                                {% for tag in tags %}<span class="tag is-light is-small">{{ tag }}</span>{% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                </div>
+                                                <div class="event-box-action" style="align-self: center; padding-right: 0.75rem; color: var(--text-muted-color);">
+                                                    <i class="fas fa-expand-alt"></i>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal" :class="{ 'is-active': open }" x-show="open" x-cloak @keydown.escape.window="open = false">
+                                                <div class="modal-background" @click="open = false"></div>
+                                                <div class="modal-card">
+                                                    <header class="modal-card-head" style="background-color: var(--primary-color);">
+                                                        <p class="modal-card-title has-text-white">{{ event.name }}</p>
+                                                        <button class="delete" aria-label="close" @click="open = false"></button>
+                                                    </header>
+                                                    <section class="modal-card-body">
+                                                        {% with tags=event.tags.all %}
+                                                            {% if tags %}
+                                                                <div class="is-flex is-flex-wrap-wrap gap-2 mb-4">
+                                                                    {% for tag in tags %}<span class="tag is-primary is-medium">{{ tag }}</span>{% endfor %}
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                        <div class="event-detail-grid">
+                                                            <p><span class="icon-text">
+                                                                <span class="icon"><i class="fas fa-calendar"></i></span>
+                                                                <span>{{ event.start_date|date:"l d F Y" }}</span>
+                                                            </span></p>
+                                                            {% if event.time_tbd %}
+                                                                <p><span class="icon-text">
+                                                                    <span class="icon"><i class="fas fa-clock"></i></span>
+                                                                    <span>Heure à déterminer</span>
+                                                                </span></p>
+                                                            {% elif event.start_time %}
+                                                                <p><span class="icon-text">
+                                                                    <span class="icon"><i class="fas fa-clock"></i></span>
+                                                                    <span>{{ event.start_time|time:"H:i" }}{% if event.end_time %} – {{ event.end_time|time:"H:i" }}{% endif %}</span>
+                                                                </span></p>
+                                                            {% endif %}
+                                                            {% if event.lieu %}
+                                                                <p><span class="icon-text">
+                                                                    <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                                                                    <span>{{ event.lieu }}{% if event.adresse %}, {{ event.adresse }}{% endif %}</span>
+                                                                </span></p>
+                                                            {% endif %}
+                                                        </div>
+                                                        {% if event.description %}
+                                                            <div class="content mt-3"><p>{{ event.description }}</p></div>
+                                                        {% endif %}
+                                                    </section>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <p class="has-text-centered py-4" style="color: var(--text-muted-color);">Aucun événement à venir</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            {% if page.show_calendar %}
+                                <hr class="section-divider">
+                                <div class="section-card">
+                                    <div class="section-header-with-toggle">
+                                        <h3 class="title is-4">Tous les événements</h3>
+                                        <div class="buttons has-addons">
+                                            <button class="button is-small is-primary" id="btn-list-view" type="button" onclick="showListView()">Liste</button>
+                                            <button class="button is-small" id="btn-grid-view" type="button" onclick="showGridView()">Calendrier</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="list-view">
+                                        <div class="calendar-month-nav mb-4">
+                                            <button class="button is-small" type="button" onclick="changeMonth(-1)" aria-label="Mois précédent">&lt;</button>
+                                            <span class="month-display" id="month-display"></span>
+                                            <button class="button is-small" type="button" onclick="changeMonth(1)" aria-label="Mois suivant">&gt;</button>
+                                        </div>
+                                        <div class="events-box-list" id="month-events-container"></div>
+                                    </div>
+
+                                    <div id="grid-view" style="display: none;">
+                                        <div id="calendar"></div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% if page.show_calendar %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/interaction/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/locales/fr.js"></script>
+
+    <script>
+        var calendarEvents = {{ page.get_all_events|safe }};
+        var currentYear = new Date().getFullYear();
+        var currentMonth = new Date().getMonth();
+        var calendar = null;
+        var monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+        function updateMonthDisplay() {
+            document.getElementById('month-display').textContent = monthNames[currentMonth] + ' ' + currentYear;
+        }
+
+        function formatTimeRange(start, end) {
+            var d = new Date(start);
+            var h = d.getHours(), m = d.getMinutes();
+            if (h === 0 && m === 0) return '';
+            var s = h.toString().padStart(2,'0') + ':' + m.toString().padStart(2,'0');
+            if (end) {
+                var e = new Date(end), eh = e.getHours(), em = e.getMinutes();
+                if (eh !== 0 || em !== 0) s += ' – ' + eh.toString().padStart(2,'0') + ':' + em.toString().padStart(2,'0');
+            }
+            return s;
+        }
+
+        function renderMonthEvents() {
+            var container = document.getElementById('month-events-container');
+            var today = new Date(); today.setHours(0,0,0,0);
+            var filtered = calendarEvents.filter(function(ev) {
+                var d = new Date(ev.start);
+                return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+            }).sort(function(a,b){ return new Date(a.start) - new Date(b.start); });
+
+            if (!filtered.length) {
+                container.innerHTML = '<p class="has-text-centered py-4" style="color:var(--text-muted-color);">Aucun événement ce mois-ci</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(function(ev) {
+                var d = new Date(ev.start);
+                var isPast = new Date(d.getFullYear(), d.getMonth(), d.getDate()) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                var time = formatTimeRange(ev.start, ev.end);
+                var tagsHtml = (ev.tags || []).map(function(t) {
+                    return '<span class="tag is-light is-small">' + t + '</span>';
+                }).join('');
+                return '<div class="event-box' + (isPast ? ' is-past' : '') + '">' +
+                    '<div class="event-box-date">' +
+                    '<span class="day">' + d.getDate().toString().padStart(2,'0') + '</span>' +
+                    '<span class="month">' + monthNames[d.getMonth()].substring(0,3) + '</span></div>' +
+                    '<div class="event-box-content"><span class="event-box-title">' + ev.title + '</span>' +
+                    '<div class="event-box-details">' +
+                    (ev.time_tbd ? '<span class="event-box-time"><i class="fas fa-clock"></i> Heure à déterminer</span>' :
+                     time ? '<span class="event-box-time"><i class="fas fa-clock"></i> ' + time + '</span>' : '') +
+                    (ev.location ? '<span class="event-box-location"><i class="fas fa-map-marker-alt"></i> ' + ev.location + '</span>' : '') +
+                    '</div>' +
+                    (tagsHtml ? '<div class="event-box-tags mt-1">' + tagsHtml + '</div>' : '') +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            updateMonthDisplay(); renderMonthEvents();
+        }
+
+        function showListView() {
+            document.getElementById('list-view').style.display = 'block';
+            document.getElementById('grid-view').style.display = 'none';
+            document.getElementById('btn-list-view').classList.add('is-primary');
+            document.getElementById('btn-grid-view').classList.remove('is-primary');
+        }
+
+        function showGridView() {
+            document.getElementById('list-view').style.display = 'none';
+            document.getElementById('grid-view').style.display = 'block';
+            document.getElementById('btn-list-view').classList.remove('is-primary');
+            document.getElementById('btn-grid-view').classList.add('is-primary');
+            if (!calendar) {
+                calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                    plugins: ['dayGrid'], events: calendarEvents, locale: 'fr',
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
+                    height: 'auto', buttonText: { today: "Aujourd'hui", month: 'Mois' },
+                    eventDisplay: 'block', displayEventTime: true, displayEventEnd: true,
+                    eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false }
+                });
+                calendar.render();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMonthDisplay(); renderMonthEvents();
+        });
+    </script>
+    {% endif %}
+{% endblock %}
