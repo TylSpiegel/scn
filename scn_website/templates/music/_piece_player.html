@@ -89,10 +89,8 @@
 <script>
 function pieceAudioPlayer() {
     return {
+        // État exposé au template
         selectedUrls: [],
-        _audios: {},
-        _labels: {},
-        _tooltip: null,
         primaryUrl: '',
         isPlaying: false,
         currentTime: 0,
@@ -101,6 +99,19 @@ function pieceAudioPlayer() {
         isSeeking: false,
         lastTimecode: null,
         timecodeMarkers: [],
+
+        // Interne (Web Audio)
+        _ctx: null,
+        _master: null,
+        _buffers: {},         // url -> AudioBuffer (cache permanent)
+        _loads: {},           // url -> Promise<AudioBuffer>
+        _gains: {},           // url -> GainNode (persistant)
+        _sources: {},         // url -> AudioBufferSourceNode (recréé à chaque start)
+        _labels: {},
+        _tooltip: null,
+        _startCtxTime: 0,     // ctx.currentTime au démarrage de la source
+        _startOffset: 0,      // offset audio au démarrage
+        _pausedAt: 0,         // position retenue en pause/stop
 
         init() {
             var self = this;
@@ -132,28 +143,126 @@ function pieceAudioPlayer() {
             document.body.appendChild(this._tooltip);
 
             function tick() {
-                if (self.primaryUrl && self._audios[self.primaryUrl]) {
-                    var a = self._audios[self.primaryUrl];
-                    var dur = (a.duration && isFinite(a.duration)) ? a.duration : 0;
-                    self.duration    = dur;
-                    self.currentTime = a.currentTime || 0;
-                    self.progress    = dur ? (self.currentTime / dur) * 100 : 0;
-                    self.isPlaying   = !a.paused && !a.ended;
-                    if (a.ended) self.lastTimecode = null;
+                if (self.isPlaying && self._ctx) {
+                    var t = self._startOffset + (self._ctx.currentTime - self._startCtxTime);
+                    if (self.duration > 0 && t >= self.duration) {
+                        self._stopSources();
+                        self.isPlaying = false;
+                        self.currentTime = self.duration;
+                        self.progress = 100;
+                        self._pausedAt = 0;
+                        self.lastTimecode = null;
+                    } else {
+                        self.currentTime = t;
+                        self.progress = self.duration ? (t / self.duration) * 100 : 0;
+                    }
                 }
                 requestAnimationFrame(tick);
             }
             requestAnimationFrame(tick);
         },
 
-        _getOrCreate(url) {
-            if (this._audios[url]) return this._audios[url];
-            var a = new Audio();
-            a.preload = 'none';
-            a.addEventListener('error', function () { console.error('Erreur audio :', url); });
-            this._audios[url] = a;
-            return a;
+        _initCtx() {
+            if (!this._ctx) {
+                var Ctx = window.AudioContext || window.webkitAudioContext;
+                this._ctx = new Ctx();
+                this._master = this._ctx.createGain();
+                this._master.connect(this._ctx.destination);
+            }
+            if (this._ctx.state === 'suspended') this._ctx.resume();
+            return this._ctx;
         },
+
+        _ensureLoaded(url) {
+            if (this._buffers[url]) return Promise.resolve(this._buffers[url]);
+            if (this._loads[url]) return this._loads[url];
+            var self = this;
+            var ctx = this._initCtx();
+            this._loads[url] = fetch(url)
+                .then(function (r) { return r.arrayBuffer(); })
+                .then(function (ab) { return ctx.decodeAudioData(ab); })
+                .then(function (buf) {
+                    self._buffers[url] = buf;
+                    self._updateDuration();
+                    return buf;
+                })
+                .catch(function (e) {
+                    console.error('Erreur chargement audio :', url, e);
+                    delete self._loads[url];
+                    throw e;
+                });
+            return this._loads[url];
+        },
+
+        _ensureGain(url) {
+            if (!this._gains[url]) {
+                this._initCtx();
+                var g = this._ctx.createGain();
+                g.gain.value = 0;
+                g.connect(this._master);
+                this._gains[url] = g;
+            }
+            return this._gains[url];
+        },
+
+        _updateDuration() {
+            var max = 0;
+            var self = this;
+            this.selectedUrls.forEach(function (url) {
+                var b = self._buffers[url];
+                if (b && b.duration > max) max = b.duration;
+            });
+            this.duration = max;
+        },
+
+        // Démarre toutes les pistes sélectionnées au temps `offset`, alignées sur le même `when` => sync parfaite
+        _startSources(offset) {
+            var ctx = this._initCtx();
+            var when = ctx.currentTime + 0.05;
+            var self = this;
+            this.selectedUrls.forEach(function (url) {
+                var buf = self._buffers[url];
+                if (!buf || offset >= buf.duration) return;
+                var src = ctx.createBufferSource();
+                src.buffer = buf;
+                var g = self._ensureGain(url);
+                g.gain.value = 1;
+                src.connect(g);
+                try { src.start(when, offset); } catch (e) { console.error('start error:', e); }
+                self._sources[url] = src;
+            });
+            this._startCtxTime = when;
+            this._startOffset = offset;
+        },
+
+        _stopSources() {
+            var self = this;
+            Object.keys(this._sources).forEach(function (url) {
+                try { self._sources[url].stop(); } catch (e) {}
+                try { self._sources[url].disconnect(); } catch (e) {}
+                delete self._sources[url];
+            });
+        },
+
+        _currentT() {
+            if (this.isPlaying && this._ctx) {
+                return Math.min(this.duration, this._startOffset + (this._ctx.currentTime - this._startCtxTime));
+            }
+            return this._pausedAt;
+        },
+
+        _seekTo(seconds) {
+            if (this.isPlaying) {
+                this._stopSources();
+                this._startSources(seconds);
+            } else {
+                this._pausedAt = seconds;
+                this.currentTime = seconds;
+                this.progress = this.duration ? (seconds / this.duration) * 100 : 0;
+            }
+        },
+
+        // ---- API publique consommée par le template ----
 
         isSelected(url) {
             return this.selectedUrls.indexOf(url) !== -1;
@@ -161,87 +270,122 @@ function pieceAudioPlayer() {
 
         toggleTrack(url, label) {
             this._labels[url] = label;
+            var self = this;
             var idx = this.selectedUrls.indexOf(url);
+
             if (idx === -1) {
                 this.selectedUrls.push(url);
-                this._getOrCreate(url);
                 if (!this.primaryUrl) this.primaryUrl = url;
+                this._ensureLoaded(url).then(function (buf) {
+                    // Si on est toujours sélectionné ET en lecture, démarrer cette piste à la position courante
+                    if (self.isPlaying && self.selectedUrls.indexOf(url) !== -1 && !self._sources[url]) {
+                        var ctx = self._ctx;
+                        var pos = self._currentT();
+                        if (pos < buf.duration) {
+                            var src = ctx.createBufferSource();
+                            src.buffer = buf;
+                            var g = self._ensureGain(url);
+                            g.gain.value = 1;
+                            src.connect(g);
+                            try { src.start(ctx.currentTime, pos); } catch (e) {}
+                            self._sources[url] = src;
+                        }
+                    }
+                }).catch(function () { /* erreur déjà loggée */ });
             } else {
                 this.selectedUrls.splice(idx, 1);
-                if (this._audios[url]) this._audios[url].pause();
+                if (this._gains[url]) this._gains[url].gain.value = 0;
+                if (this._sources[url]) {
+                    try { this._sources[url].stop(); } catch (e) {}
+                    try { this._sources[url].disconnect(); } catch (e) {}
+                    delete this._sources[url];
+                }
                 if (this.primaryUrl === url) {
                     this.primaryUrl = this.selectedUrls[0] || '';
-                    if (!this.primaryUrl) {
-                        this.currentTime = 0;
-                        this.duration = 0;
-                        this.progress = 0;
-                        this.isPlaying = false;
-                    }
                 }
+                if (this.selectedUrls.length === 0) {
+                    this._stopSources();
+                    this.isPlaying = false;
+                    this._pausedAt = 0;
+                    this.currentTime = 0;
+                    this.progress = 0;
+                    this.lastTimecode = null;
+                }
+                this._updateDuration();
             }
-        },
-
-        _playAll() {
-            var self = this;
-            var ct = this.currentTime;
-            this.selectedUrls.forEach(function (url) {
-                var a = self._getOrCreate(url);
-                if (!a.src) a.src = url;
-                a.currentTime = ct;
-                a.play().catch(function (e) { console.error('Lecture impossible :', e); });
-            });
-        },
-
-        _pauseAll() {
-            var self = this;
-            this.selectedUrls.forEach(function (url) {
-                if (self._audios[url]) self._audios[url].pause();
-            });
-        },
-
-        _seekAll(seconds) {
-            var self = this;
-            this.selectedUrls.forEach(function (url) {
-                if (self._audios[url]) self._audios[url].currentTime = seconds;
-            });
         },
 
         togglePlay() {
             if (this.selectedUrls.length === 0) return;
-            if (this.isPlaying) { this._pauseAll(); } else { this._playAll(); }
+            if (this.isPlaying) {
+                this._pausedAt = this._currentT();
+                this._stopSources();
+                this.isPlaying = false;
+                return;
+            }
+            var self = this;
+            this._initCtx();
+            Promise.all(this.selectedUrls.map(function (u) { return self._ensureLoaded(u); }))
+                .then(function () {
+                    self._startSources(self._pausedAt);
+                    self.isPlaying = true;
+                    self.lastTimecode = null;
+                })
+                .catch(function (e) { console.error('Lecture impossible :', e); });
         },
 
         stop() {
-            this._pauseAll();
-            this._seekAll(0);
+            this._stopSources();
+            this.isPlaying = false;
+            this._pausedAt = 0;
+            this.currentTime = 0;
+            this.progress = 0;
             this.lastTimecode = null;
         },
 
-        goToStart() {
-            var wasPlaying = this.isPlaying;
-            this._pauseAll();
-            this._seekAll(0);
-            if (wasPlaying) this._playAll();
-        },
-
-        skipBack()    { this._seekAll(Math.max(0, this.currentTime - 5)); },
-        skipForward() { if (this.duration) this._seekAll(Math.min(this.duration, this.currentTime + 5)); },
+        goToStart() { this._seekTo(0); },
+        skipBack()    { this._seekTo(Math.max(0, this._currentT() - 5)); },
+        skipForward() { if (this.duration) this._seekTo(Math.min(this.duration, this._currentT() + 5)); },
 
         handleTimecode(tcStr) {
             if (this.selectedUrls.length === 0) return;
             var seconds = this._tcToSeconds(tcStr);
+            var self = this;
             if (this.lastTimecode === tcStr) {
-                this._seekAll(seconds); this._playAll(); this.lastTimecode = null;
+                // 2e clic : positionner et lire
+                this._initCtx();
+                Promise.all(this.selectedUrls.map(function (u) { return self._ensureLoaded(u); }))
+                    .then(function () {
+                        if (self.isPlaying) self._stopSources();
+                        self._startSources(seconds);
+                        self.isPlaying = true;
+                        self.lastTimecode = null;
+                    });
             } else {
-                this._pauseAll(); this._seekAll(seconds); this.lastTimecode = tcStr;
+                // 1er clic : positionner sans lire
+                if (this.isPlaying) {
+                    this._stopSources();
+                    this.isPlaying = false;
+                }
+                this._pausedAt = seconds;
+                this.currentTime = seconds;
+                this.progress = this.duration ? (seconds / this.duration) * 100 : 0;
+                this.lastTimecode = tcStr;
             }
         },
 
         seekFromEvent(tcStr) {
             if (this.selectedUrls.length === 0) return;
-            this._seekAll(this._tcToSeconds(tcStr));
-            this.lastTimecode = null;
-            this._playAll();
+            var seconds = this._tcToSeconds(tcStr);
+            var self = this;
+            this._initCtx();
+            Promise.all(this.selectedUrls.map(function (u) { return self._ensureLoaded(u); }))
+                .then(function () {
+                    if (self.isPlaying) self._stopSources();
+                    self._startSources(seconds);
+                    self.isPlaying = true;
+                    self.lastTimecode = null;
+                });
         },
 
         _tcToSeconds(tcStr) {
@@ -266,7 +410,7 @@ function pieceAudioPlayer() {
             if (!this.duration) return;
             var rect = this.$refs.progressBar.getBoundingClientRect();
             var x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-            this._seekAll((x / rect.width) * this.duration);
+            this._seekTo((x / rect.width) * this.duration);
         },
 
         updateHover(event) {
