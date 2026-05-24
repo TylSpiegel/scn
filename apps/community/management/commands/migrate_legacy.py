@@ -466,7 +466,9 @@ class Command(BaseCommand):
                 'traduction': row['traduction'] if 'traduction' in cols else '',
                 'interpretation': row['interpretation'] if 'interpretation' in cols else '',
                 'activer_timecodes': bool(row['activer_timecodes']) if 'activer_timecodes' in cols else False,
-                'timecodes': row['timecodes'] if 'timecodes' in cols and row['timecodes'] else '[]',
+                # timecodes legacy: ancien StreamField (JSON). Format incompatible
+                # avec le nouveau TextField « paroles + [mm:ss] » -> on n'importe pas.
+                'timecodes': '',
                 'audios': row['audios'] if 'audios' in cols and row['audios'] else '[]',
                 'additional_files': row['additional_files'] if 'additional_files' in cols and row['additional_files'] else '[]',
                 'live': bool(row['page_live']),

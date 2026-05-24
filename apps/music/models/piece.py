@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 
 from wagtail.models import Page, Orderable
@@ -9,7 +11,10 @@ from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.models import ClusterableModel
 from taggit.models import TaggedItemBase
 
-from apps.music.blocks import AudioDocumentBlock, AdditionalFilesBlock, TimecodeBlock
+from apps.music.blocks import AudioDocumentBlock, AdditionalFilesBlock
+
+
+TIMECODE_RE = re.compile(r'\[(\d{1,2}:\d{2})\]')
 
 
 class PieceIndexPage(Page):
@@ -47,9 +52,15 @@ class Piece(Page):
         help_text="Cochez pour activer la fonctionnalité de timecodes"
     )
 
-    timecodes = StreamField([
-        ('timecode', TimecodeBlock()),
-    ], null=True, blank=True, use_json_field=True, verbose_name="Timecodes avec annotations")
+    timecodes = models.TextField(
+        blank=True,
+        verbose_name="Paroles avec timecodes",
+        help_text=(
+            "Texte libre. Insérez des timecodes au format [mm:ss] dans les paroles ; "
+            "ils seront convertis en boutons cliquables dans le lecteur. "
+            "Exemple : [00:10]Ave Maria, gratia plena\\nDominus tecum, [00:20]Ave Maria"
+        ),
+    )
 
     pdf = models.ForeignKey(
         Document,
@@ -99,17 +110,24 @@ class Piece(Page):
         context['piece'] = self
         return context
 
-    def get_sorted_timecodes(self):
-        if not self.activer_timecodes:
+    def get_parsed_timecodes(self):
+        """Liste triée et dédoublonnée des timecodes mm:ss trouvés dans le texte."""
+        if not self.activer_timecodes or not self.timecodes:
             return []
-        items = []
-        for block in self.timecodes:
-            if block.block_type == 'timecode':
-                parts = block.value['timecode'].split(':')
-                seconds = int(parts[0]) * 60 + int(parts[1])
-                items.append((seconds, block))
-        items.sort(key=lambda x: x[0])
-        return [item[1] for item in items]
+        seen = set()
+        out = []
+        for m in TIMECODE_RE.finditer(self.timecodes):
+            tc = m.group(1)
+            if tc in seen:
+                continue
+            seen.add(tc)
+            out.append(tc)
+
+        def _key(s):
+            mm, ss = s.split(':')
+            return int(mm) * 60 + int(ss)
+
+        return sorted(out, key=_key)
 
     def __str__(self):
         return f"{self.title} — {self.compositeur}"
@@ -149,14 +167,22 @@ class RepertoireItem(Orderable, ClusterableModel):
     ]
 
     def __str__(self):
-        return str(self.piece)
+        if self.piece_id:
+            return str(self.piece)
+        return "(nouveau morceau)"
 
 
 class RepertoirePage(Page):
     introduction = models.TextField(blank=True)
+    ordre_important = models.BooleanField(
+        default=False,
+        verbose_name="Ordre important",
+        help_text="Si coché, les morceaux sont numérotés (#1, #2, …) dans l'ordre du répertoire."
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('introduction'),
+        FieldPanel('ordre_important'),
         InlinePanel('items', label="Morceaux"),
     ]
 

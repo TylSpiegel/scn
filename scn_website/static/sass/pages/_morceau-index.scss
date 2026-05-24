@@ -68,6 +68,14 @@
     color: var(--text-color);
 }
 
+.morceau-index-order {
+    display: inline-block;
+    margin-right: $spacing-xs;
+    color: var(--primary-color, #6b7280);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
 .morceau-index-composer {
     font-size: 0.95rem;
     color: var(--text-muted-color, #6b7280);

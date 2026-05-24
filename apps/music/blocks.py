@@ -3,25 +3,6 @@ from django.core.exceptions import ValidationError
 from wagtail import blocks
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
-from django.core.validators import RegexValidator
-
-
-class TimecodeBlock(blocks.StructBlock):
-    timecode = blocks.CharBlock(
-        help_text="Format mm:ss, ex: 02:45",
-        label="Timecode",
-        validators=[
-            RegexValidator(
-                regex=r'^([0-5][0-9]):([0-5][0-9])$',
-                message="Le format doit être mm:ss (ex: 02:45)"
-            )
-        ]
-    )
-    texte = blocks.TextBlock(label="Texte associé")
-
-    class Meta:
-        template = 'blocks/timecode_block.html'
-        icon = 'time'
 
 
 class AudioDocumentBlock(blocks.StructBlock):

@@ -1,7 +1,8 @@
+{% load music_tags %}
 {% if piece.audios %}
 <div class="section-card" x-data="pieceAudioPlayer()" x-init="init()"
      @seek-timecode.window="seekFromEvent($event.detail.tc)"
-     data-timecodes="{% if piece.activer_timecodes and piece.timecodes %}{% for block in piece.get_sorted_timecodes %}{{ block.value.timecode }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}">
+     data-timecodes="{% if piece.activer_timecodes %}{{ piece.get_parsed_timecodes|join:"," }}{% endif %}">
 
     <h2 class="title is-5 mb-4">
         <span class="icon-text">
@@ -76,22 +77,10 @@
     {% if piece.activer_timecodes and piece.timecodes %}
     <div class="mt-3">
         <p class="is-size-7 has-text-grey mb-2">
-            Points de repère
-            <span class="has-text-grey-light"> — 1 clic : positionner &nbsp;/&nbsp; 2 clics : lire</span>
+            Paroles
+            <span class="has-text-grey-light"> — 1 clic sur un timecode : positionner &nbsp;/&nbsp; 2 clics : lire</span>
         </p>
-        <div class="timecode-list">
-            {% for block in piece.get_sorted_timecodes %}{% with tc=block.value %}
-            <div class="mb-1">
-                <button type="button"
-                        class="button is-small is-fullwidth"
-                        :class="lastTimecode === '{{ tc.timecode }}' ? 'is-warning' : 'is-light'"
-                        @click="handleTimecode('{{ tc.timecode }}')">
-                    <span class="tag is-primary is-small mr-2" style="flex-shrink:0;">{{ tc.timecode }}</span>
-                    <span style="flex:1; text-align:left;">{{ tc.texte }}</span>
-                </button>
-            </div>
-            {% endwith %}{% endfor %}
-        </div>
+        <div class="piece-lyrics content">{{ piece.timecodes|render_timecoded }}</div>
     </div>
     {% endif %}
 

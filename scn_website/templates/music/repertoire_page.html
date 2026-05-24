@@ -18,7 +18,7 @@
                         {% for item in items %}
                             <a href="{{ item.piece.url }}" class="morceau-index-item">
                                 <div class="morceau-index-item-text">
-                                    <span class="morceau-index-title">{{ item.piece.title }}</span>
+                                    <span class="morceau-index-title">{% if page.ordre_important %}<span class="morceau-index-order">#{{ forloop.counter }}</span> {% endif %}{{ item.piece.title }}</span>
                                     <span class="morceau-index-composer">{{ item.piece.compositeur }}</span>
                                     {% if item.comment %}
                                         <span class="morceau-index-comment">{{ item.comment }}</span>
