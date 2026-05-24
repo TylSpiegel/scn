@@ -30,6 +30,7 @@ from apps.community.models.event import Event
 from apps.music.models import Piece, PieceIndexPage, RepertoirePage, RepertoireItem
 from apps.content.models import HomePage
 from wagtail.documents import get_document_model
+from wagtail.models import Collection
 
 
 # Mapping pupitres legacy -> valeurs VOICE_PART_CHOICES de rework
@@ -319,6 +320,45 @@ class Command(BaseCommand):
 
 
     # ------------------------------------------------------------------ #
+    # Collections Wagtail (treebeard)
+    # ------------------------------------------------------------------ #
+
+    def _migrate_collections(self, conn):
+        """Migre wagtailcore_collection. Retourne le mapping src_id -> dst_id."""
+        table = 'wagtailcore_collection'
+        col_map = {}
+        if not _table_exists(conn, table):
+            return col_map
+
+        rows = conn.execute(f"SELECT * FROM {table} ORDER BY depth, path").fetchall()
+        if not rows:
+            return col_map
+
+        # Root cible (toujours depth=1 dans Wagtail, cree par les migrations)
+        root_dst = Collection.objects.filter(depth=1).first()
+        if not root_dst:
+            self.stderr.write("  Pas de Root Collection dans la cible, abandon.")
+            return col_map
+
+        for row in rows:
+            if row['depth'] == 1:
+                # Root: on associe le src.id au root.pk de la cible
+                col_map[row['id']] = root_dst.pk
+                continue
+
+            # Sub-collection: on cree ou on retrouve par nom (sous root)
+            name = row['name'] or 'Sans nom'
+            existing = Collection.objects.filter(name=name, depth=row['depth']).first()
+            if existing:
+                col_map[row['id']] = existing.pk
+            else:
+                new_col = root_dst.add_child(instance=Collection(name=name))
+                col_map[row['id']] = new_col.pk
+
+        self.stdout.write(f"== collections: {len(col_map)} mappees ==")
+        return col_map
+
+    # ------------------------------------------------------------------ #
     # Documents Wagtail (PDF, audios, fichiers additionnels)
     # ------------------------------------------------------------------ #
 
@@ -330,16 +370,24 @@ class Command(BaseCommand):
             self.stdout.write(f"  table {table} absente, skip")
             return
 
+        # Migrer les Collections d'abord pour avoir les FK valides
+        col_map = self._migrate_collections(conn)
+        # Fallback: Root Collection (depth=1) si la collection source n'est pas mappee
+        root_dst = Collection.objects.filter(depth=1).first()
+        root_pk = root_dst.pk if root_dst else 1
+
         cols = _columns(conn, table)
         rows = conn.execute(f"SELECT * FROM {table} ORDER BY id").fetchall()
         n_created = n_updated = n_skipped = 0
         max_id = 0
         for row in rows:
             try:
+                src_col = row['collection_id'] if 'collection_id' in cols else None
+                dst_col = col_map.get(src_col, root_pk) if src_col else root_pk
                 defaults = {
                     'title': row['title'] or '',
                     'file': row['file'] or '',
-                    'collection_id': row['collection_id'] if 'collection_id' in cols and row['collection_id'] else 1,
+                    'collection_id': dst_col,
                 }
                 if 'created_at' in cols and row['created_at']:
                     defaults['created_at'] = row['created_at']
