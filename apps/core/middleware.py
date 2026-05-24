@@ -19,7 +19,12 @@ EXEMPT_PREFIXES = (
 
 
 def _is_exempt_path(path: str) -> bool:
-    return any(path.startswith(prefix) for prefix in EXEMPT_PREFIXES)
+    for prefix in EXEMPT_PREFIXES:
+        if path.startswith(prefix):
+            return True
+        if prefix.endswith("/") and path == prefix[:-1]:
+            return True
+    return False
 
 
 def _get_password(request) -> str:

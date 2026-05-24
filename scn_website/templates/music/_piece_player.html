@@ -2,7 +2,13 @@
 {% if piece.audios %}
 <div class="section-card" x-data="pieceAudioPlayer()" x-init="init()"
      @seek-timecode.window="seekFromEvent($event.detail.tc)"
-     data-timecodes="{% if piece.activer_timecodes %}{{ piece.get_parsed_timecodes|join:"," }}{% endif %}">
+     data-timecodes="{% if piece.activer_timecodes %}{{ piece.get_parsed_timecodes|join:"," }}{% endif %}"
+     style="position: relative;">
+
+    <span title="Lecteur multipiste — moteur Web Audio (v2.0.0)"
+          style="position: absolute; top: 0.4rem; right: 0.6rem;
+                 font-size: 0.65rem; color: rgba(0,0,0,0.28);
+                 user-select: none; pointer-events: auto; cursor: help;">v2.0.0</span>
 
     <h2 class="title is-5 mb-4">
         <span class="icon-text">
@@ -277,17 +283,20 @@ function pieceAudioPlayer() {
                 this.selectedUrls.push(url);
                 if (!this.primaryUrl) this.primaryUrl = url;
                 this._ensureLoaded(url).then(function (buf) {
-                    // Si on est toujours sélectionné ET en lecture, démarrer cette piste à la position courante
+                    // Si on est toujours sélectionné ET en lecture, démarrer cette piste alignée sur les autres.
+                    // Schedule à `when` futur, avec offset calculé pour que la nouvelle source soit au même
+                    // endroit que les autres à `when` — évite le retard d'un render quantum si on partait de "now".
                     if (self.isPlaying && self.selectedUrls.indexOf(url) !== -1 && !self._sources[url]) {
                         var ctx = self._ctx;
-                        var pos = self._currentT();
+                        var when = ctx.currentTime + 0.05;
+                        var pos = self._startOffset + (when - self._startCtxTime);
                         if (pos < buf.duration) {
                             var src = ctx.createBufferSource();
                             src.buffer = buf;
                             var g = self._ensureGain(url);
                             g.gain.value = 1;
                             src.connect(g);
-                            try { src.start(ctx.currentTime, pos); } catch (e) {}
+                            try { src.start(when, pos); } catch (e) { console.error('start error:', e); }
                             self._sources[url] = src;
                         }
                     }

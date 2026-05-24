@@ -30,10 +30,4 @@ class Migration(migrations.Migration):
             ),
             preserve_default=False,
         ),
-        # Les anciennes lignes contiennent du JSON StreamField stocké en TEXT.
-        # On les vide : le format est incompatible avec le nouveau champ « paroles + [mm:ss] ».
-        migrations.RunSQL(
-            sql="UPDATE music_piece SET timecodes = '';",
-            reverse_sql=migrations.RunSQL.noop,
-        ),
     ]
