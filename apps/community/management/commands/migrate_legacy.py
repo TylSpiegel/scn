@@ -22,11 +22,14 @@ import sqlite3
 from contextlib import contextmanager
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
+from django.db import connection, transaction
 from django.utils.html import escape as html_escape
 
 from apps.community.models.member import Role, Choriste, Address
 from apps.community.models.event import Event
+from apps.music.models import Piece, PieceIndexPage, RepertoirePage, RepertoireItem
+from apps.content.models import HomePage
+from wagtail.documents import get_document_model
 
 
 # Mapping pupitres legacy -> valeurs VOICE_PART_CHOICES de rework
@@ -83,7 +86,8 @@ class Command(BaseCommand):
         parser.add_argument('--dry-run', action='store_true',
                             help="N'ecrit rien (transaction rollback en fin de run)")
         parser.add_argument('--skip', default='',
-                            help="Domaines a sauter (csv): roles,choristes,events")
+                            help="Domaines a sauter (csv): roles,choristes,events,"
+                                 "documents,pieces,repertoires")
 
     def handle(self, *args, **options):
         path = options['source']
@@ -108,6 +112,22 @@ class Command(BaseCommand):
                         self._migrate_events(conn)
                     else:
                         self.stdout.write("== events : skip ==")
+
+                    if 'documents' not in skip:
+                        self._migrate_documents(conn)
+                    else:
+                        self.stdout.write("== documents : skip ==")
+
+                    piece_map = {}
+                    if 'pieces' not in skip:
+                        piece_map = self._migrate_pieces(conn)
+                    else:
+                        self.stdout.write("== pieces : skip ==")
+
+                    if 'repertoires' not in skip:
+                        self._migrate_repertoires(conn, piece_map)
+                    else:
+                        self.stdout.write("== repertoires : skip ==")
 
                     if dry:
                         raise _DryRunRollback()
@@ -296,6 +316,216 @@ class Command(BaseCommand):
                 f"  {'[cree]' if created else '[maj] '} Event « {name} »"
                 f" ({start_date}) tags={tag_set}"
             )
+
+
+    # ------------------------------------------------------------------ #
+    # Documents Wagtail (PDF, audios, fichiers additionnels)
+    # ------------------------------------------------------------------ #
+
+    def _migrate_documents(self, conn):
+        self.stdout.write("== documents ==")
+        Document = get_document_model()
+        table = 'wagtaildocs_document'
+        if not _table_exists(conn, table):
+            self.stdout.write(f"  table {table} absente, skip")
+            return
+
+        cols = _columns(conn, table)
+        rows = conn.execute(f"SELECT * FROM {table} ORDER BY id").fetchall()
+        n_created = n_updated = n_skipped = 0
+        max_id = 0
+        for row in rows:
+            try:
+                defaults = {
+                    'title': row['title'] or '',
+                    'file': row['file'] or '',
+                    'collection_id': row['collection_id'] if 'collection_id' in cols and row['collection_id'] else 1,
+                }
+                if 'created_at' in cols and row['created_at']:
+                    defaults['created_at'] = row['created_at']
+                if 'file_size' in cols:
+                    defaults['file_size'] = row['file_size']
+                if 'file_hash' in cols:
+                    defaults['file_hash'] = row['file_hash'] or ''
+
+                _, created = Document.objects.update_or_create(
+                    pk=row['id'], defaults=defaults,
+                )
+                if created:
+                    n_created += 1
+                else:
+                    n_updated += 1
+                max_id = max(max_id, row['id'])
+            except Exception as e:
+                n_skipped += 1
+                self.stderr.write(f"  [skip] document id={row['id']}: {e}")
+
+        # Aligner la sequence Postgres pour eviter les conflits sur futurs inserts
+        if max_id and connection.vendor == 'postgresql':
+            with connection.cursor() as c:
+                c.execute(
+                    "SELECT setval(pg_get_serial_sequence(%s, 'id'), %s, true)",
+                    [table, max_id],
+                )
+
+        self.stdout.write(f"  -> docs: {n_created} crees, {n_updated} mis a jour, "
+                          f"{n_skipped} ignores (max id = {max_id})")
+
+    # ------------------------------------------------------------------ #
+    # Pieces (MorceauPage -> Piece, parentes a PieceIndexPage unique)
+    # ------------------------------------------------------------------ #
+
+    def _migrate_pieces(self, conn):
+        self.stdout.write("== pieces ==")
+        index = PieceIndexPage.objects.first()
+        if not index:
+            raise CommandError(
+                "PieceIndexPage absente. Lance d'abord setup_site (django_setup.yml)."
+            )
+
+        table = 'choristes_morceaupage'
+        if not _table_exists(conn, table):
+            self.stdout.write(f"  table {table} absente, skip")
+            return {}
+
+        cols = _columns(conn, table)
+        rows = conn.execute(f"""
+            SELECT m.*, p.title as page_title, p.slug as page_slug, p.live as page_live
+            FROM {table} m
+            JOIN wagtailcore_page p ON p.id = m.page_ptr_id
+            ORDER BY p.path
+        """).fetchall()
+
+        legacy_to_new = {}  # page_ptr_id source -> Piece.pk cible
+        n_created = n_updated = 0
+
+        for row in rows:
+            # Priorite au champ custom `titre`, fallback sur Page.title
+            title = ((row['titre'] if 'titre' in cols else '') or row['page_title'] or 'Sans titre').strip()
+            slug = (row['page_slug'] or '').strip()
+            if not slug:
+                continue
+
+            defaults = {
+                'title': title,
+                'compositeur': ((row['compositeur'] if 'compositeur' in cols else '') or '').strip(),
+                'descr': row['descr'] if 'descr' in cols else '',
+                'traduction': row['traduction'] if 'traduction' in cols else '',
+                'interpretation': row['interpretation'] if 'interpretation' in cols else '',
+                'activer_timecodes': bool(row['activer_timecodes']) if 'activer_timecodes' in cols else False,
+                'timecodes': row['timecodes'] if 'timecodes' in cols and row['timecodes'] else '[]',
+                'audios': row['audios'] if 'audios' in cols and row['audios'] else '[]',
+                'additional_files': row['additional_files'] if 'additional_files' in cols and row['additional_files'] else '[]',
+                'live': bool(row['page_live']),
+            }
+            if 'pdf_id' in cols:
+                defaults['pdf_id'] = row['pdf_id']
+
+            existing = Piece.objects.filter(slug=slug).first()
+            if existing:
+                for k, v in defaults.items():
+                    setattr(existing, k, v)
+                existing.save()
+                legacy_to_new[row['page_ptr_id']] = existing.pk
+                n_updated += 1
+            else:
+                piece = Piece(slug=slug, **defaults)
+                index.add_child(instance=piece)
+                legacy_to_new[row['page_ptr_id']] = piece.pk
+                n_created += 1
+
+            self.stdout.write(
+                f"  {'[cree]' if existing is None else '[maj] '} Piece « {title} » (slug={slug})"
+            )
+
+        self.stdout.write(f"  -> pieces: {n_created} crees, {n_updated} mis a jour")
+        return legacy_to_new
+
+    # ------------------------------------------------------------------ #
+    # Repertoires (MorceauIndexPage -> RepertoirePage) + RepertoireItem
+    # ------------------------------------------------------------------ #
+
+    def _migrate_repertoires(self, conn, piece_map):
+        self.stdout.write("== repertoires ==")
+        home = HomePage.objects.first()
+        if not home:
+            raise CommandError(
+                "HomePage absente. Lance d'abord setup_site (django_setup.yml)."
+            )
+
+        index_table = 'choristes_morceauindexpage'
+        if not _table_exists(conn, index_table):
+            self.stdout.write(f"  table {index_table} absente, skip")
+            return
+
+        index_cols = _columns(conn, index_table)
+        idx_rows = conn.execute(f"""
+            SELECT mi.*, p.title as page_title, p.slug as page_slug,
+                   p.path, p.depth, p.live as page_live
+            FROM {index_table} mi
+            JOIN wagtailcore_page p ON p.id = mi.page_ptr_id
+            ORDER BY p.path
+        """).fetchall()
+
+        # Construire mapping path source -> RepertoirePage cree dans rework
+        path_to_rep_pk = {}
+        for row in idx_rows:
+            title = (row['page_title'] or 'Répertoire').strip()
+            slug = (row['page_slug'] or '').strip()
+            if not slug:
+                continue
+            intro = (row['introduction'] if 'introduction' in index_cols else '') or ''
+
+            existing = RepertoirePage.objects.filter(slug=slug).first()
+            if existing:
+                existing.title = title
+                existing.introduction = intro
+                existing.live = bool(row['page_live'])
+                existing.save()
+                rep = existing
+            else:
+                rep = RepertoirePage(
+                    title=title, slug=slug,
+                    introduction=intro, live=bool(row['page_live']),
+                )
+                home.add_child(instance=rep)
+
+            path_to_rep_pk[row['path']] = rep.pk
+            self.stdout.write(f"  {'[maj] ' if existing else '[cree]'} Repertoire « {title} »")
+
+        # Pour chaque MorceauPage, retrouver son MorceauIndexPage parent via path
+        # (Wagtail utilise un path tree de 4 chars par niveau).
+        piece_table = 'choristes_morceaupage'
+        piece_rows = conn.execute(f"""
+            SELECT m.page_ptr_id, p.path
+            FROM {piece_table} m
+            JOIN wagtailcore_page p ON p.id = m.page_ptr_id
+            ORDER BY p.path
+        """).fetchall()
+
+        n_items = n_skipped = 0
+        for row in piece_rows:
+            parent_path = row['path'][:-4]   # un niveau au-dessus
+            rep_pk = path_to_rep_pk.get(parent_path)
+            if not rep_pk:
+                n_skipped += 1
+                continue
+
+            new_piece_pk = piece_map.get(row['page_ptr_id'])
+            if not new_piece_pk:
+                n_skipped += 1
+                continue
+
+            RepertoireItem.objects.update_or_create(
+                repertoire_id=rep_pk,
+                piece_id=new_piece_pk,
+            )
+            n_items += 1
+
+        self.stdout.write(
+            f"  -> repertoire_items: {n_items} crees/maj, {n_skipped} ignores "
+            f"(parent index ou piece manquante)"
+        )
 
 
 class _DryRunRollback(Exception):
