@@ -13,7 +13,12 @@
 .section-card {
     @include colored-card(0.1, 0.25);
     margin-bottom: $spacing-lg;
-    
+
+    @include mobile {
+        padding: $spacing-md;
+        margin-bottom: $spacing-md;
+    }
+
     .title {
         color: $primary-color;
         margin-bottom: $spacing-md;

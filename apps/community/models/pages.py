@@ -54,18 +54,26 @@ class CalendrierPage(Page):
         events = Event.objects.prefetch_related('tags').order_by('start_date').all()
         events_list = []
         for event in events:
-            start_datetime = datetime.combine(event.start_date, event.start_time or time(0, 0))
-            end_date = event.end_date if event.end_date else event.start_date
-            end_datetime = datetime.combine(end_date, event.end_time) if event.end_time else None
-            tag_names = [str(tag) for tag in event.tags.all()]
+            is_all_day = event.time_tbd or not event.start_time
+            if is_all_day:
+                start = event.start_date.strftime('%Y-%m-%d')
+                end_date = event.end_date if event.end_date else event.start_date
+                end = end_date.strftime('%Y-%m-%d')
+            else:
+                start = datetime.combine(event.start_date, event.start_time).strftime('%Y-%m-%dT%H:%M:%S')
+                end_date = event.end_date if event.end_date else event.start_date
+                end = datetime.combine(end_date, event.end_time).strftime('%Y-%m-%dT%H:%M:%S') if event.end_time else None
             events_list.append({
                 'title': event.name,
-                'start': start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
-                'end': end_datetime.strftime("%Y-%m-%dT%H:%M:%S") if end_datetime else None,
+                'start': start,
+                'end': end,
+                'allDay': is_all_day,
                 'location': event.lieu or '',
                 'color': '#3273dc',
-                'tags': tag_names,
+                'tags': [str(tag) for tag in event.tags.all()],
                 'time_tbd': event.time_tbd,
+                'short_description': event.short_description or '',
+                'long_description': event.long_description or '',
             })
         return json.dumps(events_list)
 

@@ -1,21 +1,42 @@
 from django.db import models
-from django.urls import reverse
-from django.utils.text import slugify
 
 from wagtail.models import Page, Orderable
 from wagtail.admin.panels import FieldPanel, InlinePanel, TabbedInterface, ObjectList
 from wagtail.documents.models import Document
 from wagtail.fields import RichTextField, StreamField
 from modelcluster.fields import ParentalKey
-from taggit.managers import TaggableManager
+from modelcluster.contrib.taggit import ClusterTaggableManager
+from modelcluster.models import ClusterableModel
+from taggit.models import TaggedItemBase
 
 from apps.music.blocks import AudioDocumentBlock, AdditionalFilesBlock, TimecodeBlock
 
 
-class Piece(models.Model):
-    titre = models.CharField(max_length=250)
+class PieceIndexPage(Page):
+    template = 'music/piece_index_page.html'
+
+    introduction = models.TextField(blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('introduction'),
+    ]
+
+    subpage_types = ['music.Piece']
+
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['pieces'] = Piece.objects.child_of(self).live().order_by('-first_published_at')
+        return context
+
+    class Meta:
+        verbose_name = "Index des morceaux"
+        verbose_name_plural = "Index des morceaux"
+
+
+class Piece(Page):
+    template = 'music/piece_detail.html'
+
     compositeur = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250, unique=True, blank=True)
     descr = RichTextField(blank=True)
     traduction = RichTextField(blank=True)
     interpretation = RichTextField(blank=True)
@@ -45,10 +66,8 @@ class Piece(models.Model):
         ('section', AdditionalFilesBlock()),
     ], null=True, blank=True, use_json_field=True)
 
-    base_panels = [
-        FieldPanel('titre'),
+    base_panels = Page.content_panels + [
         FieldPanel('compositeur'),
-        FieldPanel('slug'),
         FieldPanel('descr'),
         FieldPanel('pdf'),
         FieldPanel('audios'),
@@ -69,29 +88,16 @@ class Piece(models.Model):
         ObjectList(base_panels, heading='Infos de base'),
         ObjectList(advanced_panels, heading='Traduction'),
         ObjectList(interpretation_panels, heading='Indications musicales'),
+        ObjectList(Page.promote_panels, heading='Paramètres'),
     ])
 
-    class Meta:
-        verbose_name = "Morceau"
-        verbose_name_plural = "Morceaux"
-        ordering = ['titre']
+    parent_page_types = ['music.PieceIndexPage']
+    subpage_types = []
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            base = slugify(self.titre)
-            slug = base
-            n = 1
-            while Piece.objects.filter(slug=slug).exclude(pk=self.pk).exists():
-                slug = f"{base}-{n}"
-                n += 1
-            self.slug = slug
-        super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('piece-detail', kwargs={'slug': self.slug})
-
-    def __str__(self):
-        return f"{self.titre} — {self.compositeur}"
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['piece'] = self
+        return context
 
     def get_sorted_timecodes(self):
         if not self.activer_timecodes:
@@ -105,8 +111,23 @@ class Piece(models.Model):
         items.sort(key=lambda x: x[0])
         return [item[1] for item in items]
 
+    def __str__(self):
+        return f"{self.title} — {self.compositeur}"
 
-class RepertoireItem(Orderable):
+    class Meta:
+        verbose_name = "Morceau"
+        verbose_name_plural = "Morceaux"
+
+
+class RepertoireItemTag(TaggedItemBase):
+    content_object = ParentalKey(
+        'RepertoireItem',
+        related_name='tagged_items',
+        on_delete=models.CASCADE,
+    )
+
+
+class RepertoireItem(Orderable, ClusterableModel):
     repertoire = ParentalKey(
         'RepertoirePage',
         on_delete=models.CASCADE,
@@ -119,7 +140,7 @@ class RepertoireItem(Orderable):
         verbose_name="Morceau"
     )
     comment = models.TextField(blank=True, verbose_name="Commentaire")
-    tags = TaggableManager(blank=True, verbose_name="Tags")
+    tags = ClusterTaggableManager(through=RepertoireItemTag, blank=True, verbose_name="Tags")
 
     panels = [
         FieldPanel('piece'),

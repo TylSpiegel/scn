@@ -65,6 +65,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "apps.core.middleware.SitePasswordMiddleware",
 ]
 
 ROOT_URLCONF = "scn_website.urls"
@@ -89,17 +90,24 @@ TEMPLATES = [
         },
     },
 ]
-PASSWORD_REQUIRED_TEMPLATE = os.path.join(PROJECT_DIR, "templates/password_required.html")
-
 WSGI_APPLICATION = "scn_website.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+_db_engine = os.getenv("DATABASE_ENGINE", "django.db.backends.sqlite3")
+_db_name = os.getenv("DATABASE_NAME", "db.sqlite3")
+if "sqlite" in _db_engine and not os.path.isabs(_db_name):
+    _db_name = os.path.join(BASE_DIR, _db_name)
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, os.getenv("DATABASE_NAME")),
+        "ENGINE": _db_engine,
+        "NAME": _db_name,
+        "USER": os.getenv("DATABASE_USER", ""),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
+        "HOST": os.getenv("DATABASE_HOST", ""),
+        "PORT": os.getenv("DATABASE_PORT", ""),
     },
 }
 
@@ -151,10 +159,10 @@ STATICFILES_DIRS = [
 # See https://docs.djangoproject.com/en/4.2/ref/contrib/staticfiles/#manifeststaticfilesstorage
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.getenv("STATIC_ROOT", os.path.join(BASE_DIR, "static"))
 STATIC_URL = "/static/"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", os.path.join(BASE_DIR, "media"))
 MEDIA_URL = "/media/"
 
 # Wagtail settings

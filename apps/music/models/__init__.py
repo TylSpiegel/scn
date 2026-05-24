@@ -1,1 +1,1 @@
-from .piece import Piece, RepertoireItem, RepertoirePage
+from .piece import Piece, PieceIndexPage, RepertoireItem, RepertoireItemTag, RepertoirePage

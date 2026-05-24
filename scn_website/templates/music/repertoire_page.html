@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags tag_lists %}
+{% load wagtailcore_tags %}
 
 {% block content %}
     <section class="section">
@@ -14,40 +14,31 @@
                         {% endif %}
                     </div>
 
-                    {% repertoire_tags page as all_tags %}
-                    {% if all_tags %}
-                        <div class="mb-4">
-                            <a href="?" class="tag is-medium {% if not active_tag %}is-primary{% else %}is-light{% endif %} mr-1 mb-1">Tous</a>
-                            {% for tag in all_tags %}
-                                <a href="?tag={{ tag.name }}" class="tag is-medium {% if active_tag == tag.name %}is-primary{% else %}is-light{% endif %} mr-1 mb-1">{{ tag }}</a>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-
-                    <div class="main-card">
+                    <div class="morceau-index-content">
                         {% for item in items %}
-                            <a href="{{ item.piece.get_absolute_url }}" class="repertoire-item is-flex is-align-items-center py-3" style="display: flex; color: inherit; text-decoration: none;">
-                                <div class="repertoire-item-content" style="flex: 1;">
-                                    <p class="has-text-weight-semibold is-size-5 mb-0">{{ item.piece.titre }}</p>
-                                    <p class="mb-0" style="color: var(--text-muted-color);">{{ item.piece.compositeur }}</p>
+                            <a href="{{ item.piece.url }}" class="morceau-index-item">
+                                <div class="morceau-index-item-text">
+                                    <span class="morceau-index-title">{{ item.piece.title }}</span>
+                                    <span class="morceau-index-composer">{{ item.piece.compositeur }}</span>
                                     {% if item.comment %}
-                                        <p class="is-size-6 mt-1" style="color: var(--text-muted-color);">{{ item.comment }}</p>
+                                        <span class="morceau-index-comment">{{ item.comment }}</span>
                                     {% endif %}
+                                </div>
+                                <div class="morceau-index-item-right">
                                     {% with tags=item.tags.all %}
                                         {% if tags %}
-                                            <div class="mt-1">
+                                            <div class="morceau-index-item-tags">
                                                 {% for tag in tags %}<span class="tag is-light is-small">{{ tag }}</span>{% endfor %}
                                             </div>
                                         {% endif %}
                                     {% endwith %}
-                                </div>
-                                <div style="align-self: center; padding-right: 0.25rem; color: var(--text-muted-color);">
-                                    <i class="fas fa-chevron-right"></i>
+                                    <span class="morceau-index-item-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
                                 </div>
                             </a>
-                            {% if not forloop.last %}<hr class="section-divider my-1">{% endif %}
                         {% empty %}
-                            <p class="has-text-grey has-text-centered py-6">
+                            <p class="morceau-index-empty">
                                 {% if active_tag %}Aucun morceau avec ce tag.{% else %}Aucun morceau dans ce répertoire.{% endif %}
                             </p>
                         {% endfor %}

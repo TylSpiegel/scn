@@ -1,24 +1,23 @@
-from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
-from wagtail.snippets.models import register_snippet
+from django.urls import path
 
-from .models import Piece
-
-
-class PieceViewSet(SnippetViewSet):
-    model = Piece
-    icon = 'media'
-    menu_label = 'Morceaux'
-    list_display = ['titre', 'compositeur']
-    search_fields = ['titre', 'compositeur']
-    ordering = ['titre']
+from wagtail import hooks
+from wagtail.admin.menu import MenuItem
 
 
-class MusicGroup(SnippetViewSetGroup):
-    items = [PieceViewSet]
-    icon = 'media'
-    menu_label = 'Musique'
-    menu_name = 'music'
-    menu_order = 400
+@hooks.register('register_admin_urls')
+def register_music_admin_urls():
+    from . import admin_views
+    return [
+        path('morceaux/', admin_views.piece_explorer_redirect, name='music-morceaux'),
+    ]
 
 
-register_snippet(MusicGroup)
+@hooks.register('register_admin_menu_item')
+def register_music_menu_item():
+    return MenuItem(
+        'Musique',
+        '/admin/morceaux/',
+        icon_name='media',
+        order=200,
+        name='music',
+    )

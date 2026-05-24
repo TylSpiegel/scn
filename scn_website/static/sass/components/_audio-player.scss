@@ -2,6 +2,161 @@
    AUDIO PLAYER
    ============================================ */
 
+// ---- Audio Card - lecteur propre pour la page morceau ----
+
+.audio-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+}
+
+.audio-card {
+    background: white;
+    border-radius: $radius-sm;
+    border: 1px solid #e8e8e8;
+    @include shadow-sm;
+    overflow: hidden;
+}
+
+.audio-card-inner {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+
+    @include mobile {
+        gap: $spacing-sm;
+        padding: $spacing-sm $spacing-md;
+    }
+}
+
+.audio-play-btn {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: $radius-round;
+    background: $primary-color;
+    border: none;
+    cursor: pointer;
+    @include flex-center;
+    transition: $transition-fast;
+
+    &:hover {
+        background: color-mix(in srgb, var(--primary-color) 80%, black);
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+
+    i {
+        color: white;
+        font-size: 0.9rem;
+        width: 1em;
+        text-align: center;
+    }
+
+    @include mobile {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+}
+
+.audio-card-meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.audio-card-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    @include truncate;
+}
+
+.audio-card-comment {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+    font-style: italic;
+    @include truncate;
+}
+
+.audio-progress-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-top: 0.25rem;
+}
+
+.audio-progress-track {
+    flex: 1;
+    height: 4px;
+    background: color-mix(in srgb, var(--primary-color) 15%, white);
+    border-radius: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    min-width: 40px;
+
+    @include mobile {
+        height: 6px;
+    }
+}
+
+.audio-progress-fill {
+    height: 100%;
+    background: $primary-color;
+    border-radius: 2px;
+    transition: width 0.1s linear;
+    pointer-events: none;
+}
+
+.audio-time {
+    font-size: 0.72rem;
+    color: var(--text-muted-color);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.audio-download-btn {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: $radius-sm;
+    background: color-mix(in srgb, var(--primary-color) 8%, white);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 20%, white);
+    color: $primary-color;
+    @include flex-center;
+    transition: $transition-fast;
+    text-decoration: none;
+
+    &:hover {
+        background: color-mix(in srgb, var(--primary-color) 18%, white);
+        color: $primary-color;
+    }
+
+    i {
+        font-size: 0.8rem;
+    }
+}
+
+// Sous-sections dans "Fichiers supplémentaires"
+.additional-section {
+    padding-top: $spacing-md;
+
+    &--bordered {
+        border-top: 1px solid color-mix(in srgb, var(--primary-color) 12%, white);
+        margin-top: $spacing-md;
+    }
+}
+
+// ---- Ancien player compact (gardé pour compatibilité) ----
+
 .file-list {
     display: flex;
     flex-direction: column;

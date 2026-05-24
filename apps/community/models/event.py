@@ -2,6 +2,7 @@ from datetime import datetime, time
 
 from django.db import models
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
+from wagtail.fields import RichTextField
 from modelcluster.models import ClusterableModel
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
@@ -18,7 +19,16 @@ class EventTag(TaggedItemBase):
 
 class Event(ClusterableModel):
     name = models.CharField(max_length=255, verbose_name="Nom de l'événement")
-    description = models.TextField(null=True, blank=True, verbose_name="Description")
+    short_description = models.CharField(
+        max_length=255, blank=True,
+        verbose_name="Description courte",
+        help_text="Résumé affiché dans la liste (facultatif)"
+    )
+    long_description = RichTextField(
+        blank=True,
+        verbose_name="Description longue",
+        help_text="Détails affichés dans la fenêtre d'expansion (facultatif)"
+    )
     tags = ClusterTaggableManager(through=EventTag, blank=True, verbose_name="Tags")
 
     start_date = models.DateField(
@@ -45,7 +55,8 @@ class Event(ClusterableModel):
     panels = [
         FieldPanel('name'),
         FieldPanel('tags'),
-        FieldPanel('description'),
+        FieldPanel('short_description'),
+        FieldPanel('long_description'),
         MultiFieldPanel([
             FieldRowPanel([
                 FieldPanel('start_date', classname="col6"),

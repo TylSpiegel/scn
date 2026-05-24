@@ -3,53 +3,28 @@
 {% load wagtailsettings_tags %}
 {% get_settings %}
 
-{% block extra_css %}
-    <style>
-        @media screen and (min-width: 769px) {
-            .home-logo { max-height: 70vh; max-width: 100%; }
-        }
-        @media screen and (max-width: 768px) {
-            .home-columns { flex-direction: column; display: flex; }
-            .home-logo-column { order: 1; padding-bottom: 1.5rem; }
-            .home-logo { max-height: 80px; width: auto; }
-            .home-links-column { order: 2; }
-        }
-    </style>
-{% endblock %}
-
 {% block navbar %}{% endblock %}
 
 {% block content %}
-    <section class="hero is-fullheight" style="background-color: var(--primary-color);">
-        <div class="hero-body">
-            <div class="container">
-                <div class="columns is-vcentered home-columns">
-                    <div class="column is-half has-text-centered home-logo-column">
-                        {% if settings.core.NavigationSettings.logo %}
-                            {% image settings.core.NavigationSettings.logo original as logo_img %}
-                            <figure class="image is-inline-block">
-                                <img src="{{ logo_img.url }}" alt="Logo" class="home-logo">
-                            </figure>
-                        {% endif %}
-                    </div>
-                    <div class="column is-half home-links-column">
-                        <div class="buttons-list has-text-centered">
-                            {% for item in settings.core.NavigationSettings.menu_items.all %}
-                                <a href="{{ item.url }}"
-                                   class="button is-large is-secondary mb-4 has-text-weight-semibold"
-                                   {% if item.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
-                                    {% if item.icon_class %}
-                                        <span class="icon"><i class="{{ item.icon_class }}"></i></span>
-                                    {% endif %}
-                                    <span>{{ item.title }}</span>
-                                </a>
-                            {% empty %}
-                                <p class="has-text-white has-text-centered">Aucun lien configuré</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+    <section class="home-hero">
+        <div class="home-hero-body">
+            <div class="home-logo-wrap">
+                {% if settings.core.NavigationSettings.logo %}
+                    {% image settings.core.NavigationSettings.logo original as logo_img %}
+                    <img src="{{ logo_img.url }}" alt="Logo" class="home-logo">
+                {% endif %}
             </div>
+            <nav class="home-nav" aria-label="Navigation principale">
+                {% for item in settings.core.NavigationSettings.menu_items.all %}
+                    <a href="{{ item.url }}"
+                       class="home-nav-link"
+                       {% if item.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                        {{ item.title }}
+                    </a>
+                {% empty %}
+                    <p class="home-nav-empty">Aucun lien configuré</p>
+                {% endfor %}
+            </nav>
         </div>
     </section>
 {% endblock %}

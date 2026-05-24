@@ -62,22 +62,23 @@
     padding: $spacing-sm;
     border-radius: $radius-sm;
     flex-shrink: 0;
+    background: var(--primary-color);
     color: white;
-    
+
     &.is-repetition {
         background: var(--event-rehearsal-color);
     }
-    
+
     &.is-concert {
         background: var(--event-concert-color);
     }
-    
+
     .day {
         font-size: 1.25rem;
         font-weight: 700;
         line-height: 1;
     }
-    
+
     .month {
         font-size: 0.7rem;
         text-transform: uppercase;
@@ -96,6 +97,11 @@
 .event-box-title {
     font-weight: 600;
     color: var(--text-color);
+}
+
+.event-box-short-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted-color);
 }
 
 .event-box-details {
@@ -218,6 +224,115 @@
     .fc-theme-standard td,
     .fc-theme-standard th {
         border-color: #e0e0e0;
+    }
+}
+
+// Body scroll lock when any modal is open
+body.is-modal-open {
+    overflow: hidden;
+}
+
+// Event modal overrides
+.event-modal {
+    z-index: 9999;
+    overflow-y: auto; // scroll anywhere in the overlay scrolls the modal
+
+    .modal-card {
+        max-width: 600px;
+        width: 90vw;
+        margin: auto;
+    }
+
+    .modal-card-body {
+        overflow-y: visible;
+    }
+}
+
+.modal-card-head {
+    background-color: var(--primary-color);
+    border-bottom: none;
+    flex-shrink: 0;
+
+    .modal-card-title {
+        color: white;
+        font-weight: 700;
+    }
+}
+
+.modal-card-foot {
+    background-color: #f8f8f8;
+    border-top: 1px solid #e0e0e0;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: $spacing-md;
+}
+
+.modal-close-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 2px solid #dbdbdb;
+    background: white;
+    color: var(--text-muted-color);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color $transition-fast, color $transition-fast, background-color $transition-fast;
+
+    &:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background-color: color-mix(in srgb, var(--primary-color) 8%, white);
+    }
+}
+
+.modal-short-desc {
+    color: var(--text-muted-color);
+    font-style: italic;
+}
+
+.modal-divider {
+    margin: $spacing-md 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+.event-detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    .icon-text {
+        .icon {
+            color: var(--primary-color);
+        }
+
+        span:not(.icon) {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+    }
+}
+
+// "Plus d'infos" button on event boxes
+.event-box-more-btn {
+    flex-shrink: 0;
+    align-self: center;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--primary-color);
+    border-radius: $radius-md;
+    background: transparent;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color $transition-fast, color $transition-fast;
+
+    &:hover {
+        background-color: var(--primary-color);
+        color: white;
     }
 }
 

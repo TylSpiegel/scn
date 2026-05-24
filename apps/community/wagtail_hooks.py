@@ -34,7 +34,7 @@ class CommunityGroup(SnippetViewSetGroup):
     icon = 'group'
     menu_label = 'Communauté'
     menu_name = 'community'
-    menu_order = 300
+    menu_order = 150
 
 
 register_snippet(CommunityGroup)

@@ -34,18 +34,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: $spacing-md $spacing-lg;
+    padding: $spacing-lg $spacing-xl;
     margin-bottom: $spacing-sm;
     border-radius: $radius-sm;
     background: color-mix(in srgb, var(--primary-color) 5%, white);
     border: 1px solid color-mix(in srgb, var(--primary-color) 15%, white);
     text-decoration: none;
     transition: $transition-fast;
-    
+    gap: $spacing-md;
+
     &:last-child {
         margin-bottom: 0;
     }
-    
+
     &:hover {
         background: color-mix(in srgb, var(--primary-color) 10%, white);
         border-color: color-mix(in srgb, var(--primary-color) 25%, white);
@@ -58,6 +59,7 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-xs;
+    min-width: 0;
 }
 
 .morceau-index-title {
@@ -72,12 +74,171 @@
     font-style: italic;
 }
 
+.morceau-index-comment {
+    font-size: 0.875rem;
+    color: var(--text-muted-color, #6b7280);
+}
+
+// Right side: tags + arrow
+.morceau-index-item-right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-shrink: 0;
+}
+
+.morceau-index-item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    justify-content: flex-end;
+
+    @include mobile {
+        display: none;
+    }
+}
+
 // Arrow icon
 .morceau-index-item-arrow {
     color: $primary-color;
     font-size: 1rem;
-    margin-left: $spacing-md;
     flex-shrink: 0;
+}
+
+// Search + sort controls bar
+.piece-index-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+    background: white;
+    padding: $spacing-md $spacing-lg;
+    border-radius: $radius-md;
+    @include shadow-sm;
+
+    @include mobile {
+        flex-direction: column;
+        align-items: stretch;
+        gap: $spacing-sm;
+    }
+}
+
+// Search field — pill shape with icon inside
+.piece-index-search {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+}
+
+.piece-index-search-icon {
+    position: absolute;
+    left: $spacing-md;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $primary-color;
+    pointer-events: none;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.piece-index-search-field {
+    width: 100%;
+    padding: 0.6rem 2.4rem 0.6rem 2.5rem;
+    border: 2px solid color-mix(in srgb, var(--primary-color) 20%, white);
+    border-radius: 999px;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    background: color-mix(in srgb, var(--primary-color) 3%, white);
+    transition: border-color $transition-fast, box-shadow $transition-fast, background $transition-fast;
+
+    &:focus {
+        outline: none;
+        background: white;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color) 12%, white);
+    }
+
+    &::placeholder {
+        color: var(--text-muted-color);
+        font-style: italic;
+    }
+}
+
+.piece-index-search-clear {
+    position: absolute;
+    right: $spacing-md;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted-color);
+    font-size: 0.8rem;
+    padding: 0;
+    line-height: 1;
+    transition: color $transition-fast;
+
+    &:hover {
+        color: $primary-color;
+    }
+}
+
+// Sort controls
+.piece-index-sort {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-shrink: 0;
+
+    @include mobile {
+        justify-content: flex-start;
+    }
+}
+
+.piece-index-sort-label {
+    font-size: 0.85rem;
+    color: var(--text-muted-color);
+    white-space: nowrap;
+}
+
+.sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem $spacing-lg;
+    border: 2px solid color-mix(in srgb, var(--primary-color) 30%, white);
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted-color);
+    background: white;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+
+    .sort-icon {
+        font-size: 0.8rem;
+        transition: $transition-fast;
+    }
+
+    &:hover {
+        border-color: $primary-color;
+        color: $primary-color;
+        background: color-mix(in srgb, var(--primary-color) 5%, white);
+    }
+
+    &.is-active {
+        background: $primary-color;
+        border-color: $primary-color;
+        color: white;
+        font-weight: 600;
+        @include shadow-sm;
+
+        .sort-icon {
+            color: white;
+        }
+    }
 }
 
 // Empty state
@@ -106,7 +267,7 @@
     }
     
     .morceau-index-item {
-        padding: $spacing-md;
+        padding: $spacing-md $spacing-lg;
     }
     
     .morceau-index-title {
