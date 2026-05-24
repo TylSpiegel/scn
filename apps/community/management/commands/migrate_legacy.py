@@ -28,7 +28,7 @@ from django.utils.html import escape as html_escape
 from apps.community.models.member import Role, Choriste, Address
 from apps.community.models.event import Event
 from apps.music.models import Piece, PieceIndexPage, RepertoirePage, RepertoireItem
-from apps.content.models import HomePage
+from apps.content.models import HomePage, ContentPage, ContentSection
 from wagtail.documents import get_document_model
 from wagtail.models import Collection
 
@@ -88,7 +88,7 @@ class Command(BaseCommand):
                             help="N'ecrit rien (transaction rollback en fin de run)")
         parser.add_argument('--skip', default='',
                             help="Domaines a sauter (csv): roles,choristes,events,"
-                                 "documents,pieces,repertoires")
+                                 "documents,pieces,repertoires,content_pages")
 
     def handle(self, *args, **options):
         path = options['source']
@@ -129,6 +129,11 @@ class Command(BaseCommand):
                         self._migrate_repertoires(conn, piece_map)
                     else:
                         self.stdout.write("== repertoires : skip ==")
+
+                    if 'content_pages' not in skip:
+                        self._migrate_content_pages(conn)
+                    else:
+                        self.stdout.write("== content_pages : skip ==")
 
                     if dry:
                         raise _DryRunRollback()
@@ -574,6 +579,128 @@ class Command(BaseCommand):
             f"  -> repertoire_items: {n_items} crees/maj, {n_skipped} ignores "
             f"(parent index ou piece manquante)"
         )
+
+
+    # ------------------------------------------------------------------ #
+    # ContentPage (StreamField content master -> ContentSection unique rework)
+    # ------------------------------------------------------------------ #
+
+    def _migrate_content_pages(self, conn):
+        self.stdout.write("== content_pages ==")
+        import json
+        from datetime import date as _date
+
+        home = HomePage.objects.first()
+        if not home:
+            raise CommandError(
+                "HomePage absente. Lance d'abord setup_site (django_setup.yml)."
+            )
+
+        # En master, l'app contenu s'appelle 'home', donc la table est home_contentpage.
+        # On gere aussi 'content_contentpage' au cas ou un repo aurait deja renomme.
+        candidate_tables = ['home_contentpage', 'content_contentpage']
+        table = next((t for t in candidate_tables if _table_exists(conn, t)), None)
+        if not table:
+            self.stdout.write(
+                f"  table {' / '.join(candidate_tables)} absente, skip"
+            )
+            return
+
+        cols = _columns(conn, table)
+        rows = conn.execute(f"""
+            SELECT c.*, p.title as page_title, p.slug as page_slug,
+                   p.live as page_live
+            FROM {table} c
+            JOIN wagtailcore_page p ON p.id = c.page_ptr_id
+            ORDER BY p.path
+        """).fetchall()
+
+        n_created = n_updated = 0
+        for row in rows:
+            title = (row['page_title'] or 'Sans titre').strip()
+            slug = (row['page_slug'] or '').strip()
+            if not slug:
+                continue
+
+            existing = ContentPage.objects.filter(slug=slug).first()
+            if existing:
+                existing.title = title
+                existing.live = bool(row['page_live'])
+                existing.save()
+                page = existing
+                n_updated += 1
+            else:
+                page = ContentPage(
+                    title=title, slug=slug, live=bool(row['page_live']),
+                )
+                home.add_child(instance=page)
+                n_created += 1
+
+            # Reconstruction du contenu : StreamField master -> HTML aggrege
+            raw = row['content'] if 'content' in cols else None
+            html = self._stream_to_simple_html(raw)
+
+            # Idempotence : on remplace les sections existantes
+            page.sections.all().delete()
+            if html.strip():
+                ContentSection.objects.create(
+                    page=page,
+                    title='Contenu',
+                    date=_date.today(),
+                    body=html,
+                )
+
+            self.stdout.write(
+                f"  {'[cree]' if existing is None else '[maj] '} "
+                f"ContentPage « {title} » (slug={slug})"
+            )
+
+        self.stdout.write(
+            f"  -> content_pages: {n_created} crees, {n_updated} mis a jour"
+        )
+
+    def _stream_to_simple_html(self, raw):
+        """Convertit le StreamField JSON master en HTML aggrege (basse fidelite).
+
+        Blocks geres :
+        - richtext / paragraph / text : valeur HTML reprise telle quelle
+        - image : placeholder car les images ne sont pas migrees
+        - multicolumn : aplatissement des colonnes (les valeurs HTML internes
+          sont concatenees, la structure colonnes est perdue)
+        - autres types : ignores
+        """
+        import json
+        if not raw:
+            return ''
+        try:
+            blocks = json.loads(raw)
+        except (ValueError, TypeError):
+            return ''
+        if not isinstance(blocks, list):
+            return ''
+
+        parts = []
+        for block in blocks:
+            if not isinstance(block, dict):
+                continue
+            btype = block.get('type', '')
+            bval = block.get('value')
+
+            if btype in ('richtext', 'paragraph', 'text'):
+                if isinstance(bval, str):
+                    parts.append(bval)
+            elif btype == 'image':
+                parts.append('<p><em>[Image perdue dans la migration]</em></p>')
+            elif btype == 'multicolumn':
+                if isinstance(bval, dict):
+                    cols = bval.get('columns') or []
+                    for col in cols:
+                        if isinstance(col, dict):
+                            for v in col.values():
+                                if isinstance(v, str) and v.lstrip().startswith('<'):
+                                    parts.append(v)
+            # autres types : silent skip
+        return '\n'.join(parts)
 
 
 class _DryRunRollback(Exception):
