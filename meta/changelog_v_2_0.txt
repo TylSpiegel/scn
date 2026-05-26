@@ -1,0 +1,74 @@
+# changelog v2.0 - may 2026
+commit adabc4ac94b85125788e0053f1de7f7c99412a91
+
+-------------------------
+REFONTE NON FONCTIONNELLE
+-------------------------
+Refonte graphique
+	- utilisation de bulma sass (vs tailwind avant)
+	ça devrait un peu mieux garantir la responsiveness
+	- centralisation du css
+
+Refonte des modules
+	- Création de plusieurs apps et distribution du code existant
+		- music
+			- morceaux
+			- repertoire
+		- community
+			- choristes
+			- events / calendrier
+			- fonctions
+		- core
+			- gestion du mot de passe
+		- contenu
+			- gestion des pages de contenu
+
+Nettoyage des fichiers de migration
+	- Les fichiers de migration n'étaient pas identiques selon les systèmes
+	et n'étaient pas inclus dans le gestionnaire de version (mauvaise pratique)
+
+Déploiement via ansible
+	- déploiement selon un fichier de configuration
+
+Passage de la base de données de Sqlite vers Postgres
+
+La récolte de données de la part des vidéos youtube embarquées sont limitées, voire empêchées.
+
+-----------------------------
+REFONTE FONCTIONNELLE
+----------------------------
+
+- Player mix
+
+	Deux fonctionnalités majeures:
+		- La possibilité de mixer plusieurs voix ensemble assez rapidement, en sélectionnant les pistes à jouer.
+		- La possibilité de définir des timecodes (entourés de texte, de paroles) pour placer le curseur de lecture sur cet instant précis
+
+	Les timecodes doivent être activés via une option.
+	Il peuvent être intégrés dans du texte comme on peut voir dans l'exemple suivant :
+
+	[00:00] Et moi j'connais une chanson [00:02] pour emmerder les gens
+	[00:10] Et moi j'connais ...
+
+- Calendrier
+	- Evenements avec deux niveaux de description :
+		- description courte (affichée directement sur le calendrier)
+		- description longue, qui permet de la stylisation et des images - qui s'affiche avec un bouton "plus d'infos"
+	- Deux vues :
+		- les X prochains événements
+		- les événements selon calendrier / mois
+
+- Changement des pages répertoires
+
+	Avant les pages morceaux étaient créées directement sous un répertoire.
+	A présent, les morceaux sont créés indépendamment et peuvent être référencées par un répertoire.
+
+	L'ordre peut être considéré comme important (option à cocher)
+
+	Il est aussi possibles d'ajouter des tags et/ou des commentaires aux morceaux au sein d'un répertoire,
+	sans que cela ne intrinsèquement lié au morceau (par exemple : par choeur, vote en cours, novembre...)
+
+	Il est possible de référencer un même morceau dans plusieurs répertoires aussi.
+
+	Le processus de création d'un morceau se fait donc en deux temps : création du morceau et référencement dans le répertoire.
+
