@@ -34,6 +34,8 @@ Passage de la base de données de Sqlite vers Postgres
 
 La récolte de données de la part des vidéos youtube embarquées sont limitées, voire empêchées.
 
+Passage de Wagtail 5 à Wagtail 7.2
+
 -----------------------------
 REFONTE FONCTIONNELLE
 ----------------------------
