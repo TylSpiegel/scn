@@ -1,0 +1,285 @@
+// Liste des prochains événements (bullet list)
+.upcoming-events-list {
+  list-style: disc;
+  padding-left: 1.5rem;
+  
+  li {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    strong {
+      color: var(--text-color);
+      font-size: 1.05rem;
+    }
+    
+    .tag {
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+  }
+}
+
+// Toggle vue liste / calendrier (style texte)
+.view-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-toggle-link {
+  background: none;
+  border: none;
+  color: var(--block-header-text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  
+  &:hover {
+    opacity: 1;
+  }
+  
+  &.active {
+    opacity: 1;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+.view-toggle-separator {
+  color: var(--block-header-text);
+  opacity: 0.5;
+}
+
+// Navigation du calendrier liste
+.calendar-nav-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.calendar-nav-left {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.calendar-nav-center {
+  flex: 1;
+  
+  #current-month {
+    font-weight: 600;
+    color: var(--text-color);
+    background-color: white;
+    cursor: default;
+    border: 1px solid #dbdbdb;
+  }
+}
+
+.calendar-nav-right {
+  display: flex;
+}
+
+// Transitions douces pour les changements de vue
+.calendar-view-container {
+  transition: min-height 0.3s ease;
+}
+
+// Cartes d'événements en liste
+.event-list-card {
+  display: flex;
+  background: color-mix(in srgb, var(--block-header-bg) 5%, white);
+  border: 2px solid color-mix(in srgb, var(--block-header-bg) 25%, white);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+  
+  &.is-rehearsal {
+    border-left-width: 4px;
+    border-left-color: var(--event-rehearsal-color);
+  }
+  
+  &.is-concert {
+    border-left-width: 4px;
+    border-left-color: var(--event-concert-color);
+  }
+  
+  &.is-past {
+    opacity: 0.6;
+  }
+  
+  &:hover {
+    background: color-mix(in srgb, var(--block-header-bg) 10%, white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateX(4px);
+  }
+}
+
+.event-list-card-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+.event-list-card-date {
+  flex-shrink: 0;
+  text-align: center;
+  background: white;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  min-width: 3.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.event-date-day {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--block-header-bg);
+  line-height: 1;
+}
+
+.event-date-month {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted-color);
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.event-list-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-list-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.4rem;
+}
+
+.event-list-card-meta {
+  font-size: 0.9rem;
+  color: var(--text-muted-color);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  
+  .icon-text {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    
+    .icon {
+      font-size: 0.85rem;
+      margin-right: 0.4rem;
+    }
+  }
+}
+
+.event-list-card-badge {
+  flex-shrink: 0;
+  
+  .tag {
+    font-weight: 500;
+    
+    &.is-info {
+      background-color: color-mix(in srgb, var(--event-rehearsal-color) 15%, white);
+      color: var(--event-rehearsal-color);
+    }
+  }
+}
+
+// ============================================
+// RESPONSIVE MOBILE
+// ============================================
+@media screen and (max-width: 1023px) {
+  .calendar-nav-wrapper {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .calendar-nav-center {
+    order: -1;
+    flex: 1 1 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .calendar-nav-right {
+    .button {
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+    }
+  }
+  
+  .event-list-card {
+    padding: 0.75rem;
+    
+    .event-list-card-content {
+      gap: 0.75rem;
+    }
+    
+    .event-list-card-date {
+      min-width: 3rem;
+      padding: 0.4rem 0.6rem;
+    }
+    
+    .event-date-day {
+      font-size: 1.25rem;
+    }
+    
+    .event-date-month {
+      font-size: 0.7rem;
+    }
+    
+    .event-list-card-title {
+      font-size: 1rem;
+    }
+    
+    .event-list-card-meta {
+      font-size: 0.85rem;
+      gap: 0.5rem;
+    }
+  }
+  
+  .upcoming-events-list {
+    font-size: 0.95rem;
+    
+    li {
+      margin-bottom: 0.75rem;
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .event-list-card {
+    .event-list-card-content {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .event-list-card-badge {
+      flex: 0 0 100%;
+      text-align: left;
+      margin-top: 0.25rem;
+    }
+    
+    .event-list-card-meta {
+      flex-direction: column;
+      gap: 0.25rem;
+      align-items: flex-start;
+    }
+  }
+  
+  .view-toggle-container {
+    font-size: 0.85rem;
+  }
+}

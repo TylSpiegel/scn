@@ -1,0 +1,162 @@
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+// ---- Homepage -------------------------------------------------------
+
+.home-hero {
+    min-height: 100dvh;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xl $spacing-lg;
+}
+
+.home-hero-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xxl * 2;
+    width: 100%;
+    max-width: 960px;
+
+    @include mobile {
+        flex-direction: column;
+        gap: $spacing-xl;
+    }
+}
+
+.home-logo-wrap {
+    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @include mobile {
+        flex: none;
+    }
+}
+
+.home-logo {
+    max-height: 60vh;
+    max-width: 100%;
+    object-fit: contain;
+
+    @include mobile {
+        max-height: 160px;
+        max-width: 80vw;
+    }
+}
+
+.home-nav {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    flex: 0 0 auto;
+    min-width: 220px;
+
+    @include mobile {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+.home-nav-link {
+    display: block;
+    padding: $spacing-md $spacing-xl;
+    background-color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+    border-radius: $radius-md;
+    color: white;
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color $transition-fast, border-color $transition-fast,
+                transform $transition-fast, box-shadow $transition-fast;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--secondary-color) 85%, black);
+        border-color: color-mix(in srgb, var(--secondary-color) 85%, black);
+        color: white;
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    @include mobile {
+        padding: $spacing-md $spacing-lg;
+        font-size: 1.05rem;
+        justify-content: center;
+
+        &:hover {
+            transform: none;
+        }
+    }
+}
+
+.home-nav-empty {
+    color: color-mix(in srgb, white 70%, transparent);
+    font-style: italic;
+}
+
+.button.is-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 85%, black);
+    border-color: color-mix(in srgb, var(--primary-color) 85%, black);
+    color: white;
+  }
+}
+
+.button.is-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: white;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--secondary-color) 85%, black);
+    border-color: color-mix(in srgb, var(--secondary-color) 85%, black);
+    color: white;
+  }
+}
+
+.button.is-outlined.is-primary {
+  background-color: transparent;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+
+  &:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+}
+
+.button.is-download {
+  background-color: #f5f5f5;
+  border-color: #dbdbdb;
+  color: #363636;
+
+  &:hover {
+    background-color: #e8e8e8;
+    border-color: #b5b5b5;
+  }
+}
+
+.files-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+// Tags de pupitre
+.tag.is-pupitre {
+  background-color: color-mix(in srgb, var(--primary-color) 15%, white);
+  color: var(--primary-color);
+  font-weight: 600;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 30%, white);
+}

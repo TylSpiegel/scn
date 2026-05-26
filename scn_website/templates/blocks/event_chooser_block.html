@@ -1,0 +1,36 @@
+{% load wagtailcore_tags %}
+
+{% with event=self.event %}
+{% if event %}
+<div class="event-box">
+    <div class="event-box-date {% if event.is_repetition %}is-repetition{% else %}is-concert{% endif %}">
+        <span class="day">{{ event.start_date|date:"d" }}</span>
+        <span class="month">{{ event.start_date|date:"M" }}</span>
+    </div>
+    <div class="event-box-content">
+        <span class="event-box-title">{{ event.name }}</span>
+        <div class="event-box-details">
+            {% if event.time_tbd %}
+                <span class="event-box-time">
+                    <i class="fas fa-clock"></i> Time TBD
+                </span>
+            {% elif event.start_time %}
+                <span class="event-box-time">
+                    <i class="fas fa-clock"></i> {{ event.start_time|time:"H:i" }}{% if event.end_time %} - {{ event.end_time|time:"H:i" }}{% endif %}
+                </span>
+            {% endif %}
+            {% if event.lieu %}
+                <span class="event-box-location">
+                    <i class="fas fa-map-marker-alt"></i> {{ event.lieu }}
+                </span>
+            {% endif %}
+        </div>
+        {% if event.description %}
+            <div class="event-box-description">
+                {{ event.description }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endwith %}

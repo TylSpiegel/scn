@@ -4,32 +4,40 @@
 {% block body_class %}template-blogindexpage{% endblock %}
 
 {% block content %}
-
-    <section>
-        <div class="container mx-auto p-4 bg-gray-100 rounded-lg shadow">
-            <h1>{{ page.title }}</h1>
-            <div class="lg:w-1/2 mx-auto p-4 rounded-md justify-center">
-                <p class="text-tertiary italic text-lg">
-                    {{ page.introduction }}
-                </p>
-            </div>
-        
-            <div class="m-6 p-0 flex flex-col items-center justify-center space-y-2">
-                {% for post in page.children %}
-                    <div class="flex items-center justify-center">
-                        <a href="{{ post.url }}" class="flex items-center">
-                            <div class="hover:text-blue-800">
-                                <span class="text-xl">{{ post.specific.titre }}</span> -
-                                <span class="text-xl italic">{{ post.specific.compositeur }}</span>
-                            </div>
-                            <a href="{{ post.specific.pdf.url }}" target="_blank" class="ml-6">
-                                <img src="{% static 'medias/music-sheet.png' %}" alt="music sheet icon"
-                                     class="w-6 h-auto">
-                            </a>
-                        </a>
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-8-desktop is-10-tablet is-12-mobile">
+                    
+                    <!-- Header with solid primary background -->
+                    <div class="morceau-index-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                        {% if page.introduction %}
+                            <p class="subtitle is-5">{{ page.introduction }}</p>
+                        {% endif %}
                     </div>
-                {% endfor %}
-            </div>
 
+                    <!-- List container with white background -->
+                    <div class="morceau-index-content">
+                        {% for post in page.children %}
+                            <a href="{{ post.url }}" class="morceau-index-item">
+                                <div class="morceau-index-item-text">
+                                    <span class="morceau-index-title">{{ post.specific.titre }}</span>
+                                    <span class="morceau-index-composer">{{ post.specific.compositeur }}</span>
+                                </div>
+                                <div class="morceau-index-item-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="morceau-index-empty">
+                                <p class="is-size-5">Aucun morceau disponible pour le moment.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
     </section>
 {% endblock %}

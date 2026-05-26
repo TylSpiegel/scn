@@ -1,10 +1,9 @@
 {% load wagtailcore_tags %}
 
-<div class="bg-gray-100 shadow-md rounded-lg p-4 h-full ">
-    {% for field in self %}
-        <div class="my-2">
-            {% include_block field %}
+<div class="column-block has-text-{{ self.alignment }}">
+    {% for block in self.content %}
+        <div class="column-block-item">
+            {% include_block block %}
         </div>
     {% endfor %}
-
 </div>

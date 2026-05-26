@@ -1,15 +1,15 @@
-{% load static %}
-<div class="my-8 flex justify-center">
-    <button class="bg-secondary text-white text-xl p-4 rounded">
+{% load wagtailcore_tags %}
 
-        {% if self.link_type == 'internal' %}
-            <a href="{{ self.internal_page.specific.url }}">
-                {{ self.link_text }}
-            </a>
-        {% else %}
-            <a href="{{ self.external_link }}">
-                {{ self.link_text }}
-            </a>
-        {% endif %}
-    </button>
-</div>
+{% if value.link_type == 'internal' and value.internal_page %}
+    <a href="{{ value.internal_page.url }}"
+       class="button {{ value.style }}"
+       {% if value.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+        {{ value.link_text }}
+    </a>
+{% elif value.link_type == 'external' and value.external_url %}
+    <a href="{{ value.external_url }}"
+       class="button {{ value.style }}"
+       {% if value.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+        {{ value.link_text }}
+    </a>
+{% endif %}

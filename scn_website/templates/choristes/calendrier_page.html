@@ -3,91 +3,298 @@
 {% load wagtailcore_tags wagtailimages_tags static %}
 
 {% block content %}
-
-    <section>
-        <div class="container mx-auto p-4 bg-gray-100 rounded-lg shadow">
-
-            <h1>{{ page.title }}</h1>
-
-            <div class="content-box-title">
-                <h3 class="">Actus & notes</h3>
+    <section class="section" aria-label="Calendar">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-8-desktop is-10-tablet is-12-mobile">
+                    
+                    <!-- Header -->
+                    <div class="page-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                    </div>
+                    
+                    <!-- Main card container -->
+                    <div class="main-card">
+                        
+                        <!-- Content body -->
+                        <div class="content-body">
+                            
+                            <!-- News section -->
+                            {% if page.comment %}
+                                <div class="section-card">
+                                    <h3 class="title is-4">Actualités</h3>
+                                    <div class="content">
+                                        {{ page.comment|richtext }}
+                                    </div>
+                                </div>
+                                <hr class="section-divider">
+                            {% endif %}
+                            
+                            <!-- Upcoming events section -->
+                            <div class="section-card">
+                                <h3 class="title is-4">Prochains événements</h3>
+                                
+                                <div class="events-box-list">
+                                    {% for event in page.get_next_events %}
+                                        <div class="event-box">
+                                            <div class="event-box-date {% if event.is_repetition %}is-repetition{% else %}is-concert{% endif %}">
+                                                <span class="day">{{ event.start_date|date:"d" }}</span>
+                                                <span class="month">{{ event.start_date|date:"M" }}</span>
+                                            </div>
+                                            <div class="event-box-content">
+                                                <span class="event-box-title">{{ event.name }}</span>
+                                                <div class="event-box-details">
+                                                    {% if event.time_tbd %}
+                                                        <span class="event-box-time">
+                                                            <i class="fas fa-clock"></i> Heure a determiner
+                                                        </span>
+                                                    {% elif event.start_time %}
+                                                        <span class="event-box-time">
+                                                            <i class="fas fa-clock"></i> {{ event.start_time|time:"H:i" }}{% if event.end_time %} - {{ event.end_time|time:"H:i" }}{% endif %}
+                                                        </span>
+                                                    {% endif %}
+                                                    {% if event.lieu %}
+                                                        <span class="event-box-location">
+                                                            <i class="fas fa-map-marker-alt"></i> {{ event.lieu }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <div class="has-text-centered py-4" style="color: var(--text-muted-color);">
+                                            <p>Aucun evenement a venir</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- Calendar view section -->
+                            {% if page.show_calendar %}
+                                <hr class="section-divider">
+                                
+                                <div class="section-card">
+                                    <!-- Title with view toggle on same line -->
+                                    <div class="section-header-with-toggle">
+                                        <h3 class="title is-4">Tous les événements</h3>
+                                        <div class="buttons has-addons">
+                                            <button class="button is-small is-primary" id="btn-list-view" type="button" onclick="showListView()">
+                                                Liste
+                                            </button>
+                                            <button class="button is-small" id="btn-grid-view" type="button" onclick="showGridView()">
+                                                Calendrier
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- List view -->
+                                    <div id="list-view">
+                                        <!-- Month navigation centered -->
+                                        <div class="calendar-month-nav mb-4">
+                                            <button class="button is-small" type="button" onclick="changeMonth(-1)" aria-label="Mois precedent">
+                                                &lt;
+                                            </button>
+                                            <span class="month-display" id="month-display"></span>
+                                            <button class="button is-small" type="button" onclick="changeMonth(1)" aria-label="Mois suivant">
+                                                &gt;
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="events-box-list" id="month-events-container">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Grid view (FullCalendar) -->
+                                    <div id="grid-view" style="display: none;">
+                                        <div id="calendar"></div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+                    </div>
+                    
+                </div>
             </div>
-            <div class="content-content">
-                {{ page.comment|richtext }}
-            </div>
-
-            <hr class="m-6">
-
-            <div class="content-box-title">
-                <h3 class="">Prochains événements</h3>
-            </div>
-
-        {% for event in page.get_next_events %}
-        {% include "blocks/event_block.html" with event=event %}
-        {% endfor %}
-
-
-            <hr class="m-6">
-        {% if page.show_calendar %}
-            <div class="container mx-auto px-4">
-                <div id="calendar" class="w-full sm:max-w-lg mx-auto"></div>
-            </div>
-
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css"
-              rel="stylesheet">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/interaction/main.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/locales/fr.js"></script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                var calendarEl = document.getElementById('calendar');
-                var calendar = new FullCalendar.Calendar(calendarEl, {
-                    plugins: ['dayGrid'],
-                    events: {{ page.get_all_events | safe }},
-                    locale: 'fr',
-                    initialView: 'dayGridMonth',
-                });
-                calendar.render();
-            });
-        </script>
-
-
-        {% endif %}
         </div>
-
     </section>
-    <div class="h-24"></div>
-    <style>
-        .fc-view-container {
-            background-color: white;
-            height: auto;
-        }
 
-        .fc-time {
-            display: none;
-        }
+    {% if page.show_calendar %}
+    <!-- FullCalendar styles -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css" rel="stylesheet">
+    
+    <!-- FullCalendar scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/interaction/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/locales/fr.js"></script>
 
-        .fc-title {
-            white-space: pre-line;
+    <script>
+        var calendarEvents = {{ page.get_all_events | safe }};
+        var currentYear = new Date().getFullYear();
+        var currentMonth = new Date().getMonth();
+        var calendar = null;
+        var monthNames = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 
+                          'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
+        
+        function updateMonthDisplay() {
+            document.getElementById('month-display').textContent = monthNames[currentMonth] + ' ' + currentYear;
         }
-
-        .fc-day-grid-event {
-            height: fit-content;
-            background-color: var(--third-color);
+        
+        function formatTimeRange(start, end) {
+            var startDate = new Date(start);
+            var hours = startDate.getHours();
+            var minutes = startDate.getMinutes();
+            
+            if (hours === 0 && minutes === 0) {
+                return '';
+            }
+            
+            var startTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+            
+            if (end) {
+                var endDate = new Date(end);
+                var endHours = endDate.getHours();
+                var endMinutes = endDate.getMinutes();
+                if (endHours !== 0 || endMinutes !== 0) {
+                    var endTime = endHours.toString().padStart(2, '0') + ':' + endMinutes.toString().padStart(2, '0');
+                    return startTime + ' - ' + endTime;
+                }
+            }
+            
+            return startTime;
         }
-
-        .fc-event-container {
-            height: max-content;
-            background-color: var(--third-color);
+        
+        function renderMonthEvents() {
+            var container = document.getElementById('month-events-container');
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            var filtered = [];
+            for (var i = 0; i < calendarEvents.length; i++) {
+                var event = calendarEvents[i];
+                var eventDate = new Date(event.start);
+                if (eventDate.getFullYear() === currentYear && eventDate.getMonth() === currentMonth) {
+                    filtered.push(event);
+                }
+            }
+            
+            filtered.sort(function(a, b) {
+                return new Date(a.start) - new Date(b.start);
+            });
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="has-text-centered py-4" style="color: var(--text-muted-color);"><p>Aucun evenement ce mois-ci</p></div>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < filtered.length; i++) {
+                var event = filtered[i];
+                var eventDate = new Date(event.start);
+                var eventDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+                var todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                var isPast = eventDateOnly < todayOnly;
+                var isRehearsal = event.color === '#3e8ed0';
+                var timeRange = formatTimeRange(event.start, event.end);
+                var timeTbd = event.time_tbd || false;
+                
+                var day = eventDate.getDate().toString().padStart(2, '0');
+                var monthShort = monthNames[eventDate.getMonth()].substring(0, 3);
+                
+                html += '<div class="event-box' + (isPast ? ' is-past' : '') + '">';
+                html += '<div class="event-box-date ' + (isRehearsal ? 'is-repetition' : 'is-concert') + '">';
+                html += '<span class="day">' + day + '</span>';
+                html += '<span class="month">' + monthShort + '</span>';
+                html += '</div>';
+                html += '<div class="event-box-content">';
+                html += '<span class="event-box-title">' + event.title + '</span>';
+                html += '<div class="event-box-details">';
+                
+                if (timeTbd) {
+                    html += '<span class="event-box-time"><i class="fas fa-clock"></i> Heure a determiner</span>';
+                } else if (timeRange) {
+                    html += '<span class="event-box-time"><i class="fas fa-clock"></i> ' + timeRange + '</span>';
+                }
+                
+                if (event.location) {
+                    html += '<span class="event-box-location"><i class="fas fa-map-marker-alt"></i> ' + event.location + '</span>';
+                }
+                
+                html += '</div></div></div>';
+            }
+            
+            container.innerHTML = html;
         }
-
-        .fc-view-container .fc-head {
-            background-color: var(--secondary-color);
-            color: white;
+        
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            updateMonthDisplay();
+            renderMonthEvents();
         }
-    </style>
-
+        
+        function showListView() {
+            document.getElementById('list-view').style.display = 'block';
+            document.getElementById('grid-view').style.display = 'none';
+            document.getElementById('btn-list-view').classList.add('is-primary');
+            document.getElementById('btn-grid-view').classList.remove('is-primary');
+        }
+        
+        function showGridView() {
+            document.getElementById('list-view').style.display = 'none';
+            document.getElementById('grid-view').style.display = 'block';
+            document.getElementById('btn-list-view').classList.remove('is-primary');
+            document.getElementById('btn-grid-view').classList.add('is-primary');
+            
+            if (!calendar) {
+                initCalendar();
+            }
+        }
+        
+        function initCalendar() {
+            var calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['dayGrid'],
+                events: calendarEvents,
+                locale: 'fr',
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth'
+                },
+                height: 'auto',
+                buttonText: {
+                    today: "Aujourd'hui",
+                    month: 'Mois'
+                },
+                eventDisplay: 'block',
+                displayEventTime: true,
+                displayEventEnd: true,
+                eventTimeFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    meridiem: false
+                }
+            });
+            calendar.render();
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMonthDisplay();
+            renderMonthEvents();
+        });
+    </script>
+    {% endif %}
 {% endblock %}

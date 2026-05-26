@@ -1,84 +1,43 @@
-# Environment
-**/.env
-**/.env.*
-!**/.env.example
-
 # Python
-__pycache__/
-**/__pycache__/
 *.py[cod]
-*$py.class
-*.pyc
-*.pyo
-*.pyd
+__pycache__/
 *.so
-
-# Virtual environments
-venv/
-env/
-ENV/
-.venv/
 .Python
+venv/
+.venv/
+ENV/
+*.log
 
 # Django
-**/*.sqlite3
-*.db
 db.sqlite3
-**/media/
 media/
-**/static/
-staticfiles/
-static_root/
-*.log
-logs/
+static/
+!scn_website/static
 
-# Distribution / Packaging
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# IDE
-.idea/
-**/.idea/
-.vscode/
-**vcs.xml
-*.swp
-*.swo
-*~
-
-# macOS
-.DS_Store
-**/.DS_Store
-.AppleDouble
-.LSOverride
+# Environment
+.env
+.env.local
 
 # Node
 node_modules/
-package-lock.json
-package.json
-npm-debug.log
 
-# Project specific
-meta/
-code_removed/
-tmp/
-.vagrant/
-Vagrantfile.local
-coverage/
-.python-version
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Other
-**/tailwind.css
-tailwind.css
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+
+# Coverage
+htmlcov/
+.coverage
+
+# Generated
+bulma.css
+bulma.css.map

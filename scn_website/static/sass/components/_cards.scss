@@ -1,0 +1,91 @@
+/* ============================================
+   CARDS
+   ============================================ */
+
+.main-card {
+    background: white;
+    border-radius: $radius-md;
+    overflow: hidden;
+    @include shadow-md;
+    margin-bottom: $spacing-xl;
+}
+
+.section-card {
+    @include colored-card(0.1, 0.25);
+    margin-bottom: $spacing-lg;
+
+    @include mobile {
+        padding: $spacing-md;
+        margin-bottom: $spacing-md;
+    }
+
+    .title {
+        color: $primary-color;
+        margin-bottom: $spacing-md;
+        padding-bottom: $spacing-sm;
+        border-bottom: 2px solid color-mix(in srgb, var(--primary-color) 20%, white);
+    }
+}
+
+.title-header {
+    @include primary-gradient(0.9, 0.7);
+    color: white;
+    padding: $spacing-xl;
+    
+    .title,
+    .subtitle {
+        color: white;
+        margin: 0;
+    }
+    
+    .subtitle {
+        opacity: 0.95;
+        margin-top: $spacing-sm;
+    }
+}
+
+// Cards existantes de morceau_index
+.morceau-card {
+    position: relative;
+    background: white;
+    border-radius: $radius-md;
+    overflow: hidden;
+    transition: $transition-normal;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    @include shadow-sm;
+
+    &:hover {
+        transform: translateY(-4px);
+        @include shadow-lg;
+    }
+}
+
+.morceau-card-header {
+    @include primary-gradient(0.85, 0.65);
+    padding: $spacing-lg;
+    color: white;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.morceau-card-body {
+    padding: $spacing-lg;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.morceau-card-footer {
+    padding: $spacing-md $spacing-lg;
+    background-color: #fafafa;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    align-items: center;
+}

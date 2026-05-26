@@ -1,0 +1,73 @@
+/* ============================================
+   MIXINS
+   ============================================ */
+
+// Media queries
+@mixin mobile {
+    @media (max-width: #{$mobile - 1px}) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (min-width: $mobile) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (min-width: $tablet) {
+        @content;
+    }
+}
+
+// Couleur primaire avec opacité
+@mixin primary-tint($opacity) {
+    background: color-mix(in srgb, var(--primary-color) #{$opacity * 100%}, white);
+}
+
+@mixin primary-border($opacity) {
+    border-color: color-mix(in srgb, var(--primary-color) #{$opacity * 100%}, white);
+}
+
+// Card avec bordure colorée
+@mixin colored-card($opacity: 0.1, $border-opacity: 0.25) {
+    background: color-mix(in srgb, var(--primary-color) #{$opacity * 100%}, white);
+    border: 2px solid color-mix(in srgb, var(--primary-color) #{$border-opacity * 100%}, white);
+    border-radius: $radius-md;
+    padding: $spacing-lg;
+}
+
+// Gradient coloré
+@mixin primary-gradient($opacity-start: 0.9, $opacity-end: 0.7) {
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--primary-color) #{$opacity-start * 100%}, white),
+        color-mix(in srgb, var(--primary-color) #{$opacity-end * 100%}, white));
+}
+
+// Shadow
+@mixin shadow-sm {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+@mixin shadow-md {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@mixin shadow-lg {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+// Flexbox centré
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// Truncate text
+@mixin truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

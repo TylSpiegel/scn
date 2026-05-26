@@ -1,11 +1,71 @@
-<div class="audio-block">
-    {% if self.audio %}
-        <p><strong>{{self.pupitre}}</strong></p>
-        <audio controls>
-            <source src="{{ self.audio.url }}" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
-    {% else %}
-        <p>No audio file has been selected</p>
-    {% endif %}
+{% if value.audio %}
+<div class="audio-card" x-data="scnAudioPlayer()" data-audio-url="{{ value.audio.url }}">
+    <div class="audio-card-inner">
+        <button @click="togglePlay()"
+                class="audio-play-btn"
+                type="button"
+                :aria-label="isPlaying ? 'Pause' : 'Lecture'">
+            <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
+        </button>
+        <div class="audio-card-meta">
+            <span class="audio-card-name">{{ value.pupitre }}</span>
+            {% if value.comment %}<span class="audio-card-comment">{{ value.comment }}</span>{% endif %}
+            <div class="audio-progress-row">
+                <div class="audio-progress-track" @click="seek($event)">
+                    <div class="audio-progress-fill" :style="'width: ' + progress + '%'"></div>
+                </div>
+                <span class="audio-time" x-text="fmt(currentTime) + ' / ' + fmt(duration)">0:00 / 0:00</span>
+            </div>
+        </div>
+        <a href="{{ value.audio.url }}" download class="audio-download-btn" title="Télécharger {{ value.audio.title }}">
+            <i class="fas fa-download"></i>
+        </a>
+    </div>
 </div>
+
+<script>
+window.scnAudioPlayer = window.scnAudioPlayer || function () {
+    return {
+        audio: null,
+        isPlaying: false,
+        currentTime: 0,
+        duration: 0,
+        progress: 0,
+        audioUrl: '',
+        init() {
+            this.audioUrl = this.$el.dataset.audioUrl;
+            this.audio = new Audio();
+            this.audio.preload = 'none';
+            if (!window._scnAudioPlayers) window._scnAudioPlayers = [];
+            window._scnAudioPlayers.push(this.audio);
+            this.audio.addEventListener('loadedmetadata', () => { this.duration = this.audio.duration; });
+            this.audio.addEventListener('timeupdate', () => {
+                this.currentTime = this.audio.currentTime;
+                this.progress = (this.currentTime / this.duration) * 100 || 0;
+            });
+            this.audio.addEventListener('ended', () => { this.isPlaying = false; this.currentTime = 0; this.progress = 0; });
+            this.audio.addEventListener('play', () => { this.isPlaying = true; });
+            this.audio.addEventListener('pause', () => { this.isPlaying = false; });
+        },
+        togglePlay() {
+            if (!this.audio.src) this.audio.src = this.audioUrl;
+            if (this.isPlaying) {
+                this.audio.pause();
+            } else {
+                (window._scnAudioPlayers || []).forEach(a => { if (a !== this.audio) a.pause(); });
+                this.audio.play().catch(e => console.error('Audio play error:', e));
+            }
+        },
+        seek(e) {
+            if (!this.audio.src || !this.duration) return;
+            const r = e.currentTarget.getBoundingClientRect();
+            this.audio.currentTime = ((e.clientX - r.left) / r.width) * this.duration;
+        },
+        fmt(s) {
+            if (!s || isNaN(s)) return '0:00';
+            return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+        }
+    };
+};
+</script>
+{% endif %}

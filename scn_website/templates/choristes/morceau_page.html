@@ -1,156 +1,436 @@
 {% extends "base.html" %}
 {% load wagtailimages_tags wagtailcore_tags static %}
 {% load wagtailembeds_tags %}
+{% load youtube_filters %}
 
-{% block content %}
-
-    <a href="..">Revenir à la page des morceaux</a>
-
-    <div class="flex flex-wrap items-center">
-
-        <div class="container md:w-4/6 items-center">
-
-            <section id="title" class="mt-0 rounded-xl">
-                <div class="p-4 bg-secondary text-white text-3xl rounded-xl">
-                    <h1 class="mt-2 text-white">{{ page.title }}</h1>
-                    <p class="text-2xl"><em>- {{ self.compositeur }}</em></>
-                </div>
-            </section>
-
-            <!-- ################        FICHIERS           ################        -->
-
-            <section id="files" class="content-box">
-                <div class="content-box-title">
-                    <h3 class="text-white shadow-lg">Fichiers à télécharger</h3>
-                </div>
-                <div class="content-content">
-                    <div class="grid grid-cols-1 md:grid-cols-3 md:gap-4">
-                        {% if page.pdf %}
-                            <div class="flex flex-col items-center p-4">
-                                <a href="{{ page.pdf.url }}" target="_blank">
-                                    <img src="{% static 'medias/music-sheet.png' %}" alt="music sheet icon"
-                                         class="h-16 w-auto">
-                                </a>
-                                <div class="align-bottom">
-                                    <p class="text-xl">Partition</p>
-                                </div>
-                            </div>
-                        {% endif %}
-
-                        {% for audio in page.audios %}
-                            <div class="flex flex-col items-center">
-                                <a href="{{ audio.value.audio.url }}" target="_blank">
-                                    <img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
-                                </a>
-                                <div class="flex flex-col items-center">
-                                    <p class="text-xl">{{ audio.value.pupitre }}</p>
-                                    <div class="bg-secondary">
-                                        <p class="text-white text-sm text-center">{{ audio.value.comment }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-col items-center w-6 bg-primary">
-                                    <audio controls>
-                                        <source src="{{ audio.value.audio.url }}" type="audio/mp3">
-                                        Votre navigateur ne supporte pas l'élément audio.
-                                    </audio>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                    </div>
-
-
-                    {% for section in page.additional_files %}
-                        <hr class="h-px mt-8 border-solid border-pink-400 bg-primary">
-
-                        <div class="">
-                            <p class="bg-pink-400 text-white inline-block px-6">
-                                {{ section.value.title }}
-                            </p>
-                        </div>
-                        <div class="grid grid-cols-3 md:grid-cols-6 md:gap-4">
-                            {% for file in section.value.audios %}
-
-                                <div class="flex flex-col items-center">
-                                    <a href="{{ file.audio.url }}" target="_blank">
-                                        <img src="{% static 'medias/sound.png' %}" alt="logo audio" class="w-16 h-auto">
-                                    </a>
-                                    <div class="flex flex-col items-center">
-                                        <p class="text-xl">{{ file.pupitre }}</p>
-                                        <div class="bg-secondary">
-                                            <p class="text-white text-sm text-center">{{ file.comment }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            {% endfor %}
-                            {% for file in section.value.files %}
-                                <div class="flex flex-col items-center">
-                                    <a href="{{ file.audio.url }}" target="_blank">
-                                        <img src="{% static 'medias/music-sheet.png' %}" alt="logo pdf"
-                                             class="w-16 h-auto">
-                                    </a>
-                                    <div class="flex flex-col items-center">
-                                        <p class="text-xl">{{ file.title }}</p>
-                                    </div>
-                                </div>
-                                </div>
-                            {% endfor %}
-                    {% endfor %}
-                </div>
-            </section>
-
-            <!----- DEBUT PRESENTATION   -------->
-            {% if page.descr %}
-                <section id="descr" class="content-box">
-                    <div class="content-box-title">
-                        <h3 class="text-white shadow-lg">Présentation de l'oeuvre</h3>
-                    </div>
-                    <div class="content-content">{{ page.descr|richtext }}</div>
-                </section>
-            {% endif %}
-
-            <!----- FIN PRESENTATION   -------->
-
-
-            <!----- DEBUT TRADUCTION   -------->
-            {% if page.traduction %}
-                <section id="interpretation" class="content-box">
-                    <div class="content-box-title">
-                        <h3 class="text-white shadow-lg">Texte et traduction</h3>
-                    </div>
-                    <div class="content-content">
-                        {{ page.traduction|richtext }}
-                    </div>
-                </section>
-            {% endif %}
-            <!----- FIN TRADUCTION   -------->
-
-            <!----- DEBUT INTERPRETATION   -------->
-
-            {% if page.interpretation %}
-                <section id="commentaire" class="content-box">
-                    <div class="content-box-title">
-                        <h3 class="text-white shadow-lg">Commentaires sur la chanson</h3>
-                    </div>
-                    <div class="content-content">{{ page.interpretation|richtext }}</div>
-                </section>
-            {% endif %}
-
-            <!----- FIN INTERPRETATION   -------->
-
-            {% if page.activer_timecodes %}
-              {% include "blocks/_audio_mixer.html" %}
-            {% endif %}
-
-        </div>
-    </div>
-
-
-
+{% block extra_css %}
+<style>
+    /* Carte principale */
+    .main-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    /* En-tête du titre */
+    .title-header {
+        background: linear-gradient(135deg, 
+            color-mix(in srgb, var(--primary-color) 90%, white),
+            color-mix(in srgb, var(--primary-color) 70%, white));
+        color: white;
+        padding: 2rem;
+    }
+    
+    .title-header .title,
+    .title-header .subtitle {
+        color: white;
+        margin: 0;
+    }
+    
+    .title-header .subtitle {
+        opacity: 0.95;
+        margin-top: 0.5rem;
+    }
+    
+    /* Tabs */
+    .tabs-header {
+        background: color-mix(in srgb, var(--primary-color) 75%, white);
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        padding: 1rem 2rem;
+    }
+    
+    .tab-button {
+        padding: 1rem 2rem;
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 160px;
+        justify-content: center;
+    }
+    
+    .tab-button:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+    
+    .tab-button.active {
+        background: white;
+        color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Corps du contenu */
+    .content-body {
+        padding: 2.5rem;
+    }
+    
+    /* Cadre pour toutes les sections */
+    .section-card {
+        background: color-mix(in srgb, var(--primary-color) 10%, white);
+        border: 2px solid color-mix(in srgb, var(--primary-color) 25%, white);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-card .title {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid color-mix(in srgb, var(--primary-color) 20%, white);
+    }
+    
+    /* Sous-section dans un card */
+    .subsection {
+        margin-top: 1.5rem;
+    }
+    
+    .subsection:first-child {
+        margin-top: 0;
+    }
+    
+    .subsection-label {
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Liste des fichiers */
+    .file-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .file-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .file-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+    
+    .file-name {
+        flex: 1;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    
+    /* Grille de boutons pour autres fichiers */
+    .files-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    
+    /* Player compact */
+    .compact-audio-player {
+        padding: 0.75rem 0;
+    }
+    
+    .play-button-compact {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: var(--primary-color);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+    
+    .play-button-compact:hover {
+        background: var(--secondary-color);
+        transform: scale(1.05);
+    }
+    
+    .play-button-compact i {
+        color: white;
+        font-size: 0.875rem;
+    }
+    
+    .progress-bar-compact {
+        height: 4px;
+        background: color-mix(in srgb, var(--primary-color) 20%, white);
+        border-radius: 2px;
+        overflow: hidden;
+        cursor: pointer;
+        flex: 1;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--primary-color);
+        border-radius: 2px;
+        transition: width 0.1s linear;
+    }
+    
+    .time-display-compact {
+        font-size: 0.75rem;
+        color: var(--text-muted-color);
+        font-variant-numeric: tabular-nums;
+    }
+    
+    /* Boutons */
+    .button.is-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .button.is-primary:hover {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+    }
+    
+    .button.is-download {
+        background-color: #f5f5f5;
+        border-color: #dbdbdb;
+        color: #363636;
+    }
+    
+    .button.is-download:hover {
+        background-color: #e8e8e8;
+        border-color: #b5b5b5;
+    }
+    
+    /* Séparateur léger entre sous-sections */
+    .subsection-divider {
+        height: 1px;
+        background: color-mix(in srgb, var(--primary-color) 15%, white);
+        margin: 1.5rem 0;
+    }
+    
+    @media screen and (max-width: 768px) {
+        .tabs-header {
+            gap: 1rem;
+            padding: 1rem;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1rem;
+            min-width: 120px;
+            font-size: 0.9rem;
+        }
+        
+        .tab-button span:not(.icon) {
+            display: none;
+        }
+        
+        .file-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .file-row > * {
+            width: 100%;
+        }
+        
+        .content-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
 {% endblock %}
 
-{% block extra_js %}
+{% block content %}
+    <section class="section">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <div class="columns is-centered">
+                <div class="column is-10-desktop is-12-tablet">
+                    <nav class="breadcrumb mb-5" aria-label="breadcrumbs">
+                        <ul>
+                            <li>
+                                <a href="..">
+                                    <span class="icon is-small"><i class="fas fa-arrow-left"></i></span>
+                                    <span>Morceaux</span>
+                                </a>
+                            </li>
+                            <li class="is-active"><a href="#" aria-current="page">{{ page.titre }}</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
 
+            <div class="columns is-centered">
+                <div class="column is-9-desktop is-10-tablet is-12-mobile">
+
+                    <!-- TITRE -->
+                    <div class="main-card">
+                        <div class="title-header">
+                            <h1 class="title is-2">{{ page.titre }}</h1>
+                            <p class="subtitle is-4">
+                                <em>{{ self.compositeur }}</em>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CONTENU PRINCIPAL -->
+                    <div class="main-card" x-data="{ activeTab: 'infos' }">
+                        
+                        <!-- Onglets -->
+                        <div class="tabs-header">
+                            <button class="tab-button" 
+                                    x-bind:class="activeTab === 'infos' ? 'active' : ''"
+                                    x-on:click="activeTab = 'infos'"
+                                    type="button">
+                                <span class="icon"><i class="fas fa-info-circle"></i></span>
+                                <span>Informations</span>
+                            </button>
+                            
+                            <button class="tab-button" 
+                                    x-bind:class="activeTab === 'fichiers' ? 'active' : ''"
+                                    x-on:click="activeTab = 'fichiers'"
+                                    type="button">
+                                <span class="icon"><i class="fas fa-download"></i></span>
+                                <span>Fichiers</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Contenu -->
+                        <div class="content-body">
+                            
+                            <!-- TAB INFORMATIONS -->
+                            <div x-show="activeTab === 'infos'">
+                                {% if page.descr %}
+                                    <div class="section-card">
+                                        <h3 class="title is-4">Présentation de l'œuvre</h3>
+                                        <div class="content">{{ page.descr|youtube_nocookie|richtext }}</div>
+                                    </div>
+                                {% endif %}
+
+                                {% if page.traduction %}
+                                    <div class="section-card">
+                                        <h3 class="title is-4">Texte et traduction</h3>
+                                        <div class="content">{{ page.traduction|youtube_nocookie|richtext }}</div>
+                                    </div>
+                                {% endif %}
+
+                                {% if not page.descr and not page.traduction %}
+                                    <div class="has-text-centered py-6" style="color: var(--text-muted-color);">
+                                        <p class="is-size-5">Aucune information disponible pour ce morceau.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- TAB FICHIERS -->
+                            <div x-show="activeTab === 'fichiers'">
+                                
+                                <!-- Partition PDF -->
+                                {% if page.pdf %}
+                                    <div class="section-card">
+                                        <h3 class="title is-5">Partition</h3>
+                                        <div class="file-row">
+                                            <span class="file-name">Partition PDF</span>
+                                            <a href="{{ page.pdf.url }}" 
+                                               download 
+                                               class="button is-small is-download">
+                                                <span class="icon"><i class="fas fa-download"></i></span>
+                                                <span>Télécharger</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Fichiers audio principaux -->
+                                {% if page.audios %}
+                                    <div class="section-card">
+                                        <h3 class="title is-5">Fichiers audio</h3>
+                                        <div class="file-list">
+                                            {% for audio in page.audios %}
+                                                {% include "blocks/_audio_player.html" with audio_url=audio.value.audio.url pupitre=audio.value.pupitre player_id=forloop.counter %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Fichiers additionnels -->
+                                {% if page.additional_files %}
+                                    {% for section in page.additional_files %}
+                                        <div class="section-card">
+                                            <h3 class="title is-5">{{ section.value.title }}</h3>
+                                            
+                                            <!-- Audios dans la section additionnelle -->
+                                            {% if section.value.audios %}
+                                                <div class="subsection">
+                                                    <div class="subsection-label">Fichiers audio</div>
+                                                    <div class="file-list">
+                                                        {% for audio in section.value.audios %}
+                                                            {% include "blocks/_audio_player.html" with audio_url=audio.audio.url pupitre=audio.pupitre player_id=forloop.parentloop.counter|add:100|add:forloop.counter %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <!-- Autres fichiers dans la section additionnelle -->
+                                            {% if section.value.files %}
+                                                {% if section.value.audios %}
+                                                    <div class="subsection-divider"></div>
+                                                {% endif %}
+                                                <div class="subsection">
+                                                    <div class="subsection-label">Autres fichiers</div>
+                                                    <div class="files-grid">
+                                                        {% for file_item in section.value.files %}
+                                                            <a href="{{ file_item.url }}" 
+                                                               download
+                                                               class="button is-small is-download">
+                                                                <span class="icon">
+                                                                    {% if file_item.file_extension == 'pdf' %}
+                                                                        <i class="fas fa-file-pdf"></i>
+                                                                    {% elif file_item.file_extension == 'doc' or file_item.file_extension == 'docx' %}
+                                                                        <i class="fas fa-file-word"></i>
+                                                                    {% elif file_item.file_extension == 'xls' or file_item.file_extension == 'xlsx' %}
+                                                                        <i class="fas fa-file-excel"></i>
+                                                                    {% else %}
+                                                                        <i class="fas fa-file"></i>
+                                                                    {% endif %}
+                                                                </span>
+                                                                <span>{{ file_item.title }}</span>
+                                                            </a>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                
+                                {% if not page.pdf and not page.audios and not page.additional_files %}
+                                    <div class="has-text-centered py-6" style="color: var(--text-muted-color);">
+                                        <p class="is-size-5">Aucun fichier disponible pour ce morceau.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <!-- MIXER AUDIO -->
+                    {% include "blocks/_audio_mixer.html" %}
+
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}

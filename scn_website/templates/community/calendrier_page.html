@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags static %}
+
+{% block content %}
+    <section class="section" aria-label="Calendrier">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-8-desktop is-10-tablet is-12-mobile">
+
+                    <div class="page-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                    </div>
+
+                    <div class="main-card">
+                        <div class="content-body">
+
+                            {% if page.comment %}
+                                <div class="section-card">
+                                    <h3 class="title is-4">Actualités</h3>
+                                    <div class="content">{{ page.comment|richtext }}</div>
+                                </div>
+                                <hr class="section-divider">
+                            {% endif %}
+
+                            <div class="section-card">
+                                <h3 class="title is-4">Prochains événements</h3>
+                                <div class="events-box-list">
+                                    {% for event in page.get_next_events %}
+                                        <div{% if event.long_description %} x-data="{ open: false }" x-effect="open ? document.body.classList.add('is-modal-open') : document.body.classList.remove('is-modal-open')"{% endif %}>
+                                            <div class="event-box"{% if event.long_description %} style="cursor: pointer;" @click="open = true"{% endif %}>
+                                                <div class="event-box-date">
+                                                    <span class="day">{{ event.start_date|date:"j" }}</span>
+                                                    <span class="month">{{ event.start_date|date:"F"|slice:":3" }}</span>
+                                                </div>
+                                                <div class="event-box-content">
+                                                    <span class="event-box-title">{{ event.name }}</span>
+                                                    {% if event.short_description %}
+                                                        <span class="event-box-short-desc">{{ event.short_description }}</span>
+                                                    {% endif %}
+                                                    <div class="event-box-details">
+                                                        {% if event.time_tbd %}
+                                                            <span class="event-box-time"><i class="fas fa-clock"></i> Heure à déterminer</span>
+                                                        {% elif event.start_time %}
+                                                            <span class="event-box-time">
+                                                                <i class="fas fa-clock"></i>
+                                                                {{ event.start_time|time:"H:i" }}{% if event.end_time %} – {{ event.end_time|time:"H:i" }}{% endif %}
+                                                            </span>
+                                                        {% endif %}
+                                                        {% if event.lieu %}
+                                                            <span class="event-box-location"><i class="fas fa-map-marker-alt"></i> {{ event.lieu }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% with tags=event.tags.all %}
+                                                        {% if tags %}
+                                                            <div class="event-box-tags mt-1">
+                                                                {% for tag in tags %}<span class="tag is-light is-small">{{ tag }}</span>{% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                </div>
+                                                {% if event.long_description %}
+                                                    <button class="event-box-more-btn" type="button">Plus d'infos</button>
+                                                {% endif %}
+                                            </div>
+
+                                            {% if event.long_description %}
+                                                <div class="modal event-modal" :class="{ 'is-active': open }" x-show="open" x-cloak @keydown.escape.window="open = false">
+                                                    <div class="modal-background" @click="open = false"></div>
+                                                    <div class="modal-card">
+                                                        <header class="modal-card-head">
+                                                            <p class="modal-card-title">{{ event.name }}</p>
+                                                        </header>
+                                                        <section class="modal-card-body">
+                                                            {% with tags=event.tags.all %}
+                                                                {% if tags %}
+                                                                    <div class="is-flex is-flex-wrap-wrap gap-2 mb-3">
+                                                                        {% for tag in tags %}<span class="tag is-primary is-medium">{{ tag }}</span>{% endfor %}
+                                                                    </div>
+                                                                {% endif %}
+                                                            {% endwith %}
+                                                            {% if event.short_description %}
+                                                                <p class="modal-short-desc mb-3">{{ event.short_description }}</p>
+                                                            {% endif %}
+                                                            <div class="event-detail-grid">
+                                                                <p><span class="icon-text">
+                                                                    <span class="icon"><i class="fas fa-calendar"></i></span>
+                                                                    <span>{{ event.start_date|date:"l d F Y" }}</span>
+                                                                </span></p>
+                                                                {% if event.time_tbd %}
+                                                                    <p><span class="icon-text">
+                                                                        <span class="icon"><i class="fas fa-clock"></i></span>
+                                                                        <span>Heure à déterminer</span>
+                                                                    </span></p>
+                                                                {% elif event.start_time %}
+                                                                    <p><span class="icon-text">
+                                                                        <span class="icon"><i class="fas fa-clock"></i></span>
+                                                                        <span>{{ event.start_time|time:"H:i" }}{% if event.end_time %} – {{ event.end_time|time:"H:i" }}{% endif %}</span>
+                                                                    </span></p>
+                                                                {% endif %}
+                                                                {% if event.lieu %}
+                                                                    <p><span class="icon-text">
+                                                                        <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                                                                        <span>{{ event.lieu }}{% if event.adresse %}, {{ event.adresse }}{% endif %}</span>
+                                                                    </span></p>
+                                                                {% endif %}
+                                                            </div>
+                                                            <hr class="modal-divider">
+                                                            <div class="content">
+                                                                {{ event.long_description|richtext }}
+                                                            </div>
+                                                        </section>
+                                                        <footer class="modal-card-foot">
+                                                            <button class="modal-close-x" aria-label="Fermer" @click="open = false">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </footer>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% empty %}
+                                        <p class="has-text-centered py-4" style="color: var(--text-muted-color);">Aucun événement à venir</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            {% if page.show_calendar %}
+                                <hr class="section-divider">
+                                <div class="section-card">
+                                    <div class="section-header-with-toggle">
+                                        <h3 class="title is-4">Tous les événements</h3>
+                                        <div class="buttons has-addons">
+                                            <button class="button is-small is-primary" id="btn-list-view" type="button" onclick="showListView()">Liste</button>
+                                            <button class="button is-small" id="btn-grid-view" type="button" onclick="showGridView()">Calendrier</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="list-view">
+                                        <div class="calendar-month-nav mb-4">
+                                            <button class="button is-small" type="button" onclick="changeMonth(-1)" aria-label="Mois précédent">&lt;</button>
+                                            <span class="month-display" id="month-display"></span>
+                                            <button class="button is-small" type="button" onclick="changeMonth(1)" aria-label="Mois suivant">&gt;</button>
+                                        </div>
+                                        <div class="events-box-list" id="month-events-container"></div>
+                                    </div>
+
+                                    <div id="grid-view" style="display: none;">
+                                        <div id="calendar"></div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Global JS modal for month-list events #}
+    <div id="js-event-modal" class="modal event-modal" role="dialog" aria-modal="true">
+        <div class="modal-background" onclick="closeJsModal()"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title" id="js-modal-title"></p>
+            </header>
+            <section class="modal-card-body" id="js-modal-body"></section>
+            <footer class="modal-card-foot">
+                <button class="modal-close-x" aria-label="Fermer" onclick="closeJsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    {% if page.show_calendar %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/interaction/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/locales/fr.js"></script>
+    {% endif %}
+
+    <script>
+        var calendarEvents = {{ page.get_all_events|safe }};
+        var currentYear = new Date().getFullYear();
+        var currentMonth = new Date().getMonth();
+        var calendar = null;
+        var monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        var monthNamesShort = ['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'];
+        var dayNames = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+        var fullMonthNames = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+        function updateMonthDisplay() {
+            document.getElementById('month-display').textContent = monthNames[currentMonth] + ' ' + currentYear;
+        }
+
+        function parseLocalDate(str) {
+            if (!str) return null;
+            if (str.indexOf('T') === -1) {
+                var p = str.split('-');
+                return new Date(+p[0], +p[1] - 1, +p[2]);
+            }
+            return new Date(str);
+        }
+
+        function formatTimeRange(start, end) {
+            var d = parseLocalDate(start);
+            var h = d.getHours(), m = d.getMinutes();
+            if (h === 0 && m === 0) return '';
+            var s = h.toString().padStart(2,'0') + ':' + m.toString().padStart(2,'0');
+            if (end) {
+                var e = parseLocalDate(end), eh = e.getHours(), em = e.getMinutes();
+                if (eh !== 0 || em !== 0) s += ' – ' + eh.toString().padStart(2,'0') + ':' + em.toString().padStart(2,'0');
+            }
+            return s;
+        }
+
+        function openJsModal(idx) {
+            var ev = calendarEvents[idx];
+            document.getElementById('js-modal-title').textContent = ev.title;
+
+            var d = parseLocalDate(ev.start);
+            var dateStr = dayNames[d.getDay()] + ' ' + d.getDate() + ' ' + fullMonthNames[d.getMonth()] + ' ' + d.getFullYear();
+            var time = formatTimeRange(ev.start, ev.end);
+
+            var tagsHtml = (ev.tags || []).map(function(t) {
+                return '<span class="tag is-primary is-medium">' + t + '</span>';
+            }).join('');
+
+            var body = '';
+            if (tagsHtml) body += '<div class="is-flex is-flex-wrap-wrap gap-2 mb-3">' + tagsHtml + '</div>';
+            if (ev.short_description) body += '<p class="modal-short-desc mb-3">' + ev.short_description + '</p>';
+
+            body += '<div class="event-detail-grid">';
+            body += '<p><span class="icon-text"><span class="icon"><i class="fas fa-calendar"></i></span><span>' + dateStr + '</span></span></p>';
+            if (ev.time_tbd) {
+                body += '<p><span class="icon-text"><span class="icon"><i class="fas fa-clock"></i></span><span>Heure à déterminer</span></span></p>';
+            } else if (time) {
+                body += '<p><span class="icon-text"><span class="icon"><i class="fas fa-clock"></i></span><span>' + time + '</span></span></p>';
+            }
+            if (ev.location) {
+                body += '<p><span class="icon-text"><span class="icon"><i class="fas fa-map-marker-alt"></i></span><span>' + ev.location + '</span></span></p>';
+            }
+            body += '</div>';
+
+            if (ev.long_description) {
+                body += '<hr class="modal-divider"><div class="content">' + ev.long_description + '</div>';
+            }
+
+            document.getElementById('js-modal-body').innerHTML = body;
+            document.getElementById('js-event-modal').classList.add('is-active');
+            document.body.classList.add('is-modal-open');
+        }
+
+        function closeJsModal() {
+            document.getElementById('js-event-modal').classList.remove('is-active');
+            document.body.classList.remove('is-modal-open');
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeJsModal();
+        });
+
+        function renderMonthEvents() {
+            var container = document.getElementById('month-events-container');
+            var today = new Date(); today.setHours(0,0,0,0);
+            var filtered = calendarEvents.filter(function(ev) {
+                var d = parseLocalDate(ev.start);
+                return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+            }).sort(function(a,b){ return parseLocalDate(a.start) - parseLocalDate(b.start); });
+
+            if (!filtered.length) {
+                container.innerHTML = '<p class="has-text-centered py-4" style="color:var(--text-muted-color);">Aucun événement ce mois-ci</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(function(ev) {
+                var d = parseLocalDate(ev.start);
+                var isPast = new Date(d.getFullYear(), d.getMonth(), d.getDate()) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                var time = formatTimeRange(ev.start, ev.end);
+                var tagsHtml = (ev.tags || []).map(function(t) {
+                    return '<span class="tag is-light is-small">' + t + '</span>';
+                }).join('');
+                var hasDetail = !!ev.long_description;
+                var idx = calendarEvents.indexOf(ev);
+                var shortDesc = ev.short_description ? '<span class="event-box-short-desc">' + ev.short_description + '</span>' : '';
+                var action = hasDetail ? '<button class="event-box-more-btn" type="button" onclick="openJsModal(' + idx + ');event.stopPropagation()">Plus d\'infos</button>' : '';
+                var clickAttr = '';
+                return '<div class="event-box' + (isPast ? ' is-past' : '') + '"' + clickAttr + '>' +
+                    '<div class="event-box-date">' +
+                    '<span class="day">' + d.getDate() + '</span>' +
+                    '<span class="month">' + monthNamesShort[d.getMonth()] + '</span></div>' +
+                    '<div class="event-box-content"><span class="event-box-title">' + ev.title + '</span>' +
+                    shortDesc +
+                    '<div class="event-box-details">' +
+                    (ev.time_tbd ? '<span class="event-box-time"><i class="fas fa-clock"></i> Heure à déterminer</span>' :
+                     time ? '<span class="event-box-time"><i class="fas fa-clock"></i> ' + time + '</span>' : '') +
+                    (ev.location ? '<span class="event-box-location"><i class="fas fa-map-marker-alt"></i> ' + ev.location + '</span>' : '') +
+                    '</div>' +
+                    (tagsHtml ? '<div class="event-box-tags mt-1">' + tagsHtml + '</div>' : '') +
+                    '</div>' + action + '</div>';
+            }).join('');
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            updateMonthDisplay(); renderMonthEvents();
+        }
+
+        function showListView() {
+            document.getElementById('list-view').style.display = 'block';
+            document.getElementById('grid-view').style.display = 'none';
+            document.getElementById('btn-list-view').classList.add('is-primary');
+            document.getElementById('btn-grid-view').classList.remove('is-primary');
+        }
+
+        function showGridView() {
+            document.getElementById('list-view').style.display = 'none';
+            document.getElementById('grid-view').style.display = 'block';
+            document.getElementById('btn-list-view').classList.remove('is-primary');
+            document.getElementById('btn-grid-view').classList.add('is-primary');
+            if (!calendar) {
+                calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                    plugins: ['dayGrid'], events: calendarEvents, locale: 'fr',
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
+                    height: 'auto', buttonText: { today: "Aujourd'hui", month: 'Mois' },
+                    eventDisplay: 'block', displayEventTime: true, displayEventEnd: true,
+                    eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false }
+                });
+                calendar.render();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMonthDisplay(); renderMonthEvents();
+        });
+    </script>
+{% endblock %}

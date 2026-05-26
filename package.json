@@ -1,0 +1,19 @@
+{
+  "name": "scn-website",
+  "version": "1.0.0",
+  "description": "SCN - A Micro Social Network for Choir",
+  "scripts": {
+    "build:css": "sass --load-path=node_modules scn_website/static/sass/main.scss scn_website/static/css/bulma.css",
+    "build:assets": "npm run copy:fontawesome && npm run copy:alpine",
+    "copy:fontawesome": "mkdir -p scn_website/static/vendor/fontawesome && cp -r node_modules/@fortawesome/fontawesome-free/css node_modules/@fortawesome/fontawesome-free/webfonts scn_website/static/vendor/fontawesome/",
+    "copy:alpine": "mkdir -p scn_website/static/vendor/js && cp node_modules/alpinejs/dist/cdn.min.js scn_website/static/vendor/js/alpine.min.js",
+    "build": "npm run build:css && npm run build:assets",
+    "watch": "npm run build && npm run build:css -- --watch"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.1",
+    "alpinejs": "^3.15.3",
+    "bulma": "^1.0.2",
+    "sass": "^1.72.0"
+  }
+}

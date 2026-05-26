@@ -1,0 +1,43 @@
+// ============================================
+// OPTIMISATIONS MOBILE - LAYOUT
+// ============================================
+
+@media screen and (max-width: 1023px) {
+  // Sections sans padding excessif
+  .section {
+    padding: 1.5rem 0.75rem;
+  }
+  
+  // Container pleine largeur sur mobile
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  // Colonnes sans gap excessif
+  .columns {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    
+    &.is-mobile {
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+    }
+  }
+  
+  .column {
+    padding: 0.5rem;
+  }
+}
+
+// Très petit mobile (iPhone SE, etc.)
+@media screen and (max-width: 375px) {
+  .section {
+    padding: 1rem 0.5rem;
+  }
+  
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}

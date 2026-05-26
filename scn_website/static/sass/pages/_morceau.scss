@@ -1,0 +1,64 @@
+/* ============================================
+   PAGE MORCEAU - Détail d'un chant
+   ============================================ */
+
+// Cette page utilise principalement les composants :
+// - .main-card
+// - .title-header
+// - .tabs-header & .tab-button
+// - .section-card
+// - .file-list, .file-row, .file-name
+// - .compact-audio-player
+// - .subsection, .subsection-label, .subsection-divider
+
+// Styles spécifiques uniquement pour cette page
+
+.morceau-detail {
+    // Container spécifique si nécessaire
+}
+
+// Ajustements spécifiques du content-body pour morceau
+.morceau-page {
+    .content-body {
+        // Richtext content styling
+        .content {
+            line-height: 1.8;
+            
+            p {
+                margin-bottom: $spacing-md;
+            }
+            
+            ul, ol {
+                margin-left: $spacing-lg;
+                margin-bottom: $spacing-md;
+            }
+            
+            blockquote {
+                border-left: 4px solid $primary-color;
+                padding-left: $spacing-lg;
+                margin: $spacing-lg 0;
+                font-style: italic;
+                color: var(--text-muted-color);
+            }
+            
+            h1, h2, h3, h4 {
+                margin-top: $spacing-lg;
+                margin-bottom: $spacing-md;
+                color: $primary-color;
+            }
+        }
+    }
+}
+
+// Breadcrumb override pour morceau
+.morceau-breadcrumb {
+    .breadcrumb {
+        ul li {
+            &:not(:last-child)::after {
+                content: '›';
+                margin: 0 $spacing-sm;
+                color: var(--text-muted-color);
+            }
+        }
+    }
+}

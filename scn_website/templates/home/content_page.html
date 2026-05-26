@@ -2,13 +2,34 @@
 {% load wagtailimages_tags wagtailcore_tags static %}
 
 {% block content %}
-    <section>
-        <div class="container section md:max-w-3/4">
-            <h1>{{ page.title }}</h1>
-            {% for b in page.content %}
-                {% include_block b %}
-            {% endfor %}
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-10-desktop is-11-tablet is-12-mobile">
+                    
+                    <!-- Header -->
+                    <div class="page-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                    </div>
+                    
+                    <!-- Main card container -->
+                    <div class="main-card">
+                        <div class="content-body">
+                            {% for block in page.content %}
+                                <div class="section-card">
+                                    {% include_block block %}
+                                </div>
+                                {% if not forloop.last %}
+                                    <hr class="section-divider">
+                                {% endif %}
+                            {% empty %}
+                                <p class="has-text-grey has-text-centered">No content yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
         </div>
     </section>
-
-{% endblock %}s
+{% endblock %}

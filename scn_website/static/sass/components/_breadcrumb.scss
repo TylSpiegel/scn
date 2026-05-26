@@ -1,0 +1,19 @@
+/* ============================================
+   BREADCRUMB
+   ============================================ */
+
+.breadcrumb {
+    margin-bottom: $spacing-lg;
+    
+    a {
+        transition: $transition-fast;
+        
+        &:hover {
+            color: $primary-color;
+        }
+    }
+    
+    .icon {
+        margin-right: $spacing-xs;
+    }
+}

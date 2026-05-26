@@ -1,0 +1,45 @@
+/* ============================================
+   TABS
+   ============================================ */
+
+.tabs-header {
+    background: color-mix(in srgb, var(--primary-color) 75%, white);
+    display: flex;
+    justify-content: center;
+    gap: $spacing-md;
+    padding: $spacing-xs $spacing-lg;
+}
+
+.tab-button {
+    padding: $spacing-xs $spacing-md;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: $radius-sm;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    justify-content: center;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    &.active {
+        background: white;
+        color: $primary-color;
+        @include shadow-md;
+    }
+
+    @include mobile {
+        padding: $spacing-xs $spacing-sm;
+        font-size: 0.8rem;
+
+        span:not(.icon) {
+            display: none;
+        }
+    }
+}

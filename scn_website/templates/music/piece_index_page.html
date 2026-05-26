@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-10-desktop is-11-tablet is-12-mobile">
+
+                    <div class="page-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                        {% if page.introduction %}
+                            <p class="subtitle" style="color: var(--text-muted-color);">{{ page.introduction }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="piece-index-controls">
+                        <div class="piece-index-search">
+                            <span class="piece-index-search-icon"><i class="fas fa-search"></i></span>
+                            <input type="search" id="piece-search" autocomplete="off"
+                                   placeholder="Titre, compositeur…"
+                                   class="piece-index-search-field">
+                            <button type="button" id="piece-search-clear"
+                                    class="piece-index-search-clear" hidden aria-label="Effacer">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="piece-index-sort">
+                            <span class="piece-index-sort-label">Trier :</span>
+                            <button type="button" class="sort-btn is-active" data-sort="date">
+                                Date <i class="sort-icon fas fa-arrow-down"></i>
+                            </button>
+                            <button type="button" class="sort-btn" data-sort="auteur">
+                                Auteur <i class="sort-icon fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="morceau-index-content" id="piece-list">
+                        {% for piece in pieces %}
+                            <a href="{{ piece.url }}"
+                               class="morceau-index-item"
+                               data-title="{{ piece.title|lower }}"
+                               data-compositeur="{{ piece.compositeur|lower }}"
+                               data-date="{{ piece.first_published_at|date:'U'|default:0 }}">
+                                <div class="morceau-index-item-text">
+                                    <span class="morceau-index-title">{{ piece.title }}</span>
+                                    <span class="morceau-index-composer">{{ piece.compositeur }}</span>
+                                </div>
+                                <span class="morceau-index-item-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
+                            </a>
+                        {% endfor %}
+                        <p class="morceau-index-empty" id="piece-empty" hidden>
+                            Aucun morceau ne correspond à votre recherche.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var searchField = document.getElementById('piece-search');
+    var clearBtn    = document.getElementById('piece-search-clear');
+    var emptyState  = document.getElementById('piece-empty');
+    var list        = document.getElementById('piece-list');
+    var sortBtns    = Array.from(document.querySelectorAll('.sort-btn'));
+    var items       = Array.from(list.querySelectorAll('.morceau-index-item'));
+
+    var currentSort  = 'date';
+    var currentOrder = 'desc';
+
+    function refreshSortButtons() {
+        sortBtns.forEach(function (btn) {
+            var isActive = btn.dataset.sort === currentSort;
+            btn.classList.toggle('is-active', isActive);
+            var icon = btn.querySelector('.sort-icon');
+            if (isActive) {
+                icon.className = 'sort-icon fas ' + (currentOrder === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down');
+            } else {
+                icon.className = 'sort-icon fas fa-minus';
+            }
+        });
+    }
+
+    function applyFiltersAndSort() {
+        var q = searchField.value.toLowerCase().trim();
+
+        // Determine which items match the query
+        var visibleSet = new Set();
+        items.forEach(function (item) {
+            if (!q || item.dataset.title.includes(q) || item.dataset.compositeur.includes(q)) {
+                visibleSet.add(item);
+            }
+        });
+
+        // Sort a stable copy of all items
+        var sorted = items.slice().sort(function (a, b) {
+            var order = currentOrder === 'asc' ? 1 : -1;
+            if (currentSort === 'date') {
+                return order * ((parseInt(a.dataset.date) || 0) - (parseInt(b.dataset.date) || 0));
+            }
+            var cmp = a.dataset.compositeur.localeCompare(b.dataset.compositeur, 'fr');
+            if (cmp === 0) cmp = a.dataset.title.localeCompare(b.dataset.title, 'fr');
+            return order * cmp;
+        });
+
+        // Re-insert all items in sorted order, show/hide via style.display
+        sorted.forEach(function (item) {
+            item.style.display = visibleSet.has(item) ? '' : 'none';
+            list.insertBefore(item, emptyState);
+        });
+
+        emptyState.style.display = visibleSet.size > 0 ? 'none' : '';
+        refreshSortButtons();
+    }
+
+    searchField.addEventListener('input', function () {
+        clearBtn.hidden = !this.value;
+        applyFiltersAndSort();
+    });
+
+    clearBtn.addEventListener('click', function () {
+        searchField.value = '';
+        this.hidden = true;
+        searchField.focus();
+        applyFiltersAndSort();
+    });
+
+    sortBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var newSort = this.dataset.sort;
+            if (currentSort === newSort) {
+                currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort = newSort;
+                currentOrder = newSort === 'date' ? 'desc' : 'asc';
+            }
+            applyFiltersAndSort();
+        });
+    });
+})();
+</script>
+{% endblock %}

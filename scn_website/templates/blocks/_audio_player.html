@@ -1,0 +1,135 @@
+{% load static %}
+
+<div class="file-item" x-data="audioPlayer{{ player_id }}()" x-init="init()">
+    
+    <div class="file-row">
+        <span class="file-name">{{ pupitre }}</span>
+        
+        <a href="{{ audio_url }}" 
+           download 
+           class="button is-small is-download">
+            <span class="icon"><i class="fas fa-download"></i></span>
+            <span>Télécharger</span>
+        </a>
+        
+        <button x-on:click="togglePlay()" 
+                class="button is-small is-primary" 
+                type="button">
+            <span class="icon">
+                <i x-show="!isPlaying" class="fas fa-play"></i>
+                <i x-show="isPlaying" class="fas fa-pause"></i>
+            </span>
+            <span x-text="isPlaying ? 'Pause' : 'Lire'"></span>
+        </button>
+    </div>
+    
+    <div class="compact-audio-player" x-show="isPlaying || progress > 0">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <button x-on:click="togglePlay()" 
+                    class="play-button-compact" 
+                    type="button"
+                    aria-label="Lecture">
+                <i x-show="!isPlaying" class="fas fa-play"></i>
+                <i x-show="isPlaying" class="fas fa-pause"></i>
+            </button>
+            
+            <div style="flex: 1;">
+                <div class="progress-bar-compact" x-on:click="seek($event)">
+                    <div class="progress-fill" x-bind:style="'width: ' + progress + '%'"></div>
+                </div>
+            </div>
+            
+            <span class="time-display-compact" x-text="formatTime(currentTime)"></span>
+            <span class="time-display-compact">/</span>
+            <span class="time-display-compact" x-text="formatTime(duration)"></span>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+function audioPlayer{{ player_id }}() {
+    var audioUrl = '{{ audio_url|escapejs }}';
+    
+    return {
+        audio: null,
+        isPlaying: false,
+        currentTime: 0,
+        duration: 0,
+        progress: 0,
+        
+        init: function() {
+            var self = this;
+            this.audio = new Audio();
+            this.audio.preload = 'none';
+            
+            this.audio.addEventListener('loadedmetadata', function() {
+                self.duration = self.audio.duration;
+            });
+            
+            this.audio.addEventListener('timeupdate', function() {
+                self.currentTime = self.audio.currentTime;
+                self.progress = (self.currentTime / self.duration) * 100 || 0;
+            });
+            
+            this.audio.addEventListener('ended', function() {
+                self.isPlaying = false;
+                self.currentTime = 0;
+                self.progress = 0;
+            });
+            
+            this.audio.addEventListener('play', function() {
+                self.isPlaying = true;
+            });
+            
+            this.audio.addEventListener('pause', function() {
+                self.isPlaying = false;
+            });
+            
+            this.audio.addEventListener('error', function(e) {
+                console.error('Audio error:', audioUrl);
+            });
+        },
+        
+        togglePlay: function() {
+            var self = this;
+            
+            if (!this.audio.src) {
+                this.audio.src = audioUrl;
+            }
+            
+            if (this.isPlaying) {
+                this.audio.pause();
+            } else {
+                document.querySelectorAll('audio').forEach(function(a) {
+                    if (a !== self.audio) {
+                        a.pause();
+                    }
+                });
+                
+                var playPromise = this.audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(function(error) {
+                        console.error('Play error:', error);
+                    });
+                }
+            }
+        },
+        
+        seek: function(event) {
+            if (!this.audio.src || !this.duration) return;
+            var rect = event.currentTarget.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var percentage = x / rect.width;
+            this.audio.currentTime = percentage * this.duration;
+        },
+        
+        formatTime: function(seconds) {
+            if (!seconds || isNaN(seconds)) return '0:00';
+            var mins = Math.floor(seconds / 60);
+            var secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+    };
+}
+</script>

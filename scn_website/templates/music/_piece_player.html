@@ -1,0 +1,449 @@
+{% load music_tags %}
+{% if piece.audios %}
+<div class="section-card" x-data="pieceAudioPlayer()" x-init="init()"
+     @seek-timecode.window="seekFromEvent($event.detail.tc)"
+     data-timecodes="{% if piece.activer_timecodes %}{{ piece.get_parsed_timecodes|join:"," }}{% endif %}"
+     style="position: relative;">
+
+    <span title="Lecteur multipiste — moteur Web Audio (v2.0.0)"
+          style="position: absolute; top: 0.4rem; right: 0.6rem;
+                 font-size: 0.65rem; color: rgba(0,0,0,0.28);
+                 user-select: none; pointer-events: auto; cursor: help;">v2.0.0</span>
+
+    <h2 class="title is-5 mb-4">
+        <span class="icon-text">
+            <span class="icon"><i class="fas fa-play-circle"></i></span>
+            <span>Lecteur</span>
+        </span>
+    </h2>
+
+    <div class="mb-4">
+        <p class="is-size-7 has-text-grey mb-2">Pistes <span class="has-text-grey-light">(sélection multiple possible)</span> :</p>
+        <div class="buttons is-centered">
+            {% for block in piece.audios %}{% with a=block.value %}{% if a.audio %}
+            <button type="button"
+                    class="button"
+                    :class="isSelected('{{ a.audio.url|escapejs }}') ? 'is-primary' : 'is-light'"
+                    @click="toggleTrack('{{ a.audio.url|escapejs }}', '{% if a.custom_pupitre %}{{ a.custom_pupitre|escapejs }}{% else %}{{ a.pupitre|escapejs }}{% endif %}')">
+                {% if a.custom_pupitre %}{{ a.custom_pupitre }}{% else %}{{ a.pupitre }}{% endif %}{% if a.comment %} <em class="ml-1 has-text-grey-light">{{ a.comment }}</em>{% endif %}
+            </button>
+            {% endif %}{% endwith %}{% endfor %}
+        </div>
+    </div>
+
+    {% comment %}Barre de progression + marqueurs timecodes dans un wrapper relatif{% endcomment %}
+    <div style="position: relative; height: 6px; margin-bottom: 0.25rem;"
+         @mouseleave="hideHover()">
+        <div class="progress-bar-compact"
+             x-ref="progressBar"
+             style="position: absolute; inset: 0; cursor: pointer; touch-action: none; user-select: none;"
+             @pointerdown.prevent="seekDown($event)"
+             @pointermove="seekMove($event); updateHover($event)"
+             @pointerup="seekUp()"
+             @pointercancel="seekUp()">
+            <div class="progress-fill" :style="'width: ' + progress + '%'"></div>
+        </div>
+        {% comment %}Marqueurs timecodes superposés hors de la barre (pas de overflow:hidden){% endcomment %}
+        <template x-for="tc in timecodeMarkers" :key="tc">
+            <div :style="{ position: 'absolute', top: 0, bottom: 0, width: '2px',
+                           background: 'rgba(255,255,255,0.85)', pointerEvents: 'none',
+                           left: (duration > 0 ? (tc / duration * 100) + '%' : 0),
+                           transform: 'translateX(-50%)' }">
+            </div>
+        </template>
+    </div>
+
+    <div class="is-flex is-justify-content-space-between mb-3 mt-1">
+        <span class="time-display-compact" x-text="formatTime(currentTime)">0:00</span>
+        <span class="time-display-compact" x-text="formatTime(duration)">0:00</span>
+    </div>
+
+    <div class="buttons is-centered mb-2">
+        <button type="button" class="button" @click="goToStart()" :disabled="selectedUrls.length === 0" title="Début">
+            <span class="icon"><i class="fas fa-step-backward"></i></span>
+        </button>
+        <button type="button" class="button" @click="skipBack()" :disabled="selectedUrls.length === 0" title="-5 secondes">
+            <span>-5s</span>
+        </button>
+        <button type="button" class="button is-primary" @click="togglePlay()" :disabled="selectedUrls.length === 0">
+            <span class="icon">
+                <i x-show="!isPlaying" class="fas fa-play"></i>
+                <i x-show="isPlaying" class="fas fa-pause"></i>
+            </span>
+            <span x-text="isPlaying ? 'Pause' : 'Lire'"></span>
+        </button>
+        <button type="button" class="button" @click="skipForward()" :disabled="selectedUrls.length === 0" title="+5 secondes">
+            <span>+5s</span>
+        </button>
+        <button type="button" class="button" @click="stop()" :disabled="selectedUrls.length === 0" title="Stop">
+            <span class="icon"><i class="fas fa-stop"></i></span>
+        </button>
+    </div>
+
+    {% if piece.activer_timecodes and piece.timecodes %}
+    <div class="mt-3">
+        <p class="is-size-7 has-text-grey mb-2">
+            Paroles
+            <span class="has-text-grey-light"> — 1 clic sur un timecode : positionner &nbsp;/&nbsp; 2 clics : lire</span>
+        </p>
+        <div class="piece-lyrics content">{{ piece.timecodes|render_timecoded }}</div>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+function pieceAudioPlayer() {
+    return {
+        // État exposé au template
+        selectedUrls: [],
+        primaryUrl: '',
+        isPlaying: false,
+        currentTime: 0,
+        duration: 0,
+        progress: 0,
+        isSeeking: false,
+        lastTimecode: null,
+        timecodeMarkers: [],
+
+        // Interne (Web Audio)
+        _ctx: null,
+        _master: null,
+        _buffers: {},         // url -> AudioBuffer (cache permanent)
+        _loads: {},           // url -> Promise<AudioBuffer>
+        _gains: {},           // url -> GainNode (persistant)
+        _sources: {},         // url -> AudioBufferSourceNode (recréé à chaque start)
+        _labels: {},
+        _tooltip: null,
+        _startCtxTime: 0,     // ctx.currentTime au démarrage de la source
+        _startOffset: 0,      // offset audio au démarrage
+        _pausedAt: 0,         // position retenue en pause/stop
+
+        init() {
+            var self = this;
+
+            var tcStr = this.$el.dataset.timecodes;
+            if (tcStr) {
+                this.timecodeMarkers = tcStr.split(',').filter(Boolean).map(function (tc) {
+                    var parts = tc.trim().split(':');
+                    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                });
+            }
+
+            // Tooltip créé directement dans body — échappe aux transforms des ancêtres
+            this._tooltip = document.createElement('div');
+            this._tooltip.style.cssText = [
+                'position:fixed',
+                'display:none',
+                'pointer-events:none',
+                'white-space:nowrap',
+                'font-size:0.75rem',
+                'padding:3px 8px',
+                'background:rgba(0,0,0,0.82)',
+                'color:#fff',
+                'border-radius:4px',
+                'z-index:9999',
+                'transform:translate(-50%,-100%)',
+                'margin-top:-10px',
+            ].join(';');
+            document.body.appendChild(this._tooltip);
+
+            function tick() {
+                if (self.isPlaying && self._ctx) {
+                    var t = self._startOffset + (self._ctx.currentTime - self._startCtxTime);
+                    if (self.duration > 0 && t >= self.duration) {
+                        self._stopSources();
+                        self.isPlaying = false;
+                        self.currentTime = self.duration;
+                        self.progress = 100;
+                        self._pausedAt = 0;
+                        self.lastTimecode = null;
+                    } else {
+                        self.currentTime = t;
+                        self.progress = self.duration ? (t / self.duration) * 100 : 0;
+                    }
+                }
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        },
+
+        _initCtx() {
+            if (!this._ctx) {
+                var Ctx = window.AudioContext || window.webkitAudioContext;
+                this._ctx = new Ctx();
+                this._master = this._ctx.createGain();
+                this._master.connect(this._ctx.destination);
+            }
+            if (this._ctx.state === 'suspended') this._ctx.resume();
+            return this._ctx;
+        },
+
+        _ensureLoaded(url) {
+            if (this._buffers[url]) return Promise.resolve(this._buffers[url]);
+            if (this._loads[url]) return this._loads[url];
+            var self = this;
+            var ctx = this._initCtx();
+            this._loads[url] = fetch(url)
+                .then(function (r) { return r.arrayBuffer(); })
+                .then(function (ab) { return ctx.decodeAudioData(ab); })
+                .then(function (buf) {
+                    self._buffers[url] = buf;
+                    self._updateDuration();
+                    return buf;
+                })
+                .catch(function (e) {
+                    console.error('Erreur chargement audio :', url, e);
+                    delete self._loads[url];
+                    throw e;
+                });
+            return this._loads[url];
+        },
+
+        _ensureGain(url) {
+            if (!this._gains[url]) {
+                this._initCtx();
+                var g = this._ctx.createGain();
+                g.gain.value = 0;
+                g.connect(this._master);
+                this._gains[url] = g;
+            }
+            return this._gains[url];
+        },
+
+        _updateDuration() {
+            var max = 0;
+            var self = this;
+            this.selectedUrls.forEach(function (url) {
+                var b = self._buffers[url];
+                if (b && b.duration > max) max = b.duration;
+            });
+            this.duration = max;
+        },
+
+        // Démarre toutes les pistes sélectionnées au temps `offset`, alignées sur le même `when` => sync parfaite
+        _startSources(offset) {
+            var ctx = this._initCtx();
+            var when = ctx.currentTime + 0.05;
+            var self = this;
+            this.selectedUrls.forEach(function (url) {
+                var buf = self._buffers[url];
+                if (!buf || offset >= buf.duration) return;
+                var src = ctx.createBufferSource();
+                src.buffer = buf;
+                var g = self._ensureGain(url);
+                g.gain.value = 1;
+                src.connect(g);
+                try { src.start(when, offset); } catch (e) { console.error('start error:', e); }
+                self._sources[url] = src;
+            });
+            this._startCtxTime = when;
+            this._startOffset = offset;
+        },
+
+        _stopSources() {
+            var self = this;
+            Object.keys(this._sources).forEach(function (url) {
+                try { self._sources[url].stop(); } catch (e) {}
+                try { self._sources[url].disconnect(); } catch (e) {}
+                delete self._sources[url];
+            });
+        },
+
+        _currentT() {
+            if (this.isPlaying && this._ctx) {
+                return Math.min(this.duration, this._startOffset + (this._ctx.currentTime - this._startCtxTime));
+            }
+            return this._pausedAt;
+        },
+
+        _seekTo(seconds) {
+            if (this.isPlaying) {
+                this._stopSources();
+                this._startSources(seconds);
+            } else {
+                this._pausedAt = seconds;
+                this.currentTime = seconds;
+                this.progress = this.duration ? (seconds / this.duration) * 100 : 0;
+            }
+        },
+
+        // ---- API publique consommée par le template ----
+
+        isSelected(url) {
+            return this.selectedUrls.indexOf(url) !== -1;
+        },
+
+        toggleTrack(url, label) {
+            this._labels[url] = label;
+            var self = this;
+            var idx = this.selectedUrls.indexOf(url);
+
+            if (idx === -1) {
+                this.selectedUrls.push(url);
+                if (!this.primaryUrl) this.primaryUrl = url;
+                this._ensureLoaded(url).then(function (buf) {
+                    // Si on est toujours sélectionné ET en lecture, démarrer cette piste alignée sur les autres.
+                    // Schedule à `when` futur, avec offset calculé pour que la nouvelle source soit au même
+                    // endroit que les autres à `when` — évite le retard d'un render quantum si on partait de "now".
+                    if (self.isPlaying && self.selectedUrls.indexOf(url) !== -1 && !self._sources[url]) {
+                        var ctx = self._ctx;
+                        var when = ctx.currentTime + 0.05;
+                        var pos = self._startOffset + (when - self._startCtxTime);
+                        if (pos < buf.duration) {
+                            var src = ctx.createBufferSource();
+                            src.buffer = buf;
+                            var g = self._ensureGain(url);
+                            g.gain.value = 1;
+                            src.connect(g);
+                            try { src.start(when, pos); } catch (e) { console.error('start error:', e); }
+                            self._sources[url] = src;
+                        }
+                    }
+                }).catch(function () { /* erreur déjà loggée */ });
+            } else {
+                this.selectedUrls.splice(idx, 1);
+                if (this._gains[url]) this._gains[url].gain.value = 0;
+                if (this._sources[url]) {
+                    try { this._sources[url].stop(); } catch (e) {}
+                    try { this._sources[url].disconnect(); } catch (e) {}
+                    delete this._sources[url];
+                }
+                if (this.primaryUrl === url) {
+                    this.primaryUrl = this.selectedUrls[0] || '';
+                }
+                if (this.selectedUrls.length === 0) {
+                    this._stopSources();
+                    this.isPlaying = false;
+                    this._pausedAt = 0;
+                    this.currentTime = 0;
+                    this.progress = 0;
+                    this.lastTimecode = null;
+                }
+                this._updateDuration();
+            }
+        },
+
+        togglePlay() {
+            if (this.selectedUrls.length === 0) return;
+            if (this.isPlaying) {
+                this._pausedAt = this._currentT();
+                this._stopSources();
+                this.isPlaying = false;
+                return;
+            }
+            var self = this;
+            this._initCtx();
+            Promise.all(this.selectedUrls.map(function (u) { return self._ensureLoaded(u); }))
+                .then(function () {
+                    self._startSources(self._pausedAt);
+                    self.isPlaying = true;
+                    self.lastTimecode = null;
+                })
+                .catch(function (e) { console.error('Lecture impossible :', e); });
+        },
+
+        stop() {
+            this._stopSources();
+            this.isPlaying = false;
+            this._pausedAt = 0;
+            this.currentTime = 0;
+            this.progress = 0;
+            this.lastTimecode = null;
+        },
+
+        goToStart() { this._seekTo(0); },
+        skipBack()    { this._seekTo(Math.max(0, this._currentT() - 5)); },
+        skipForward() { if (this.duration) this._seekTo(Math.min(this.duration, this._currentT() + 5)); },
+
+        handleTimecode(tcStr) {
+            if (this.selectedUrls.length === 0) return;
+            var seconds = this._tcToSeconds(tcStr);
+            var self = this;
+            if (this.lastTimecode === tcStr) {
+                // 2e clic : positionner et lire
+                this._initCtx();
+                Promise.all(this.selectedUrls.map(function (u) { return self._ensureLoaded(u); }))
+                    .then(function () {
+                        if (self.isPlaying) self._stopSources();
+                        self._startSources(seconds);
+                        self.isPlaying = true;
+                        self.lastTimecode = null;
+                    });
+            } else {
+                // 1er clic : positionner sans lire
+                if (this.isPlaying) {
+                    this._stopSources();
+                    this.isPlaying = false;
+                }
+                this._pausedAt = seconds;
+                this.currentTime = seconds;
+                this.progress = this.duration ? (seconds / this.duration) * 100 : 0;
+                this.lastTimecode = tcStr;
+            }
+        },
+
+        seekFromEvent(tcStr) {
+            if (this.selectedUrls.length === 0) return;
+            var seconds = this._tcToSeconds(tcStr);
+            var self = this;
+            this._initCtx();
+            Promise.all(this.selectedUrls.map(function (u) { return self._ensureLoaded(u); }))
+                .then(function () {
+                    if (self.isPlaying) self._stopSources();
+                    self._startSources(seconds);
+                    self.isPlaying = true;
+                    self.lastTimecode = null;
+                });
+        },
+
+        _tcToSeconds(tcStr) {
+            var p = tcStr.split(':');
+            return parseInt(p[0]) * 60 + parseInt(p[1]);
+        },
+
+        seekDown(event) {
+            this.isSeeking = true;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            this.seekAt(event.clientX);
+        },
+
+        seekMove(event) {
+            if (!this.isSeeking) return;
+            this.seekAt(event.clientX);
+        },
+
+        seekUp() { this.isSeeking = false; },
+
+        seekAt(clientX) {
+            if (!this.duration) return;
+            var rect = this.$refs.progressBar.getBoundingClientRect();
+            var x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+            this._seekTo((x / rect.width) * this.duration);
+        },
+
+        updateHover(event) {
+            if (!this._tooltip || !this.duration) return;
+            var rect = this.$refs.progressBar.getBoundingClientRect();
+            var x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
+            var t = (x / rect.width) * this.duration;
+            this._tooltip.textContent = this.formatTime(t);
+            this._tooltip.style.left = event.clientX + 'px';
+            this._tooltip.style.top  = (event.clientY - 10) + 'px';
+            this._tooltip.style.display = 'block';
+        },
+
+        hideHover() {
+            if (this._tooltip) this._tooltip.style.display = 'none';
+        },
+
+        formatTime(seconds) {
+            if (!seconds || isNaN(seconds)) return '0:00';
+            var mins = Math.floor(seconds / 60);
+            var secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+    };
+}
+</script>
+{% endif %}

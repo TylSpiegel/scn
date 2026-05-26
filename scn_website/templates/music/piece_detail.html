@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<script>
+window.scnAudioPlayer = window.scnAudioPlayer || function () {
+    return {
+        audio: null,
+        isPlaying: false,
+        currentTime: 0,
+        duration: 0,
+        progress: 0,
+        audioUrl: '',
+        _tooltip: null,
+        init() {
+            this.audioUrl = this.$el.dataset.audioUrl;
+            this._tooltip = document.createElement('div');
+            this._tooltip.style.cssText = 'position:fixed;display:none;pointer-events:none;white-space:nowrap;font-size:0.73rem;padding:2px 7px;background:rgba(0,0,0,0.82);color:#fff;border-radius:3px;z-index:9999;transform:translate(-50%,-100%);margin-top:-10px';
+            document.body.appendChild(this._tooltip);
+            this.audio = new Audio();
+            this.audio.preload = 'none';
+            if (!window._scnAudioPlayers) window._scnAudioPlayers = [];
+            window._scnAudioPlayers.push(this.audio);
+            this.audio.addEventListener('loadedmetadata', () => { this.duration = this.audio.duration; });
+            this.audio.addEventListener('timeupdate', () => {
+                this.currentTime = this.audio.currentTime;
+                this.progress = (this.currentTime / this.duration) * 100 || 0;
+            });
+            this.audio.addEventListener('ended', () => { this.isPlaying = false; this.currentTime = 0; this.progress = 0; });
+            this.audio.addEventListener('play', () => { this.isPlaying = true; });
+            this.audio.addEventListener('pause', () => { this.isPlaying = false; });
+        },
+        togglePlay() {
+            if (!this.audio.src) this.audio.src = this.audioUrl;
+            if (this.isPlaying) {
+                this.audio.pause();
+            } else {
+                (window._scnAudioPlayers || []).forEach(a => { if (a !== this.audio) a.pause(); });
+                this.audio.play().catch(e => console.error('Audio play error:', e));
+            }
+        },
+        seek(e) {
+            if (!this.audio.src || !this.duration) return;
+            const r = e.currentTarget.getBoundingClientRect();
+            this.audio.currentTime = ((e.clientX - r.left) / r.width) * this.duration;
+        },
+        updateHover(e) {
+            if (!this._tooltip || !this.duration) return;
+            const r = e.currentTarget.getBoundingClientRect();
+            const x = Math.max(0, Math.min(e.clientX - r.left, r.width));
+            const t = (x / r.width) * this.duration;
+            this._tooltip.textContent = this.fmt(t);
+            this._tooltip.style.left = e.clientX + 'px';
+            this._tooltip.style.top  = (e.clientY - 10) + 'px';
+            this._tooltip.style.display = 'block';
+        },
+        hideHover() { if (this._tooltip) this._tooltip.style.display = 'none'; },
+        fmt(s) {
+            if (!s || isNaN(s)) return '0:00';
+            return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+        }
+    };
+};
+</script>
+
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-10-desktop is-11-tablet is-12-mobile">
+
+                <nav class="breadcrumb mb-4" aria-label="breadcrumbs" id="piece-breadcrumb" style="display:none">
+                    <ul>
+                        <li><a href="#" id="piece-back-link">← Retour</a></li>
+                        <li class="is-active"><a href="#" aria-current="page">{{ piece.title }}</a></li>
+                    </ul>
+                </nav>
+                <script>
+                    (function () {
+                        var ref = document.referrer;
+                        if (ref) {
+                            try {
+                                if (new URL(ref).hostname === window.location.hostname) {
+                                    var nav = document.getElementById('piece-breadcrumb');
+                                    var link = document.getElementById('piece-back-link');
+                                    nav.style.display = '';
+                                    link.addEventListener('click', function (e) {
+                                        e.preventDefault();
+                                        history.back();
+                                    });
+                                }
+                            } catch (e) {}
+                        }
+                    })();
+                </script>
+
+                <div class="page-header">
+                    <h1 class="title is-2 mb-1">{{ piece.title }}</h1>
+                    <p class="subtitle is-5">{{ piece.compositeur }}</p>
+                </div>
+
+                <div class="main-card" x-data="{ activeTab: 'description' }">
+
+                    <div class="tabs-header">
+                        <button class="tab-button"
+                                :class="{ active: activeTab === 'description' }"
+                                @click="activeTab = 'description'"
+                                type="button">
+                            <span class="icon"><i class="fas fa-book-open"></i></span>
+                            <span>Infos</span>
+                        </button>
+                        <button class="tab-button"
+                                :class="{ active: activeTab === 'fichiers' }"
+                                @click="activeTab = 'fichiers'"
+                                type="button">
+                            <span class="icon"><i class="fas fa-folder-open"></i></span>
+                            <span>Fichiers</span>
+                        </button>
+                        {% if piece.audios %}
+                        <button class="tab-button"
+                                :class="{ active: activeTab === 'player' }"
+                                @click="activeTab = 'player'"
+                                type="button">
+                            <span class="icon"><i class="fas fa-play-circle"></i></span>
+                            <span>Player</span>
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <div class="content-body">
+
+                        <!-- Tab : À propos -->
+                        <div x-show="activeTab === 'description'">
+
+                            {% if piece.descr %}
+                            <div class="section-card">
+                                <h2 class="title is-5">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-align-left"></i></span>
+                                        <span>Description</span>
+                                    </span>
+                                </h2>
+                                <div class="content">{{ piece.descr|richtext }}</div>
+                            </div>
+                            {% endif %}
+
+                            {% if piece.traduction %}
+                            <div class="section-card">
+                                <h2 class="title is-5">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-language"></i></span>
+                                        <span>Traduction</span>
+                                    </span>
+                                </h2>
+                                <div class="content">{{ piece.traduction|richtext }}</div>
+                            </div>
+                            {% endif %}
+
+                            {% if piece.interpretation %}
+                            <div class="section-card">
+                                <h2 class="title is-5">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-music"></i></span>
+                                        <span>Indications musicales</span>
+                                    </span>
+                                </h2>
+                                <div class="content">{{ piece.interpretation|richtext }}</div>
+                            </div>
+                            {% endif %}
+
+                            {% if not piece.descr and not piece.traduction and not piece.interpretation %}
+                            <p class="has-text-centered py-6" style="color: var(--text-muted-color);">
+                                Aucune description disponible.
+                            </p>
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Tab : Fichiers -->
+                        <div x-show="activeTab === 'fichiers'">
+
+                            {% if piece.pdf %}
+                            <div class="section-card">
+                                <h2 class="title is-5">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                                        <span>Partition</span>
+                                    </span>
+                                </h2>
+                                <a href="{{ piece.pdf.url }}" class="button is-download" target="_blank" rel="noopener">
+                                    <span class="icon"><i class="fas fa-download"></i></span>
+                                    <span>{{ piece.pdf.title }}</span>
+                                </a>
+                            </div>
+                            {% endif %}
+
+                            {% if piece.audios %}
+                            <div class="section-card">
+                                <h2 class="title is-5">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-headphones"></i></span>
+                                        <span>Fichiers audio</span>
+                                    </span>
+                                </h2>
+                                <div class="audio-list">
+                                    {% for block in piece.audios %}
+                                        {% include_block block %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if piece.additional_files %}
+                            <div class="section-card">
+                                <h2 class="title is-5">
+                                    <span class="icon-text">
+                                        <span class="icon"><i class="fas fa-folder-open"></i></span>
+                                        <span>Fichiers supplémentaires</span>
+                                    </span>
+                                </h2>
+                                {% for block in piece.additional_files %}
+                                <div class="additional-section{% if not forloop.first %} additional-section--bordered{% endif %}">
+                                    <h3 class="title is-6 mb-3">{{ block.value.title }}</h3>
+                                    {% if block.value.audios %}
+                                    <div class="audio-list mb-3">
+                                        {% for audio_val in block.value.audios %}
+                                            {% if audio_val.audio %}
+                                            <div class="audio-card" x-data="scnAudioPlayer()" data-audio-url="{{ audio_val.audio.url }}">
+                                                <div class="audio-card-inner">
+                                                    <button @click="togglePlay()"
+                                                            class="audio-play-btn"
+                                                            type="button"
+                                                            :aria-label="isPlaying ? 'Pause' : 'Lecture'">
+                                                        <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
+                                                    </button>
+                                                    <div class="audio-card-meta">
+                                                        <span class="audio-card-name">{{ audio_val.pupitre }}</span>
+                                                        {% if audio_val.comment %}<span class="audio-card-comment">{{ audio_val.comment }}</span>{% endif %}
+                                                        <div class="audio-progress-row">
+                                                            <div class="audio-progress-track"
+                                                                 @click="seek($event)"
+                                                                 @mousemove="updateHover($event)"
+                                                                 @mouseleave="hideHover()">
+                                                                <div class="audio-progress-fill" :style="'width: ' + progress + '%'"></div>
+                                                            </div>
+                                                            <span class="audio-time" x-text="fmt(currentTime) + ' / ' + fmt(duration)">0:00 / 0:00</span>
+                                                        </div>
+                                                    </div>
+                                                    <a href="{{ audio_val.audio.url }}" download class="audio-download-btn" title="Télécharger">
+                                                        <i class="fas fa-download"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    {% if block.value.files %}
+                                    <div class="files-grid">
+                                        {% for file in block.value.files %}
+                                            {% if file %}
+                                            <a href="{{ file.url }}" download class="button is-small is-download">
+                                                <span class="icon"><i class="fas fa-download"></i></span>
+                                                <span>{{ file.title }}</span>
+                                            </a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            {% if not piece.pdf and not piece.audios and not piece.additional_files %}
+                            <p class="has-text-centered py-6" style="color: var(--text-muted-color);">
+                                Aucun fichier disponible.
+                            </p>
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Tab : Player -->
+                        {% if piece.audios %}
+                        <div x-show="activeTab === 'player'">
+                            {% include "music/_piece_player.html" %}
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

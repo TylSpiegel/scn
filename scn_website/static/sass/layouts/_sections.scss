@@ -1,0 +1,173 @@
+/* ============================================
+   SECTIONS & LAYOUT COMPONENTS
+   ============================================ */
+
+// Page header - separate from content card, elegant thin border
+.page-header {
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--primary-color) 92%, white),
+        color-mix(in srgb, var(--primary-color) 78%, white));
+    color: white;
+    padding: $spacing-xl;
+    border-radius: $radius-md;
+    margin-bottom: $spacing-lg;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 100%, black 15%);
+    
+    .title,
+    .subtitle {
+        color: white;
+        margin: 0;
+    }
+    
+    .subtitle {
+        margin-top: $spacing-sm;
+        opacity: 0.95;
+    }
+}
+
+// Title header (inside card) - elegant thin border
+.title-header {
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--primary-color) 92%, white),
+        color-mix(in srgb, var(--primary-color) 78%, white));
+    color: white;
+    padding: $spacing-xl;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 100%, black 15%);
+    border-bottom: none;
+    border-radius: $radius-md $radius-md 0 0;
+    
+    .title,
+    .subtitle {
+        color: white;
+        margin: 0;
+    }
+    
+    .subtitle {
+        margin-top: $spacing-sm;
+        opacity: 0.95;
+    }
+}
+
+// Main card container
+.main-card {
+    background: white;
+    border-radius: $radius-md;
+    overflow: hidden;
+    @include shadow-sm;
+    border: 1px solid #e0e0e0;
+}
+
+// Content body inside main card
+.content-body {
+    padding: $spacing-xl;
+}
+
+// Section card inside content
+.section-card {
+    margin-bottom: $spacing-lg;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+    
+    > .title {
+        color: $primary-color;
+        margin-bottom: $spacing-md;
+    }
+}
+
+// Section divider - tapered hr (wider in middle)
+.section-divider {
+    border: none;
+    height: 2px;
+    background: linear-gradient(
+        to right,
+        transparent,
+        color-mix(in srgb, var(--primary-color) 25%, white) 20%,
+        color-mix(in srgb, var(--primary-color) 35%, white) 50%,
+        color-mix(in srgb, var(--primary-color) 25%, white) 80%,
+        transparent
+    );
+    margin: $spacing-xl 0;
+}
+
+// Morceau index header - elegant thin border
+.morceau-index-header {
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--primary-color) 92%, white),
+        color-mix(in srgb, var(--primary-color) 78%, white));
+    padding: $spacing-xl;
+    border-radius: $radius-md;
+    margin-bottom: $spacing-lg;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 100%, black 15%);
+    
+    .title,
+    .subtitle {
+        color: white;
+        margin: 0;
+    }
+    
+    .subtitle {
+        margin-top: $spacing-sm;
+        opacity: 0.95;
+    }
+}
+
+// Elegant card (used in choristes index)
+.elegant-card {
+    background: white;
+    border-radius: $radius-md;
+    overflow: hidden;
+    @include shadow-sm;
+    border: 1px solid #e0e0e0;
+    
+    .elegant-card-header {
+        background: linear-gradient(135deg, 
+            color-mix(in srgb, var(--primary-color) 92%, white),
+            color-mix(in srgb, var(--primary-color) 78%, white));
+        color: white;
+        padding: $spacing-xl;
+        border-bottom: 1px solid color-mix(in srgb, var(--primary-color) 100%, black 15%);
+        
+        .title {
+            color: white;
+            margin: 0;
+        }
+    }
+    
+    .elegant-card-body {
+        padding: $spacing-xl;
+    }
+}
+
+// Tabs header - elegant style
+.tabs-header {
+    background: color-mix(in srgb, var(--primary-color) 75%, white);
+    display: flex;
+    justify-content: center;
+    gap: $spacing-lg;
+    padding: $spacing-md $spacing-xl;
+    border-bottom: 1px solid color-mix(in srgb, var(--primary-color) 100%, black 10%);
+}
+
+// Mobile responsiveness
+@include mobile {
+    .page-header,
+    .title-header,
+    .morceau-index-header {
+        padding: $spacing-lg;
+        
+        .title {
+            font-size: 1.5rem;
+        }
+    }
+    
+    .content-body {
+        padding: $spacing-md;
+    }
+    
+    .elegant-card-header,
+    .elegant-card-body {
+        padding: $spacing-lg;
+    }
+}

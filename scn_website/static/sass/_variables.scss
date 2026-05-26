@@ -1,0 +1,68 @@
+/* ============================================
+   VARIABLES GLOBALES
+   ============================================ */
+
+// Couleurs principales (surchargeables par CSS custom properties)
+$primary-color: var(--primary-color, #8a4d76);
+$secondary-color: var(--secondary-color, #fa7c91);
+$tertiary-color: var(--tertiary-color, #3e8ed0);
+
+// Page & Texte
+$background-color: var(--background-color, #f5f5f5);
+$text-color: var(--text-color, #2c3e50);
+$text-muted-color: var(--text-muted-color, #95a5a6);
+
+// Navigation
+$navbar-bg: var(--navbar-bg, #8a4d76);
+$navbar-text: var(--navbar-text, #ffffff);
+$navbar-hover-bg: var(--navbar-hover-bg, #6b3a5d);
+
+// Blocs de contenu
+$block-header-bg: var(--block-header-bg, #8a4d76);
+$block-header-text: var(--block-header-text, #ffffff);
+
+// Titres
+$title-h1-color: var(--title-h1-color, #2c3e50);
+$title-h2-color: var(--title-h2-color, #34495e);
+$title-h3-color: var(--title-h3-color, #7f8c8d);
+
+// Événements
+$event-rehearsal-color: var(--event-rehearsal-color, #3e8ed0);
+$event-concert-color: var(--event-concert-color, #fa7c91);
+
+// Espacements
+$spacing-xs: 0.5rem;
+$spacing-sm: 0.75rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-xxl: 2.5rem;
+
+// Border radius
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-round: 50%;
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Breakpoints
+$mobile: 768px;
+$tablet: 1024px;
+$desktop: 1216px;
+$widescreen: 1408px;
+
+// Z-index
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// Bulma customization (pour override si nécessaire)
+$family-sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;

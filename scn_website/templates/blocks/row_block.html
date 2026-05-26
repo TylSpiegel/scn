@@ -1,0 +1,20 @@
+{% load wagtailcore_tags %}
+
+{% with layout=self.layout %}
+<div class="row-block columns is-multiline layout-{{ layout }}">
+    {% for column in self.columns %}
+        <div class="column 
+            {% if layout == '1' %}is-12
+            {% elif layout == '1-1' %}is-6
+            {% elif layout == '1-2' %}{% if forloop.first %}is-4{% else %}is-8{% endif %}
+            {% elif layout == '2-1' %}{% if forloop.first %}is-8{% else %}is-4{% endif %}
+            {% elif layout == '1-1-1' %}is-4
+            {% elif layout == '1-2-1' %}{% if forloop.first or forloop.last %}is-3{% else %}is-6{% endif %}
+            {% elif layout == '1-1-1-1' %}is-3
+            {% else %}is-12
+            {% endif %}">
+            {% include_block column %}
+        </div>
+    {% endfor %}
+</div>
+{% endwith %}

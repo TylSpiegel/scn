@@ -1,0 +1,79 @@
+/* ============================================
+   MAIN STYLESHEET
+   Point d'entrée principal du projet SCN
+   Compilé vers: scn_website/static/css/bulma.css
+   ============================================ */
+
+// 1. Configuration - Variables & Mixins
+@import 'variables';
+@import 'mixins';
+
+// 2. Vendor - Bulma CSS Framework
+@import 'bulma/bulma';
+
+// 3. Base - Fondations
+@import 'base/typography';
+
+// 4. Layouts - Structure de page
+@import 'layouts/grid';
+@import 'layouts/sections';
+
+// 5. Components - Composants réutilisables
+@import 'components/buttons';
+@import 'components/cards';
+@import 'components/tabs';
+@import 'components/audio-player';
+@import 'components/breadcrumb';
+@import 'components/navbar';
+@import 'components/choristes';
+// 6. Pages - Styles spécifiques par page
+@import 'pages/morceau-index';
+// Liste des chants
+@import 'pages/morceau';
+// Détail d'un chant
+@import 'pages/calendar';
+// Calendrier
+
+// 7. Richtext - Embeds & iframes (YouTube, etc.)
+@import 'richtext';
+
+// Content blocks (alerts, tables, rows, columns)
+@import 'components/content-blocks';
+
+// 8. Utilities & Helpers - Classes utilitaires
+.has-text-centered {
+  text-align: center;
+}
+
+.py-6 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.mb-5 {
+  margin-bottom: 3rem;
+}
+
+.mt-5 {
+  margin-top: 3rem;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+// Animations globales
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn $transition-normal;
+}

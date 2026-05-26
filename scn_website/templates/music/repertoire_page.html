@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-10-desktop is-11-tablet is-12-mobile">
+
+                    <div class="page-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                        {% if page.introduction %}
+                            <p class="subtitle" style="color: var(--text-muted-color);">{{ page.introduction }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="morceau-index-content">
+                        {% for item in items %}
+                            <a href="{{ item.piece.url }}" class="morceau-index-item">
+                                <div class="morceau-index-item-text">
+                                    <span class="morceau-index-title">{% if page.ordre_important %}<span class="morceau-index-order">#{{ forloop.counter }}</span> {% endif %}{{ item.piece.title }}</span>
+                                    <span class="morceau-index-composer">{{ item.piece.compositeur }}</span>
+                                    {% if item.comment %}
+                                        <span class="morceau-index-comment">{{ item.comment }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="morceau-index-item-right">
+                                    {% with tags=item.tags.all %}
+                                        {% if tags %}
+                                            <div class="morceau-index-item-tags">
+                                                {% for tag in tags %}<span class="tag is-light is-small">{{ tag }}</span>{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                    <span class="morceau-index-item-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <p class="morceau-index-empty">
+                                {% if active_tag %}Aucun morceau avec ce tag.{% else %}Aucun morceau dans ce répertoire.{% endif %}
+                            </p>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

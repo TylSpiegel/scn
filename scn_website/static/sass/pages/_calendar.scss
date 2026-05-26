@@ -1,0 +1,376 @@
+/* ============================================
+   CALENDAR PAGE - Single column layout
+   Matches morceau page style with sections
+   ============================================ */
+
+// Section header with toggle on same line
+.section-header-with-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-lg;
+    
+    .title {
+        margin-bottom: 0;
+    }
+    
+    .buttons {
+        margin-bottom: 0;
+        
+        .button {
+            margin-bottom: 0;
+        }
+    }
+    
+    .button.is-primary {
+        background-color: $primary-color;
+        border-color: $primary-color;
+        color: white;
+    }
+}
+
+// Events box list
+.events-box-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+}
+
+// Event box (white card style)
+.event-box {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: $radius-sm;
+    
+    &.is-past {
+        opacity: 0.5;
+    }
+}
+
+.event-box-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    padding: $spacing-sm;
+    border-radius: $radius-sm;
+    flex-shrink: 0;
+    background: var(--primary-color);
+    color: white;
+
+    &.is-repetition {
+        background: var(--event-rehearsal-color);
+    }
+
+    &.is-concert {
+        background: var(--event-concert-color);
+    }
+
+    .day {
+        font-size: 1.25rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .month {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+}
+
+.event-box-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.event-box-title {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.event-box-short-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted-color);
+}
+
+.event-box-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    font-size: 0.875rem;
+    color: var(--text-muted-color);
+    
+    i {
+        margin-right: 4px;
+        font-size: 0.8rem;
+    }
+}
+
+.event-box-time,
+.event-box-location {
+    white-space: nowrap;
+}
+
+// Month navigation centered
+.calendar-month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    
+    .month-display {
+        font-weight: 600;
+        min-width: 140px;
+        text-align: center;
+    }
+}
+
+// FullCalendar container
+#calendar {
+    background: white;
+    border-radius: $radius-sm;
+    overflow: hidden;
+    
+    .fc {
+        font-family: $family-sans-serif;
+    }
+    
+    .fc-toolbar {
+        margin-bottom: $spacing-lg;
+        padding: 0 $spacing-sm;
+        
+        h2 {
+            color: $primary-color;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+    }
+    
+    .fc-button {
+        background-color: $primary-color;
+        border-color: $primary-color;
+        color: white;
+        border-radius: $radius-sm;
+        padding: 0.4rem 0.8rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        
+        &:hover:not(:disabled) {
+            background-color: $secondary-color;
+            border-color: $secondary-color;
+        }
+        
+        &:disabled {
+            opacity: 0.5;
+        }
+        
+        &.fc-button-active {
+            background-color: color-mix(in srgb, var(--primary-color) 80%, black);
+            border-color: color-mix(in srgb, var(--primary-color) 80%, black);
+        }
+    }
+    
+    .fc-col-header-cell {
+        background-color: color-mix(in srgb, var(--primary-color) 10%, white);
+        color: $primary-color;
+        font-weight: 600;
+        padding: $spacing-sm;
+    }
+    
+    .fc-daygrid-day-number {
+        color: var(--text-color);
+        padding: 0.4rem;
+        font-weight: 500;
+    }
+    
+    .fc-day-today {
+        background-color: color-mix(in srgb, var(--tertiary-color) 10%, white) !important;
+        
+        .fc-daygrid-day-number {
+            color: $tertiary-color;
+            font-weight: 700;
+        }
+    }
+    
+    .fc-event {
+        border-radius: $radius-sm;
+        padding: 2px 4px;
+        margin: 1px 2px;
+        border: none;
+        font-size: 0.8rem;
+        cursor: pointer;
+        
+        .fc-event-title {
+            font-weight: 600;
+        }
+        
+        .fc-event-time {
+            font-weight: 400;
+            margin-right: 4px;
+        }
+    }
+    
+    .fc-theme-standard td,
+    .fc-theme-standard th {
+        border-color: #e0e0e0;
+    }
+}
+
+// Body scroll lock when any modal is open
+body.is-modal-open {
+    overflow: hidden;
+}
+
+// Event modal overrides
+.event-modal {
+    z-index: 9999;
+    overflow-y: auto; // scroll anywhere in the overlay scrolls the modal
+
+    .modal-card {
+        max-width: 600px;
+        width: 90vw;
+        margin: auto;
+    }
+
+    .modal-card-body {
+        overflow-y: visible;
+    }
+}
+
+.modal-card-head {
+    background-color: var(--primary-color);
+    border-bottom: none;
+    flex-shrink: 0;
+
+    .modal-card-title {
+        color: white;
+        font-weight: 700;
+    }
+}
+
+.modal-card-foot {
+    background-color: #f8f8f8;
+    border-top: 1px solid #e0e0e0;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: $spacing-md;
+}
+
+.modal-close-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 2px solid #dbdbdb;
+    background: white;
+    color: var(--text-muted-color);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color $transition-fast, color $transition-fast, background-color $transition-fast;
+
+    &:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background-color: color-mix(in srgb, var(--primary-color) 8%, white);
+    }
+}
+
+.modal-short-desc {
+    color: var(--text-muted-color);
+    font-style: italic;
+}
+
+.modal-divider {
+    margin: $spacing-md 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+.event-detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    .icon-text {
+        .icon {
+            color: var(--primary-color);
+        }
+
+        span:not(.icon) {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+    }
+}
+
+// "Plus d'infos" button on event boxes
+.event-box-more-btn {
+    flex-shrink: 0;
+    align-self: center;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--primary-color);
+    border-radius: $radius-md;
+    background: transparent;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color $transition-fast, color $transition-fast;
+
+    &:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+}
+
+// Mobile responsiveness
+@include mobile {
+    .section-header-with-toggle {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .event-box {
+        align-items: flex-start;
+        
+        .event-box-date {
+            min-width: 45px;
+        }
+    }
+    
+    .event-box-details {
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+    
+    #calendar {
+        .fc-toolbar {
+            flex-direction: column;
+            gap: $spacing-sm;
+            
+            .fc-toolbar-chunk {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+        }
+        
+        .fc-button {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+    }
+}
