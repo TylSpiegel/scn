@@ -7,9 +7,17 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 if not SECRET_KEY:
     raise ValueError("DJANGO_SECRET_KEY environment variable is required in production")
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
-if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if h.strip()]
+if not ALLOWED_HOSTS:
     raise ValueError("DJANGO_ALLOWED_HOSTS environment variable is required in production")
+
+# CSRF trusted origins (Django 4+ requires the scheme).
+# Default: derived from the allowed hosts as https; overridable via env.
+_csrf_env = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '')
+if _csrf_env:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_env.split(',') if o.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in ALLOWED_HOSTS if not h.startswith('.')]
 
 # Email configuration from environment
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
