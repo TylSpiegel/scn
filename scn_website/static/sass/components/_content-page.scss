@@ -299,3 +299,201 @@
     height: 1px;
     overflow: hidden;
 }
+
+// ---- Mini-composants des sections -----------------------------------------
+
+.block-button {
+    margin: $spacing-sm 0;
+
+    .button {
+        font-weight: 600;
+        padding-left: $spacing-xl;
+        padding-right: $spacing-xl;
+    }
+}
+
+.block-callout {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: flex-start;
+    padding: $spacing-md $spacing-lg;
+    border-left: 4px solid $tertiary-color;
+    border-radius: 0 8px 8px 0;
+    background: color-mix(in srgb, var(--tertiary-color) 10%, white);
+
+    .icon {
+        color: $tertiary-color;
+        margin-top: 0.15rem;
+    }
+
+    .content p:last-child {
+        margin-bottom: 0;
+    }
+
+    &.is-important {
+        border-left-color: $secondary-color;
+        background: color-mix(in srgb, var(--secondary-color) 12%, white);
+
+        .icon {
+            color: color-mix(in srgb, var(--secondary-color) 70%, black);
+        }
+    }
+}
+
+.block-quote {
+    margin: $spacing-lg 0;
+    padding-left: $spacing-lg;
+    border-left: 3px solid $primary-color;
+
+    blockquote {
+        font-family: 'Lora', Georgia, serif;
+        font-size: 1.3rem;
+        font-style: italic;
+        line-height: 1.5;
+        color: $text-color;
+    }
+
+    figcaption {
+        margin-top: $spacing-xs;
+        color: $text-muted-color;
+        font-size: 0.95rem;
+    }
+}
+
+.block-image {
+    margin: $spacing-lg 0;
+
+    img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    figcaption {
+        margin-top: $spacing-xs;
+        color: $text-muted-color;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+}
+
+.block-practical-info {
+    display: flex;
+    align-items: baseline;
+    gap: $spacing-sm;
+    margin: 0.35rem 0;
+
+    .icon {
+        color: $primary-color;
+        flex: none;
+    }
+}
+
+// Les infos pratiques consécutives forment une liste compacte
+.section-item:has(> .block-practical-info) + .section-item:has(> .block-practical-info) {
+    margin-top: 0;
+}
+
+.block-key-figure {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 8rem;
+    padding: $spacing-sm $spacing-md;
+
+    .block-key-figure-number {
+        font-family: 'Lora', Georgia, serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.1;
+        color: $primary-color;
+    }
+
+    .block-key-figure-label {
+        color: $text-muted-color;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.8rem;
+    }
+}
+
+// Les chiffres clés consécutifs s'alignent sur une ligne
+.section-item:has(> .block-key-figure) {
+    display: inline-block;
+    margin-right: $spacing-md;
+}
+
+.block-table {
+    overflow-x: auto;
+    margin: $spacing-md 0;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    caption {
+        caption-side: bottom;
+        padding-top: $spacing-xs;
+        color: $text-muted-color;
+        font-size: 0.9rem;
+    }
+
+    th,
+    td {
+        padding: $spacing-xs $spacing-sm;
+        border-bottom: 1px solid color-mix(in srgb, var(--text-color) 12%, white);
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        background: color-mix(in srgb, var(--primary-color) 10%, white);
+        color: $text-color;
+        font-weight: 600;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+}
+
+.block-document a {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-md;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 30%, white);
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+        background: color-mix(in srgb, var(--primary-color) 8%, white);
+    }
+
+    .block-document-meta {
+        color: $text-muted-color;
+        font-weight: 400;
+        font-size: 0.85rem;
+    }
+}
+
+.block-separator {
+    width: 4rem;
+    height: 2px;
+    margin: $spacing-xl auto;
+    border: none;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--primary-color) 35%, transparent);
+}
+
+.block-spacer {
+    &.is-small { height: $spacing-md; }
+    &.is-medium { height: $spacing-xl; }
+    &.is-large { height: $spacing-xxl * 2; }
+}

@@ -1,0 +1,9 @@
+{% if value %}
+    <p class="block-document">
+        <a href="{{ value.url }}">
+            <span class="icon" aria-hidden="true"><i class="fas fa-file-arrow-down"></i></span>
+            <span>{{ value.title }}</span>
+            <span class="block-document-meta">{{ value.file_extension|upper }}{% if value.file_size %} · {{ value.file_size|filesizeformat }}{% endif %}</span>
+        </a>
+    </p>
+{% endif %}

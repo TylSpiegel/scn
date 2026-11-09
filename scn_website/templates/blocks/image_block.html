@@ -1,0 +1,8 @@
+{% load wagtailimages_tags %}
+
+{% if self.image %}
+    <figure class="block-image">
+        {% image self.image width-1200 loading="lazy" %}
+        {% if self.caption %}<figcaption>{{ self.caption }}</figcaption>{% endif %}
+    </figure>
+{% endif %}
