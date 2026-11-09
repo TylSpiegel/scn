@@ -1,9 +1,9 @@
 {% load wagtailcore_tags %}
 
-{# Flux des sections d'une ContentPage (gabarits Standard et Bannière) #}
+{# Contenu d'une ContentPage (gabarit Standard) : sections et images. Un trait sépare deux sections. #}
 {% for block in page.body %}
+    {% if block.block_type == "section" and not forloop.first %}<hr class="section-divider">{% endif %}
     {% include_block block %}
-    {% if not forloop.last %}<hr class="section-divider">{% endif %}
 {% empty %}
     <p class="has-text-grey has-text-centered py-6">Aucun contenu.</p>
 {% endfor %}

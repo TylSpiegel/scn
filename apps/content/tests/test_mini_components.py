@@ -121,3 +121,46 @@ class DocumentGuardTests(TestCase):
     def test_public_document_is_allowed(self):
         page = self._page_with("Public")
         self.assertEqual(private_content_in(page.body), [])
+
+
+@two_hosts
+class PageLevelImageTests(TestCase):
+    def setUp(self):
+        self.sites = build_sites()
+        self.media = tempfile.TemporaryDirectory()
+        self.addCleanup(self.media.cleanup)
+        media_override = override_settings(MEDIA_ROOT=self.media.name)
+        media_override.enable()
+        self.addCleanup(media_override.disable)
+        self.image = Image.objects.create(title="Affiche", file=_png())
+
+    def _render(self, body):
+        page = self.sites.public_home
+        page.body = body
+        page.save()
+        return self.client.get("/", HTTP_HOST=PUBLIC_HOST).content.decode()
+
+    def test_image_between_sections(self):
+        html = self._render([
+            section("Avant"),
+            {"type": "image", "value": {"image": self.image.pk, "caption": "Hors section", "size": "medium", "border": True}},
+            section("Après"),
+        ])
+        self.assertIn("block-image is-medium has-border", html)
+        self.assertLess(html.index("Avant"), html.index("Hors section"))
+        self.assertLess(html.index("Hors section"), html.index("Après"))
+        # Un trait sépare deux sections, pas une section et une image
+        self.assertEqual(html.count('class="section-divider"'), 1)
+
+    def test_old_image_without_options_is_full_width(self):
+        html = self._render([
+            section("S", {"type": "image", "value": {"image": self.image.pk, "caption": ""}}),
+        ])
+        self.assertIn('block-image is-full"', html)
+        self.assertNotIn("has-border", html)
+
+    def test_guard_ignores_page_level_images(self):
+        page = self.sites.public_home
+        page.body = [{"type": "image", "value": {"image": self.image.pk, "caption": "", "size": "full", "border": False}}]
+        page.save()
+        self.assertEqual(private_content_in(page.body), [])

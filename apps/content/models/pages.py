@@ -4,7 +4,7 @@ from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.fields import RichTextField, StreamField
 
-from apps.content.blocks import PRIVATE_BLOCK_TYPES, SectionBlock
+from apps.content.blocks import PRIVATE_BLOCK_TYPES, ImageBlock, SectionBlock
 
 
 def _section_label(section):
@@ -16,6 +16,8 @@ def private_content_in(body):
     """Blocs du corps d'une page qui ne doivent pas apparaître sur une page publique."""
     found = []
     for section in body:
+        if section.block_type != "section":
+            continue  # images hors section : jamais privées
         for block in section.value["content"]:
             if block.block_type in PRIVATE_BLOCK_TYPES:
                 found.append(f"« {block.block.label} » dans {_section_label(section)}")
@@ -91,9 +93,10 @@ class ContentPage(Page):
         help_text="Utilisée par le gabarit « Bannière » et comme image de partage sur les réseaux sociaux.",
     )
     body = StreamField(
-        [("section", SectionBlock())],
+        [("section", SectionBlock()), ("image", ImageBlock())],
         blank=True,
-        verbose_name="Sections",
+        verbose_name="Contenu",
+        help_text="Des sections, et des images entre elles si besoin.",
     )
 
     content_panels = Page.content_panels + [

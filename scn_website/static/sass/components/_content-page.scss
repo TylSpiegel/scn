@@ -361,13 +361,26 @@
 }
 
 .block-image {
-    margin: $spacing-lg 0;
+    margin: $spacing-lg auto;
+
+    // Taille maximale choisie dans l'éditeur ; centrée quand elle est limitée
+    &.is-small { max-width: 320px; }
+    &.is-medium { max-width: 560px; }
+    &.is-large { max-width: 800px; }
 
     img {
         display: block;
         width: 100%;
         height: auto;
         border-radius: 8px;
+    }
+
+    // Petite bordure : fin cadre clair autour de l'image
+    &.has-border img {
+        padding: 4px;
+        background: white;
+        border: 1px solid color-mix(in srgb, var(--text-color) 18%, white);
+        border-radius: 10px;
     }
 
     figcaption {
