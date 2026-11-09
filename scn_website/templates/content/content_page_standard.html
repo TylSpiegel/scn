@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-10-desktop is-11-tablet is-12-mobile">
+
+                    <div class="page-header">
+                        <h1 class="title is-2">{{ page.title }}</h1>
+                    </div>
+
+                    <div class="main-card">
+                        <div class="content-body">
+                            {% include "content/_sections.html" %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

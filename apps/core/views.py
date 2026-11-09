@@ -1,50 +1,58 @@
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
-from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.http import require_http_methods
-from wagtail.models import Site
+from django.http import Http404, HttpResponse
+from django.views.decorators.http import require_GET
+from wagtail.contrib.sitemaps.views import sitemap as wagtail_sitemap
 
-from apps.core.middleware import SESSION_KEY
 from apps.core.models import SecuritySettings
 
 
-def _safe_next(request, fallback: str = "/") -> str:
-    next_url = request.GET.get("next") or request.POST.get("next") or fallback
-    if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-        return next_url
-    return fallback
+# Robots d'entraînement et d'assistants IA, bloqués même quand l'indexation est autorisée.
+AI_CRAWLERS = (
+    "GPTBot",
+    "ChatGPT-User",
+    "OAI-SearchBot",
+    "ClaudeBot",
+    "Claude-Web",
+    "anthropic-ai",
+    "CCBot",
+    "Google-Extended",
+    "Applebot-Extended",
+    "PerplexityBot",
+    "Bytespider",
+    "Amazonbot",
+    "Meta-ExternalAgent",
+    "FacebookBot",
+    "cohere-ai",
+    "Diffbot",
+    "ImagesiftBot",
+    "Omgilibot",
+)
 
 
-@require_http_methods(["GET", "POST"])
-def site_login(request):
-    site = Site.find_for_request(request)
-    settings_obj = SecuritySettings.for_site(site) if site else None
-    expected = (settings_obj.password if settings_obj else "") or ""
-
-    if not expected or request.user.is_authenticated or request.session.get(SESSION_KEY):
-        return redirect(_safe_next(request))
-
-    error = False
-    if request.method == "POST":
-        if request.POST.get("password", "") == expected:
-            request.session.cycle_key()
-            request.session[SESSION_KEY] = True
-            return redirect(_safe_next(request))
-        error = True
-
-    return render(
-        request,
-        "password_required.html",
-        {
-            "settings_obj": settings_obj,
-            "error": error,
-            "next": _safe_next(request),
-        },
-    )
+def _allow_indexing(request) -> bool:
+    return SecuritySettings.for_request(request).allow_indexing
 
 
-def check_password(request):
-    if request.user.is_authenticated or request.session.get(SESSION_KEY):
-        return HttpResponse(status=204)
-    return HttpResponse(status=401)
+@require_GET
+def robots_txt(request):
+    if not _allow_indexing(request):
+        lines = ["User-agent: *", "Disallow: /"]
+    else:
+        lines = [f"User-agent: {bot}" for bot in AI_CRAWLERS]
+        lines += [
+            "Disallow: /",
+            "",
+            "User-agent: *",
+            "Disallow: /admin/",
+            "Disallow: /django-admin/",
+            "Disallow: /documents/",
+            "",
+            f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}",
+        ]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
+
+
+@require_GET
+def sitemap(request):
+    if not _allow_indexing(request):
+        raise Http404
+    return wagtail_sitemap(request)

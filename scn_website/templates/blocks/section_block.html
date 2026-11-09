@@ -1,9 +1,22 @@
 {% load wagtailcore_tags %}
 
-{% if self.title %}
-    <h3 class="title is-4">{{ self.title }}</h3>
-{% endif %}
+<div class="section-card{% if not self.title and not self.date %} has-no-heading{% endif %}">
+    {% if self.title or self.date %}
+        <div class="section-heading">
+            {% if self.title %}<h2 class="title is-4">{{ self.title }}</h2>{% endif %}
+            {% if self.date %}
+                <time class="section-date" datetime="{{ self.date|date:'Y-m-d' }}">{{ self.date|date:"j F Y" }}</time>
+            {% endif %}
+        </div>
+    {% endif %}
 
-{% for row in self.rows %}
-    {% include_block row %}
-{% endfor %}
+    <div class="section-body">
+        {% for block in self.content %}
+            {% if block.block_type == "text" %}
+                <div class="content">{% include_block block %}</div>
+            {% else %}
+                <div class="section-item">{% include_block block %}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>

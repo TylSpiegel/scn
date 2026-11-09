@@ -4,6 +4,6 @@ from apps.core import views
 
 
 urlpatterns = [
-    path("_site_login/", views.site_login, name="site_login"),
-    path("_check_password/", views.check_password, name="site_check_password"),
+    path("robots.txt", views.robots_txt, name="robots_txt"),
+    path("sitemap.xml", views.sitemap, name="sitemap"),
 ]

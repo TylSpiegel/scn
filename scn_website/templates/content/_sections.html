@@ -1,0 +1,9 @@
+{% load wagtailcore_tags %}
+
+{# Flux des sections d'une ContentPage (gabarits Standard et Bannière) #}
+{% for block in page.body %}
+    {% include_block block %}
+    {% if not forloop.last %}<hr class="section-divider">{% endif %}
+{% empty %}
+    <p class="has-text-grey has-text-centered py-6">Aucun contenu.</p>
+{% endfor %}

@@ -6,25 +6,33 @@ from wagtail.fields import RichTextField
 
 @register_setting
 class SecuritySettings(BaseSiteSetting):
-    password = models.CharField(
-        max_length=128,
-        blank=True,
-        default="",
-        verbose_name="Mot de passe",
-        help_text="Mot de passe pour protéger l'accès au site"
-    )
     login_message = RichTextField(
         blank=True,
         default="",
         verbose_name="Message d'accueil",
-        help_text="Message affiché sur la page de connexion"
+        help_text="Message affiché au-dessus du formulaire de mot de passe. "
+        "Le mot de passe lui-même se règle avec le bouton « Confidentialité » de la page racine.",
+    )
+    allow_indexing = models.BooleanField(
+        default=False,
+        verbose_name="Autoriser l'indexation",
+        help_text="Laisser les moteurs de recherche indexer ce site (sitemap, robots.txt). "
+        "À n'activer que sur le site public.",
     )
 
     panels = [
-        MultiFieldPanel([
-            FieldPanel('password'),
-            FieldPanel('login_message'),
-        ], heading="Protection par mot de passe"),
+        MultiFieldPanel(
+            [
+                FieldPanel("login_message"),
+            ],
+            heading="Protection par mot de passe",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("allow_indexing"),
+            ],
+            heading="Référencement",
+        ),
     ]
 
     class Meta:

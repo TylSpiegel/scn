@@ -1,0 +1,301 @@
+/* ============================================
+   PAGES DE CONTENU (ContentPage) & FORMULAIRES
+   Trois gabarits, uniquement à partir des variables de la palette :
+   - Standard      : carte centrée (styles de layouts/_sections.scss)
+   - Bannière      : grande bannière puis contenu ouvert, sans carte
+   - Pleine largeur: une bande par section, titre à gauche / contenu à droite
+   ============================================ */
+
+// Section (commune aux trois gabarits)
+.section-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $spacing-xs $spacing-md;
+    margin-bottom: $spacing-md;
+
+    .title {
+        margin-bottom: 0;
+    }
+}
+
+.section-date {
+    color: $text-muted-color;
+    font-size: 0.85rem;
+}
+
+.section-item {
+    margin-top: $spacing-lg;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.section-body > .content + .content {
+    margin-top: $spacing-md;
+}
+
+// ---- Gabarit « Bannière » : contenu ouvert -------------------------------
+
+.content-banner {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 16rem;
+    background: linear-gradient(135deg,
+        $primary-color,
+        color-mix(in srgb, var(--primary-color) 70%, var(--secondary-color)));
+    overflow: hidden;
+
+    &.has-image {
+        min-height: min(70vh, 32rem);
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.05) 70%);
+        }
+    }
+
+    .content-banner-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .content-banner-body {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 48rem;
+        margin: 0 auto;
+        padding: $spacing-xxl $spacing-md;
+    }
+
+    .title,
+    .subtitle {
+        color: white;
+    }
+
+    .subtitle {
+        opacity: 0.92;
+        margin-top: $spacing-sm;
+    }
+}
+
+.content-open {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: $spacing-xxl $spacing-md ($spacing-xxl * 2);
+
+    // Pas de cadre : la section est posée sur le fond de page
+    .section-card {
+        background: none;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        margin-bottom: 0;
+
+        .section-heading .title {
+            border-bottom: none;
+            padding-bottom: 0;
+            font-size: 1.75rem;
+        }
+
+        // Petite séparation centrée entre deux sections
+        & + .section-card {
+            margin-top: $spacing-xxl;
+            padding-top: $spacing-xxl;
+            position: relative;
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 50%;
+                width: 4rem;
+                height: 2px;
+                transform: translateX(-50%);
+                border-radius: 2px;
+                background: color-mix(in srgb, var(--primary-color) 35%, transparent);
+            }
+        }
+    }
+
+    .content {
+        font-size: 1.075rem;
+    }
+}
+
+// ---- Gabarit « Pleine largeur » : bandes ---------------------------------
+
+.content-full-header {
+    background: $primary-color;
+    padding: ($spacing-xxl * 1.5) $spacing-md;
+
+    .title,
+    .subtitle {
+        color: white;
+    }
+
+    .subtitle {
+        opacity: 0.92;
+        margin-top: $spacing-sm;
+    }
+}
+
+.content-band {
+    padding: ($spacing-xxl * 1.5) $spacing-md;
+
+    &.is-plain {
+        background: white;
+    }
+
+    &.is-tinted {
+        background: color-mix(in srgb, var(--primary-color) 6%, var(--background-color));
+    }
+
+    .section-card {
+        margin-bottom: 0;
+    }
+
+    // Desktop : titre et date dans une colonne étroite, contenu à droite
+    @include desktop {
+        .section-card {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+            gap: $spacing-xxl;
+            align-items: start;
+        }
+
+        // Section sans titre ni date : le contenu prend toute la largeur
+        .section-card.has-no-heading {
+            display: block;
+        }
+
+        .section-heading {
+            flex-direction: column;
+            align-items: flex-start;
+            position: sticky;
+            top: $spacing-lg;
+            margin-bottom: 0;
+        }
+    }
+
+    .section-heading {
+        border-left: 4px solid $secondary-color;
+        padding-left: $spacing-md;
+
+        .title {
+            font-size: 1.6rem;
+        }
+    }
+
+    &.is-tinted .section-heading {
+        border-left-color: $tertiary-color;
+    }
+}
+
+// ---- Formulaires (FormPage et bloc « Formulaire ») ------------------------
+// Champs blancs, distincts du fond de page et du cadre teinté du formulaire.
+
+// Chaque formulaire intégré : même cadre que les cartes du site, centré
+.form-block {
+    @include colored-card(0.1, 0.25);
+    max-width: 40rem;
+    margin: $spacing-lg auto;
+
+    @include mobile {
+        padding: $spacing-md;
+    }
+
+    .scn-form {
+        max-width: none;
+    }
+}
+
+.scn-form {
+    max-width: 40rem;
+
+    .label {
+        color: $text-color;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .input,
+    .textarea,
+    .select select {
+        background-color: white;
+        border: 1px solid color-mix(in srgb, var(--text-color) 22%, white);
+        border-radius: 8px;
+        box-shadow: none;
+        color: $text-color;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--text-color) 35%, transparent);
+        }
+
+        &:focus,
+        &:focus-visible {
+            border-color: $primary-color;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+            outline: none;
+        }
+    }
+
+    .select:not(.is-multiple):not(.is-loading)::after {
+        border-color: $primary-color;
+    }
+
+    .button.is-primary {
+        border-radius: 999px;
+        padding-left: $spacing-xl;
+        padding-right: $spacing-xl;
+    }
+
+    // Choix multiples (radio / cases) : liste sans puces
+    ul {
+        list-style: none;
+        margin: 0;
+
+        li + li {
+            margin-top: 0.25rem;
+        }
+
+        label {
+            display: inline-flex;
+            align-items: center;
+            gap: $spacing-xs;
+            cursor: pointer;
+        }
+    }
+}
+
+.form-confirmation {
+    margin-bottom: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    border-left: 4px solid $primary-color;
+    border-radius: 0 8px 8px 0;
+    background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+    color: $text-color;
+
+    p:last-child {
+        margin-bottom: 0;
+    }
+}
+
+// Champ piège anti-spam : hors écran, invisible pour les humains
+.form-hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}

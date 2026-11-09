@@ -20,7 +20,21 @@
     {% endif %}
 
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta name="robots" content="noindex, nofollow">
+    {% if settings.core.SecuritySettings.allow_indexing %}
+        <meta name="robots" content="index, follow">
+        {% if page %}
+            <meta property="og:type" content="website">
+            <meta property="og:title" content="{% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %}">
+            {% if page.search_description %}<meta property="og:description" content="{{ page.search_description }}">{% endif %}
+            <meta property="og:url" content="{{ page.full_url }}">
+            {% if page.banner_image %}
+                {% image page.banner_image fill-1200x630 as og_img %}
+                <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ og_img.url }}">
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <meta name="robots" content="noindex, nofollow">
+    {% endif %}
 
     {% if settings.core.NavigationSettings.logo %}
         {% image settings.core.NavigationSettings.logo fill-32x32 as favicon_img %}
@@ -34,17 +48,20 @@
 
     <style>
         :root {
-            --primary-color: {{ settings.core.ThemeSettings.primary_color | default:"#8a4d76" }};
-            --secondary-color: {{ settings.core.ThemeSettings.secondary_color | default:"#fa7c91" }};
-            --tertiary-color: {{ settings.core.ThemeSettings.tertiary_color | default:"#3e8ed0" }};
-            --background-color: {{ settings.core.ThemeSettings.background_color | default:"#f5f5f5" }};
-            --text-color: {{ settings.core.ThemeSettings.text_color | default:"#2c3e50" }};
-            --text-muted-color: {{ settings.core.ThemeSettings.text_muted_color | default:"#95a5a6" }};
-            --navbar-bg: {{ settings.core.ThemeSettings.navbar_bg | default:"#8a4d76" }};
-            --navbar-text: {{ settings.core.ThemeSettings.navbar_text | default:"#ffffff" }};
-            --navbar-hover-bg: {{ settings.core.ThemeSettings.navbar_hover_bg | default:"#6b3a5d" }};
-            --event-rehearsal-color: #3e8ed0;
-            --event-concert-color: #fa7c91;
+            {% with theme=settings.core.ThemeSettings.colors %}
+            --primary-color: {{ theme.primary_color }};
+            --secondary-color: {{ theme.secondary_color }};
+            --tertiary-color: {{ theme.tertiary_color }};
+            --background-color: {{ theme.background_color }};
+            --text-color: {{ theme.text_color }};
+            --text-muted-color: {{ theme.text_muted_color }};
+            --navbar-bg: {{ theme.navbar_colors.0 }};
+            --navbar-text: {{ theme.navbar_colors.1 }};
+            --navbar-hover-bg: {{ theme.navbar_colors.2 }};
+            {% endwith %}
+            /* Calendrier : concerts en couleur d'accent, répétitions en couleur complémentaire */
+            --event-rehearsal-color: var(--tertiary-color);
+            --event-concert-color: var(--secondary-color);
         }
 
         /* Force le fond à couvrir toute la page */

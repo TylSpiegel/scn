@@ -1,5 +1,6 @@
 {% load wagtailcore_tags %}
 
+{% if self.event %}
 <div x-data="{ open: false }">
     <div class="event-box" style="cursor: pointer;" @click="open = true">
         <div class="event-box-date">
@@ -80,10 +81,10 @@
                     {% endif %}
                 </div>
 
-                {% if self.event.description %}
-                    <div class="content mt-3">
-                        <p>{{ self.event.description }}</p>
-                    </div>
+                {% if self.event.long_description %}
+                    <div class="content mt-3">{{ self.event.long_description|richtext }}</div>
+                {% elif self.event.short_description %}
+                    <div class="content mt-3"><p>{{ self.event.short_description }}</p></div>
                 {% endif %}
 
                 {% if self.extra_content %}
@@ -94,3 +95,4 @@
         </div>
     </div>
 </div>
+{% endif %}
