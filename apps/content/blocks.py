@@ -17,7 +17,7 @@ class EventBlock(blocks.StructBlock):
 
 class PieceBlock(blocks.PageChooserBlock):
     def __init__(self, *args, **kwargs):
-        super().__init__(page_type='music.Piece', *args, **kwargs)
+        super().__init__(*args, page_type='music.Piece', **kwargs)
 
     def get_template(self, context=None):
         return 'blocks/piece_block.html'
