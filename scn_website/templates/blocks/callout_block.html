@@ -1,0 +1,8 @@
+{% load wagtailcore_tags %}
+
+<div class="block-callout is-{{ self.tone }}" role="note">
+    <span class="icon" aria-hidden="true">
+        <i class="fas {% if self.tone == 'important' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+    </span>
+    <div class="content">{{ self.text|richtext }}</div>
+</div>

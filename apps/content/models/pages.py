@@ -27,6 +27,14 @@ def private_content_in(body):
                 found.append(
                     f"le formulaire privé « {block.value.title} » dans {_section_label(section)}"
                 )
+            elif (
+                block.block_type == "document"
+                and block.value
+                and block.value.collection.get_view_restrictions().exists()
+            ):
+                found.append(
+                    f"le document privé « {block.value.title} » dans {_section_label(section)}"
+                )
     return found
 
 

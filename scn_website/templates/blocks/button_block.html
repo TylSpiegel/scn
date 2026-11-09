@@ -1,0 +1,9 @@
+{% load wagtailcore_tags %}
+
+<p class="block-button">
+    <a class="button is-primary is-rounded{% if self.style == 'outlined' %} is-outlined{% endif %}"
+       href="{% if self.page %}{% pageurl self.page %}{% else %}{{ self.url }}{% endif %}"
+       {% if not self.page %}target="_blank" rel="noopener"{% endif %}>
+        {{ self.label }}
+    </a>
+</p>
