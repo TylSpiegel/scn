@@ -8,5 +8,6 @@ register = template.Library()
 def community_tags():
     """All tags used on Events."""
     from apps.community.models.event import EventTag
-    ids = EventTag.objects.values_list('tag_id', flat=True).distinct()
-    return Tag.objects.filter(id__in=ids).order_by('name')
+
+    ids = EventTag.objects.values_list("tag_id", flat=True).distinct()
+    return Tag.objects.filter(id__in=ids).order_by("name")
