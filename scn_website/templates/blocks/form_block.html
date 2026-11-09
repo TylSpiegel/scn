@@ -1,0 +1,25 @@
+{% load wagtailcore_tags %}
+
+{% if form_page %}
+    <div class="form-block" id="{{ form_page.message_tag }}">
+        {% for message in messages %}
+            {% if form_page.message_tag in message.tags %}
+                <div class="form-confirmation" role="status">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+
+        {% if form_page.intro %}
+            <div class="content">{{ form_page.intro|richtext }}</div>
+        {% endif %}
+
+        <form action="{% pageurl form_page %}" method="post" class="scn-form">
+            {% csrf_token %}
+            {% include "interaction/_form_fields.html" %}
+            <div class="field">
+                <div class="control">
+                    <button type="submit" class="button is-primary">Envoyer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endif %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{# Gabarit « Pleine largeur » : une bande par section, titre à gauche et contenu à droite (desktop). #}
+
+{% block content %}
+    <section class="content-full-header">
+        <div class="container">
+            <h1 class="title is-1">{{ page.title }}</h1>
+            {% if page.search_description %}
+                <p class="subtitle is-5">{{ page.search_description }}</p>
+            {% endif %}
+        </div>
+    </section>
+
+    {% for block in page.body %}
+        <section class="content-band {% cycle 'is-plain' 'is-tinted' %}">
+            <div class="container">
+                {% include_block block %}
+            </div>
+        </section>
+    {% empty %}
+        <section class="content-band is-plain">
+            <div class="container">
+                <p class="has-text-grey has-text-centered py-6">Aucun contenu.</p>
+            </div>
+        </section>
+    {% endfor %}
+{% endblock %}

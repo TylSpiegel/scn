@@ -5,7 +5,7 @@ import re
 register = template.Library()
 
 
-@register.filter(name='youtube_nocookie')
+@register.filter(name="youtube_nocookie")
 def youtube_nocookie(value):
     """Convertit les URLs YouTube en version no-cookie."""
     if not value:
@@ -15,11 +15,11 @@ def youtube_nocookie(value):
     result = re.sub(
         r'(src=")https?://(?:www\.)?youtube\.com/embed/([^"?]+)([^"]*)"',
         r'\1https://www.youtube-nocookie.com/embed/\2?rel=0&modestbranding=1&controls=1&fs=1&enablejsapi=0"',
-        result
+        result,
     )
     result = re.sub(
         r"(src=')https?://(?:www\.)?youtube\.com/embed/([^'?]+)([^']*)'",
         r"\1https://www.youtube-nocookie.com/embed/\2?rel=0&modestbranding=1&controls=1&fs=1&enablejsapi=0'",
-        result
+        result,
     )
     return mark_safe(result)

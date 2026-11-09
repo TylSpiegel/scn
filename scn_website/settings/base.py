@@ -29,12 +29,14 @@ INSTALLED_APPS = [
     "apps.community",
     "apps.music",
     "apps.content",
+    "apps.interaction",
     "apps.core",
     "search",
     "wagtail.contrib.settings",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
-    'wagtail_modeladmin',
+    "wagtail.contrib.sitemaps",
+    "wagtail_modeladmin",
     "wagtail.embeds",
     "wagtail.sites",
     "wagtail.users",
@@ -53,7 +55,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'wagtail_color_panel',
+    "django.contrib.sitemaps",
+    "wagtail_color_panel",
 ]
 
 MIDDLEWARE = [
@@ -65,7 +68,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
-    "apps.core.middleware.SitePasswordMiddleware",
 ]
 
 ROOT_URLCONF = "scn_website.urls"
@@ -84,8 +86,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "apps.content.context_processors.first_level_page",
-
             ],
         },
     },
@@ -183,5 +183,12 @@ WAGTAILADMIN_BASE_URL = "http://example.com"
 
 WAGTAILEMBEDS_RESPONSIVE_HTML = True
 
+# Confidentialité native : pages et documents protégés par mot de passe
+WAGTAIL_PASSWORD_REQUIRED_TEMPLATE = "password_required.html"
+WAGTAILDOCS_PASSWORD_REQUIRED_TEMPLATE = "password_required.html"
+# Les fichiers passent toujours par Wagtail (contrôle des restrictions) ;
+# nginx ne doit jamais servir /media/documents/ directement.
+WAGTAILDOCS_SERVE_METHOD = "serve_view"
+
 # Fix for auto-created primary key warning
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

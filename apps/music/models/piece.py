@@ -14,23 +14,26 @@ from taggit.models import TaggedItemBase
 from apps.music.blocks import AudioDocumentBlock, AdditionalFilesBlock
 
 
-TIMECODE_RE = re.compile(r'\[(\d{1,2}:\d{2})\]')
+TIMECODE_RE = re.compile(r"\[(\d{1,2}:\d{2})\]")
 
 
 class PieceIndexPage(Page):
-    template = 'music/piece_index_page.html'
+    template = "music/piece_index_page.html"
 
     introduction = models.TextField(blank=True)
 
     content_panels = Page.content_panels + [
-        FieldPanel('introduction'),
+        FieldPanel("introduction"),
     ]
 
-    subpage_types = ['music.Piece']
+    parent_page_types = ["content.HomePage"]
+    subpage_types = ["music.Piece"]
 
     def get_context(self, request):
         context = super().get_context(request)
-        context['pieces'] = Piece.objects.child_of(self).live().order_by('-first_published_at')
+        context["pieces"] = (
+            Piece.objects.child_of(self).live().order_by("-first_published_at")
+        )
         return context
 
     class Meta:
@@ -39,7 +42,7 @@ class PieceIndexPage(Page):
 
 
 class Piece(Page):
-    template = 'music/piece_detail.html'
+    template = "music/piece_detail.html"
 
     compositeur = models.CharField(max_length=250)
     descr = RichTextField(blank=True)
@@ -49,7 +52,7 @@ class Piece(Page):
     activer_timecodes = models.BooleanField(
         default=False,
         verbose_name="Activer les timecodes",
-        help_text="Cochez pour activer la fonctionnalité de timecodes"
+        help_text="Cochez pour activer la fonctionnalité de timecodes",
     )
 
     timecodes = models.TextField(
@@ -63,51 +66,60 @@ class Piece(Page):
     )
 
     pdf = models.ForeignKey(
-        Document,
-        null=True, blank=True,
-        on_delete=models.SET_NULL,
-        related_name='+'
+        Document, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
     )
 
-    audios = StreamField([
-        ('audios', AudioDocumentBlock()),
-    ], null=True, blank=True, use_json_field=True)
+    audios = StreamField(
+        [
+            ("audios", AudioDocumentBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
 
-    additional_files = StreamField([
-        ('section', AdditionalFilesBlock()),
-    ], null=True, blank=True, use_json_field=True)
+    additional_files = StreamField(
+        [
+            ("section", AdditionalFilesBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
 
     base_panels = Page.content_panels + [
-        FieldPanel('compositeur'),
-        FieldPanel('descr'),
-        FieldPanel('pdf'),
-        FieldPanel('audios'),
-        FieldPanel('additional_files'),
+        FieldPanel("compositeur"),
+        FieldPanel("descr"),
+        FieldPanel("pdf"),
+        FieldPanel("audios"),
+        FieldPanel("additional_files"),
     ]
 
     advanced_panels = [
-        FieldPanel('traduction'),
+        FieldPanel("traduction"),
     ]
 
     interpretation_panels = [
-        FieldPanel('interpretation'),
-        FieldPanel('activer_timecodes'),
-        FieldPanel('timecodes'),
+        FieldPanel("interpretation"),
+        FieldPanel("activer_timecodes"),
+        FieldPanel("timecodes"),
     ]
 
-    edit_handler = TabbedInterface([
-        ObjectList(base_panels, heading='Infos de base'),
-        ObjectList(advanced_panels, heading='Traduction'),
-        ObjectList(interpretation_panels, heading='Indications musicales'),
-        ObjectList(Page.promote_panels, heading='Paramètres'),
-    ])
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(base_panels, heading="Infos de base"),
+            ObjectList(advanced_panels, heading="Traduction"),
+            ObjectList(interpretation_panels, heading="Indications musicales"),
+            ObjectList(Page.promote_panels, heading="Paramètres"),
+        ]
+    )
 
-    parent_page_types = ['music.PieceIndexPage']
+    parent_page_types = ["music.PieceIndexPage"]
     subpage_types = []
 
     def get_context(self, request):
         context = super().get_context(request)
-        context['piece'] = self
+        context["piece"] = self
         return context
 
     def get_parsed_timecodes(self):
@@ -124,7 +136,7 @@ class Piece(Page):
             out.append(tc)
 
         def _key(s):
-            mm, ss = s.split(':')
+            mm, ss = s.split(":")
             return int(mm) * 60 + int(ss)
 
         return sorted(out, key=_key)
@@ -139,31 +151,31 @@ class Piece(Page):
 
 class RepertoireItemTag(TaggedItemBase):
     content_object = ParentalKey(
-        'RepertoireItem',
-        related_name='tagged_items',
+        "RepertoireItem",
+        related_name="tagged_items",
         on_delete=models.CASCADE,
     )
 
 
 class RepertoireItem(Orderable, ClusterableModel):
     repertoire = ParentalKey(
-        'RepertoirePage',
-        on_delete=models.CASCADE,
-        related_name='items'
+        "RepertoirePage", on_delete=models.CASCADE, related_name="items"
     )
     piece = models.ForeignKey(
         Piece,
         on_delete=models.CASCADE,
-        related_name='repertoire_items',
-        verbose_name="Morceau"
+        related_name="repertoire_items",
+        verbose_name="Morceau",
     )
     comment = models.TextField(blank=True, verbose_name="Commentaire")
-    tags = ClusterTaggableManager(through=RepertoireItemTag, blank=True, verbose_name="Tags")
+    tags = ClusterTaggableManager(
+        through=RepertoireItemTag, blank=True, verbose_name="Tags"
+    )
 
     panels = [
-        FieldPanel('piece'),
-        FieldPanel('comment'),
-        FieldPanel('tags'),
+        FieldPanel("piece"),
+        FieldPanel("comment"),
+        FieldPanel("tags"),
     ]
 
     def __str__(self):
@@ -177,23 +189,25 @@ class RepertoirePage(Page):
     ordre_important = models.BooleanField(
         default=False,
         verbose_name="Ordre important",
-        help_text="Si coché, les morceaux sont numérotés (#1, #2, …) dans l'ordre du répertoire."
+        help_text="Si coché, les morceaux sont numérotés (#1, #2, …) dans l'ordre du répertoire.",
     )
 
     content_panels = Page.content_panels + [
-        FieldPanel('introduction'),
-        FieldPanel('ordre_important'),
-        InlinePanel('items', label="Morceaux"),
+        FieldPanel("introduction"),
+        FieldPanel("ordre_important"),
+        InlinePanel("items", label="Morceaux"),
     ]
+
+    parent_page_types = ["content.HomePage"]
 
     def get_context(self, request):
         context = super().get_context(request)
-        tag = request.GET.get('tag')
-        items = self.items.select_related('piece').prefetch_related('tags')
+        tag = request.GET.get("tag")
+        items = self.items.select_related("piece").prefetch_related("tags")
         if tag:
             items = items.filter(tags__name=tag)
-        context['items'] = items.all()
-        context['active_tag'] = tag
+        context["items"] = items.all()
+        context["active_tag"] = tag
         return context
 
     class Meta:

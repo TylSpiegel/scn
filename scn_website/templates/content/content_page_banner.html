@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{# Gabarit « Bannière » : grande bannière, puis contenu posé sur le fond de page, sans carte. #}
+
+{% block content %}
+    <section class="content-banner{% if page.banner_image %} has-image{% endif %}">
+        {% if page.banner_image %}
+            {% image page.banner_image fill-1920x720 as banner %}
+            <img class="content-banner-image" src="{{ banner.url }}" alt="{{ page.banner_image.description|default:'' }}">
+        {% endif %}
+        <div class="content-banner-body">
+            <h1 class="title is-1">{{ page.title }}</h1>
+            {% if page.search_description %}
+                <p class="subtitle is-4">{{ page.search_description }}</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <div class="content-open">
+        {% for block in page.body %}
+            {% include_block block %}
+        {% empty %}
+            <p class="has-text-grey has-text-centered py-6">Aucun contenu.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

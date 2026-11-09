@@ -1,1 +1,1 @@
-from .pages import HomePage, ContentPage, ContentSection
+from .pages import HomePage, ContentPage, ContentPageForm, private_content_in

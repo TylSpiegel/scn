@@ -1,9 +1,0 @@
-{% load wagtailcore_tags %}
-
-<div class="column-block has-text-{{ self.alignment }}">
-    {% for block in self.content %}
-        <div class="column-block-item">
-            {% include_block block %}
-        </div>
-    {% endfor %}
-</div>
