@@ -112,6 +112,17 @@ class QuoteBlock(blocks.StructBlock):
 class ImageBlock(blocks.StructBlock):
     image = ImageChooserBlock(label="Image")
     caption = blocks.CharBlock(required=False, max_length=255, label="Légende")
+    size = blocks.ChoiceBlock(
+        choices=[
+            ("small", "Petite (320 px)"),
+            ("medium", "Moyenne (560 px)"),
+            ("large", "Grande (800 px)"),
+            ("full", "Pleine largeur"),
+        ],
+        default="full",
+        label="Taille maximale",
+    )
+    border = blocks.BooleanBlock(required=False, default=False, label="Petite bordure")
 
     class Meta:
         icon = "image"

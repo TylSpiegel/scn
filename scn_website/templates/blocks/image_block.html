@@ -1,8 +1,17 @@
 {% load wagtailimages_tags %}
 
 {% if self.image %}
-    <figure class="block-image">
-        {% image self.image width-1200 loading="lazy" %}
+    <figure class="block-image is-{{ self.size|default:'full' }}{% if self.border %} has-border{% endif %}">
+        {# Fichier dimensionné selon la taille maximale : pas plus lourd que nécessaire #}
+        {% if self.size == "small" %}
+            {% image self.image width-480 loading="lazy" %}
+        {% elif self.size == "medium" %}
+            {% image self.image width-800 loading="lazy" %}
+        {% elif self.size == "large" %}
+            {% image self.image width-1200 loading="lazy" %}
+        {% else %}
+            {% image self.image width-1600 loading="lazy" %}
+        {% endif %}
         {% if self.caption %}<figcaption>{{ self.caption }}</figcaption>{% endif %}
     </figure>
 {% endif %}
